@@ -1,11 +1,36 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useState } from "react";
+import { signIn } from "next-auth/react";
+import { redirect } from "next/navigation";
+// import { signIn } from "next-auth/react";
 
-export function Login() {
+export const Login = () => {
+  const [loading, setIsLoading] = useState<boolean>(false);
+  const handleGoogleLogin = () => {
+    setIsLoading(true);
+    signIn("google", { redirect: false })
+      .then((callback) => {
+        if (callback?.error) {
+          alert("Error Signing in");
+        }
+        if (callback?.ok && !callback?.error) {
+          console.log("Logged In");
+          redirect("/home");
+        }
+      })
+      .finally(() => {
+        setIsLoading(false);
+        alert("Logged IN");
+      });
+  };
+
   return (
     <div className="w-full lg:grid lg:min-h-[600px] lg:grid-cols-2 xl:min-h-[800px]">
       <div className="flex items-center justify-center py-12">
@@ -41,7 +66,11 @@ export function Login() {
             <Button type="submit" className="w-full">
               Login
             </Button>
-            <Button variant="outline" className="w-full">
+            <Button
+              onClick={handleGoogleLogin}
+              variant="outline"
+              className="w-full"
+            >
               Login with Google
             </Button>
           </div>
@@ -64,4 +93,4 @@ export function Login() {
       </div>
     </div>
   );
-}
+};
