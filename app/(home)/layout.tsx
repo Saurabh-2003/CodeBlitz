@@ -1,4 +1,4 @@
-"use client";
+
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { useSession } from "next-auth/react";
@@ -11,10 +11,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const { data: session } = useSession();
-  if (!session) {
-    redirect("/auth");
-  }
+
+
   return (
     <html lang="en">
       <body className={inter.className}>{children}</body>
