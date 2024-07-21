@@ -17,7 +17,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={`container px-0  ${inter.className}`}>
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
