@@ -1,2 +1,3 @@
 import { Login, Signup } from "./login-signup/index";
-export { Login, Signup };
+import { Profile ,ContestRating} from "./profile";
+export { Login, Signup,Profile,ContestRating };
