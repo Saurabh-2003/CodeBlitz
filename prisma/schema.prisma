@@ -16,11 +16,25 @@ model User {
   image         String?
   Session       Session[]
   Account       Account?
+  
   // Optional for WebAuthn support
   Authenticator Authenticator[]
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+ easySolved      Int @default(0)
+  mediumSolved    Int @default(0)
+  hardSolved      Int @default(0)
+bio             String?
+  location        String?
+  collegeName     String?
+  socialLinks     String?
+  skills          String?
+  communityStats  Json?
+  
+
+submissions     submission[]
+
 }
 
 model Account {
@@ -81,4 +95,40 @@ model Authenticator {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([userId, credentialID])
+}
+
+
+
+model problem {
+  id              String          @id @default(uuid()) @db.VarChar(36)
+  title           String
+  description     String
+  difficulty      Difficulty
+  createdAt       DateTime        @default(now())
+  submissions     submission[]
+}
+
+model submission {
+  id              String          @id @default(uuid()) @db.VarChar(36)
+  code            String
+  status          SubmissionStatus
+  createdAt       DateTime        @default(now())
+  userId          String
+  user            User            @relation(fields: [userId], references: [id])
+  problemId       String
+  problem         problem         @relation(fields: [problemId], references: [id])
+}
+ 
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum SubmissionStatus {
+  ACCEPTED
+  WRONG_ANSWER
+  TIME_LIMIT_EXCEEDED
+  RUNTIME_ERROR
+  COMPILE_ERROR
 }
