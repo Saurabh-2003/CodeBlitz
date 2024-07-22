@@ -14,13 +14,13 @@ model User {
   email         String?   @unique
   emailVerified DateTime?
   image         String?
-  Session       Session[]
-  Account       Account?
+  sessions      Session[]
+  accounts      Account?
 
   // Optional for WebAuthn support
-  Authenticator Authenticator[]
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
+  authenticators Authenticator[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
 
   role           Role    @default(USER)
   easySolved     Int     @default(0)
@@ -33,27 +33,27 @@ model User {
   skills         String?
   communityStats Json?
 
-  submissions submission[]
+  submissions Submission[]
 }
 
 model Account {
-  id                       String  @id @default(cuid())
-  userId                   String  @unique
-  type                     String
-  provider                 String
-  providerAccountId        String
-  refresh_token            String? @db.Text
-  access_token             String? @db.Text
-  expires_at               Int?
-  token_type               String?
-  scope                    String?
-  id_token                 String? @db.Text
-  session_state            String?
-  refresh_token_expires_in Int?
-  user                     User?   @relation(fields: [userId], references: [id])
+  id                    String  @id @default(cuid())
+  userId                String  @unique
+  type                  String
+  provider              String
+  providerAccountId     String
+  refreshToken          String? @db.Text
+  accessToken           String? @db.Text
+  expiresAt             Int?
+  tokenType             String?
+  scope                 String?
+  idToken               String? @db.Text
+  sessionState          String?
+  refreshTokenExpiresIn Int?
+  user                  User?   @relation(fields: [userId], references: [id])
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @default(now())
 
   @@unique([provider, providerAccountId])
   @@index([userId])
@@ -67,7 +67,7 @@ model Session {
   user         User     @relation(fields: [userId], references: [id])
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @default(now())
 
   @@index([userId])
 }
@@ -96,66 +96,65 @@ model Authenticator {
   @@id([userId, credentialID])
 }
 
-model problem {
-  id          String        @id @default(uuid()) @db.VarChar(36)
+model Problem {
+  id          String         @id @default(uuid()) @db.VarChar(36)
   title       String
   description String
   difficulty  Difficulty
-  createdAt   DateTime      @default(now())
-  submissions submission[]
-  topics      problemTopic[]
-  hints       hint[]
-  constraints constraint[]
-  inputs      input[]
+  createdAt   DateTime       @default(now())
+  submissions Submission[]
+  topics      ProblemTopic[]
+  hints       Hint[]
+  constraints Constraint[]
+  inputs      Input[]
 }
 
-model submission {
-  id        String    @id @default(uuid()) @db.VarChar(36)
+model Submission {
+  id        String           @id @default(uuid()) @db.VarChar(36)
   code      String
   status    SubmissionStatus
-  createdAt DateTime  @default(now())
+  createdAt DateTime         @default(now())
   userId    String
-  user      User      @relation(fields: [userId], references: [id])
+  user      User             @relation(fields: [userId], references: [id])
   problemId String
-  problem   problem   @relation(fields: [problemId], references: [id])
+  problem   Problem          @relation(fields: [problemId], references: [id])
 }
 
-model topic {
-  id       String       @id @default(uuid()) @db.VarChar(36)
-  name     String
-  problems problemTopic[]
+model Topic {
+  id       String         @id @default(uuid()) @db.VarChar(36)
+  name     String         @unique
+  problems ProblemTopic[]
 }
 
-model hint {
+model Hint {
   id        String  @id @default(uuid()) @db.VarChar(36)
   name      String
   problemId String
-  problem   problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  problem   Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
 }
 
-model constraint {
+model Constraint {
   id        String  @id @default(uuid()) @db.VarChar(36)
   name      String
   problemId String
-  problem   problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  problem   Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
 }
 
-model input {
+model Input {
   id        String  @id @default(uuid()) @db.VarChar(36)
   name      String
   problemId String
-  problem   problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  problem   Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
 }
 
-model problemTopic {
+model ProblemTopic {
   problemId String
   topicId   String
-  problem   problem @relation(fields: [problemId], references: [id])
-  topic     topic   @relation(fields: [topicId], references: [id])
+  problem   Problem @relation(fields: [problemId], references: [id])
+  topic     Topic   @relation(fields: [topicId], references: [id])
 
   @@id([problemId, topicId])
 }
-
 
 enum Difficulty {
   EASY

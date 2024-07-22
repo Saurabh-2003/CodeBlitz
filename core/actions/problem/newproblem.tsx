@@ -4,6 +4,7 @@ import { db } from "@/core/db/db";
 import GetServerSession from "@/core/hooks/getServerSession";
 import { Difficulty, SubmissionStatus } from "@prisma/client";
 import { error } from "console";
+import { create } from "domain";
 import { v4 as uuidv4 } from "uuid";
 
 interface ProblemProp {
@@ -18,14 +19,20 @@ interface ProblemProp {
 export const NewProblem = async (data: ProblemProp) => {
   try {
     const { title, description, difficulty, topics, hints, constraints } = data;
-    const problemId = uuidv4();
-    console.log(title, description, difficulty, topics, hints, constraints);
 
-    const topicValue = await db.topic.findFirst({
+    let topicValue = await db.topic.findFirst({
       where: {
         name: topics,
       },
     });
+
+    if (!topicValue) {
+      topicValue = await db.topic.create({
+        data: {
+          name: topics,
+        },
+      });
+    }
 
     if (topicValue) {
       console.log("Topic found:", topicValue);
@@ -39,14 +46,26 @@ export const NewProblem = async (data: ProblemProp) => {
         description,
         difficulty,
         createdAt: new Date(),
-        topic: {
-          connect: topicValue ? [{ id: topicValue.id }] : [],
+        topics: {
+          create: {
+            topicId: topicValue.id,
+          },
+        },
+        hints: {
+          create: hints.map((hintObj: any) => ({
+            name: hintObj?.hint,
+          })),
+        },
+        constraints: {
+          create: constraints.map((constraintObj: any) => ({
+            name: constraintObj?.constraint,
+          })),
         },
       },
     });
 
-    return;
+    return { message: "Problem Created Successfully" };
   } catch (error) {
-    return { error: "Iternal Error" };
+    return { error: "Error Created Problem" };
   }
 };

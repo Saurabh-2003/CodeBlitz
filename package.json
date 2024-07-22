@@ -21,11 +21,8 @@
     "@radix-ui/react-select": "^2.1.1",
     "@radix-ui/react-slot": "^1.1.0",
     "@radix-ui/react-tabs": "^1.1.0",
-<<<<<<< Updated upstream
     "@reduxjs/toolkit": "^2.2.6",
-=======
     "@radix-ui/react-tooltip": "^1.1.2",
->>>>>>> Stashed changes
     "@uiw/codemirror-extensions-langs": "^4.23.0",
     "@uiw/codemirror-theme-github": "^4.23.0",
     "@uiw/codemirror-theme-tokyo-night": "^4.23.0",

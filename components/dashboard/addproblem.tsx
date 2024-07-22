@@ -26,8 +26,23 @@ import {
 import { Difficulty } from "@prisma/client";
 import { UserDetail } from "@/core";
 import { NewProblem } from "@/core/actions/problem/newproblem";
+import { toast } from "sonner";
 
 interface ProblemSchemaType extends z.infer<typeof problemSchema> {}
+
+const Constraint = ({ text }: { text: string }) => {
+  const renderText = (text: string) => {
+    const parts = text.split(/(\^\d+)/); // Split on superscript pattern
+    return parts.map((part, index) => {
+      if (part.startsWith("^")) {
+        return <sup key={index}>{part.slice(1)}</sup>;
+      }
+      return part;
+    });
+  };
+
+  return <div>{renderText(text)}</div>;
+};
 
 export const AddProblem = () => {
   const {
@@ -59,8 +74,14 @@ export const AddProblem = () => {
 
   const onSubmit = async (formdata: any) => {
     console.log(formdata, "form submitted");
-    const result = await NewProblem(formdata);
-    console.log(result);
+    const { message, error } = await NewProblem(formdata);
+    if (error) {
+      toast.error(error);
+    }
+
+    if (message) {
+      toast.success(message);
+    }
   };
   if (errors) {
     console.log(errors);
@@ -102,6 +123,11 @@ export const AddProblem = () => {
             placeholder="Title"
             {...register("title")}
           />
+          <ul>
+            {errors?.title && (
+              <p className="text-red-500 text-xs">{errors?.title?.message}</p>
+            )}
+          </ul>
         </div>
         <div className="w-full">
           <Label>Description</Label>
@@ -147,6 +173,7 @@ export const AddProblem = () => {
           </div>
         </div>
 
+        {/* Hints UI */}
         <div className="w-full space-y-2">
           <div className="flex gap-x-4 items-center justify-between">
             <Label>Hints </Label>
@@ -196,9 +223,17 @@ export const AddProblem = () => {
             })}
           </ScrollArea>
         </div>
+
         <div className="w-full space-y-2">
           <div className="flex gap-x-4 items-center justify-between">
-            <Label>Constraint </Label>
+            <Label>
+              <span>Constraints </span>
+              <span>
+                (Use {"^"} symbol to seperate superscript value and use
+                consistent spacing.
+              </span>
+              )
+            </Label>
             <div className="flex items-center gap-4">
               <Button
                 type="button"
