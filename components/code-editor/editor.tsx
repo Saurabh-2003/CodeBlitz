@@ -12,7 +12,7 @@ export const Editor = () => {
   return (
     <ReactCodeMirror
       value={code === "" || code == null ? initCode || "" : code || ""}
-      extensions={[loadLanguage("javascript")!]}
+      extensions={[loadLanguage("cpp")!]}
       theme={xcodeLight}
       onChange={(value) => {
         setCode(value);
