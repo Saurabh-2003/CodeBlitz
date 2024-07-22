@@ -8,33 +8,32 @@ generator client {
 }
 
 model User {
-  id            String          @id @default(cuid())
+  id            String    @id @default(cuid())
   name          String?
-  username      String?         @unique
-  email         String?         @unique
+  username      String?   @unique
+  email         String?   @unique
   emailVerified DateTime?
   image         String?
   Session       Session[]
   Account       Account?
-  
+
   // Optional for WebAuthn support
   Authenticator Authenticator[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
 
- easySolved      Int @default(0)
-  mediumSolved    Int @default(0)
-  hardSolved      Int @default(0)
-bio             String?
-  location        String?
-  collegeName     String?
-  socialLinks     String?
-  skills          String?
-  communityStats  Json?
-  
+  role           Role    @default(USER)
+  easySolved     Int     @default(0)
+  mediumSolved   Int     @default(0)
+  hardSolved     Int     @default(0)
+  bio            String?
+  location       String?
+  collegeName    String?
+  socialLinks    String?
+  skills         String?
+  communityStats Json?
 
-submissions     submission[]
-
+  submissions submission[]
 }
 
 model Account {
@@ -97,28 +96,67 @@ model Authenticator {
   @@id([userId, credentialID])
 }
 
-
-
 model problem {
-  id              String          @id @default(uuid()) @db.VarChar(36)
-  title           String
-  description     String
-  difficulty      Difficulty
-  createdAt       DateTime        @default(now())
-  submissions     submission[]
+  id          String        @id @default(uuid()) @db.VarChar(36)
+  title       String
+  description String
+  difficulty  Difficulty
+  createdAt   DateTime      @default(now())
+  submissions submission[]
+  topics      problemTopic[]
+  hints       hint[]
+  constraints constraint[]
+  inputs      input[]
 }
 
 model submission {
-  id              String          @id @default(uuid()) @db.VarChar(36)
-  code            String
-  status          SubmissionStatus
-  createdAt       DateTime        @default(now())
-  userId          String
-  user            User            @relation(fields: [userId], references: [id])
-  problemId       String
-  problem         problem         @relation(fields: [problemId], references: [id])
+  id        String    @id @default(uuid()) @db.VarChar(36)
+  code      String
+  status    SubmissionStatus
+  createdAt DateTime  @default(now())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  problemId String
+  problem   problem   @relation(fields: [problemId], references: [id])
 }
- 
+
+model topic {
+  id       String       @id @default(uuid()) @db.VarChar(36)
+  name     String
+  problems problemTopic[]
+}
+
+model hint {
+  id        String  @id @default(uuid()) @db.VarChar(36)
+  name      String
+  problemId String
+  problem   problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+}
+
+model constraint {
+  id        String  @id @default(uuid()) @db.VarChar(36)
+  name      String
+  problemId String
+  problem   problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+}
+
+model input {
+  id        String  @id @default(uuid()) @db.VarChar(36)
+  name      String
+  problemId String
+  problem   problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+}
+
+model problemTopic {
+  problemId String
+  topicId   String
+  problem   problem @relation(fields: [problemId], references: [id])
+  topic     topic   @relation(fields: [topicId], references: [id])
+
+  @@id([problemId, topicId])
+}
+
+
 enum Difficulty {
   EASY
   MEDIUM
@@ -131,4 +169,10 @@ enum SubmissionStatus {
   TIME_LIMIT_EXCEEDED
   RUNTIME_ERROR
   COMPILE_ERROR
+}
+
+enum Role {
+  USER
+  ADMIN
+  SUPERADMIN
 }
