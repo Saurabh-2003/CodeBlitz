@@ -14,13 +14,13 @@ model User {
   email         String?   @unique
   emailVerified DateTime?
   image         String?
-  sessions      Session[]
-  accounts      Account?
+  Session       Session[]
+  Account       Account?
 
   // Optional for WebAuthn support
-  authenticators Authenticator[]
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
+  Authenticator Authenticator[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
 
   role           Role    @default(USER)
   easySolved     Int     @default(0)
@@ -37,23 +37,23 @@ model User {
 }
 
 model Account {
-  id                    String  @id @default(cuid())
-  userId                String  @unique
-  type                  String
-  provider              String
-  providerAccountId     String
-  refreshToken          String? @db.Text
-  accessToken           String? @db.Text
-  expiresAt             Int?
-  tokenType             String?
-  scope                 String?
-  idToken               String? @db.Text
-  sessionState          String?
-  refreshTokenExpiresIn Int?
-  user                  User?   @relation(fields: [userId], references: [id])
+  id                       String  @id @default(cuid())
+  userId                   String  @unique
+  type                     String
+  provider                 String
+  providerAccountId        String
+  refresh_token            String? @db.Text
+  access_token             String? @db.Text
+  expires_at               Int?
+  token_type               String?
+  scope                    String?
+  id_token                 String? @db.Text
+  session_state            String?
+  refresh_token_expires_in Int?
+  user                     User?   @relation(fields: [userId], references: [id])
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([provider, providerAccountId])
   @@index([userId])
@@ -67,7 +67,7 @@ model Session {
   user         User     @relation(fields: [userId], references: [id])
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userId])
 }
