@@ -1,5 +1,11 @@
 "use client";
-import React, { useState, useOptimistic, useRef } from "react";
+import React, {
+  useState,
+  useOptimistic,
+  useRef,
+  useEffect,
+  useLayoutEffect,
+} from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -9,7 +15,18 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
-import { Plus } from "lucide-react";
+import { Plus, X } from "lucide-react";
+
+import {
+  Command,
+  CommandDialog,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+
 import {
   HoverCard,
   HoverCardContent,
@@ -27,6 +44,10 @@ import { Difficulty } from "@prisma/client";
 import { UserDetail } from "@/core";
 import { NewProblem } from "@/core/actions/problem/newproblem";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+import { TopicList } from "@/core/actions";
+import { fetchData } from "next-auth/client/_utils";
+import { NewTopic } from "@/core/actions/topics";
 
 interface ProblemSchemaType extends z.infer<typeof problemSchema> {}
 
@@ -45,9 +66,15 @@ const Constraint = ({ text }: { text: string }) => {
 };
 
 export const AddProblem = () => {
+  const [x, setx] = useState(false);
+  const [inputValue, setInputValue] = useState("");
+  const [openInput, setOpenInput] = useState(false);
+  const [topicList, setTopic] = useState<string[]>([]);
+
   const {
     control,
     register,
+    watch,
     getValues,
     setValue,
     handleSubmit,
@@ -70,6 +97,16 @@ export const AddProblem = () => {
     name: "constraints",
   });
 
+  const {
+    fields: topicField,
+    remove: removeTopic,
+    append: appendTopic,
+    replace: replaceTopic,
+  } = useFieldArray({
+    control,
+    name: "topics",
+  });
+
   const isSubmittable = !!isDirty && !!isValid;
 
   const onSubmit = async (formdata: any) => {
@@ -83,26 +120,49 @@ export const AddProblem = () => {
       toast.success(message);
     }
   };
-  if (errors) {
-    console.log(errors);
-  }
 
-  const formRef = useRef();
-  const [optimisticMessages, addOptimisticMessage] = useOptimistic(
-    (state: any, newMessage: String[]) => [
-      ...state,
-      {
-        text: newMessage,
-        sending: true,
-      },
-    ],
-  );
+  const selecttopic = (item: string) => {
+    setx(false);
+    if (item !== "others") {
+      appendTopic({ topic: item });
+      const uniqueTopicMap = new Map(
+        topicField.map((item) => [item.topic, { topic: item.topic }]),
+      );
 
-  async function formAction(formData: any) {
-    addOptimisticMessage(formData.get("message"));
+      // Convert the map back to an array
+      const uniqueTopics = Array.from(uniqueTopicMap.values());
+      console.log(topicField);
+      console.log(uniqueTopics);
 
-    await UserDetail();
-  }
+      // replaceTopic([...uniqueTopics]);
+    } else {
+      setOpenInput(true);
+    }
+  };
+
+  const newTopic = () => {
+    setOpenInput(false);
+    if (inputValue !== "") {
+      appendTopic({ topic: inputValue });
+      setTopic((prev) => [...prev, inputValue]);
+      NewTopic(inputValue);
+      setInputValue("");
+    }
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const { newtopicList, message } = await TopicList();
+      if (!newtopicList || message) {
+        toast.error(message);
+        return;
+      }
+      const newData = [...newtopicList, "others"];
+
+      setTopic(newData);
+    };
+    fetchData();
+  }, [setTopic]);
 
   return (
     <div className="w-full h-full items-center justify-center p-8 max-md:p-6 max-sm:p-2">
@@ -139,37 +199,96 @@ export const AddProblem = () => {
         </div>
         <div className="w-full space-y-2">
           <Label>Difficulty</Label>
-          <Select onValueChange={(e: Difficulty) => setValue("difficulty", e)}>
-            <SelectTrigger className="w-[180px] focus-visible:ring-0">
-              <SelectValue
-                className="focus-visible:ring-0"
-                placeholder="Difficulty"
-              />
-            </SelectTrigger>
-            <SelectContent className="focus-visible:ring-0">
-              <SelectItem value="EASY">Easy</SelectItem>
-              <SelectItem value="MEDIUM">Medium</SelectItem>
-              <SelectItem value="HARD">Hard</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="px-2 w-full">
+            <Select
+              onValueChange={(e: Difficulty) => setValue("difficulty", e)}
+            >
+              <SelectTrigger className="w-full focus-visible:ring-0">
+                <SelectValue
+                  className="focus-visible:ring-0"
+                  placeholder="Difficulty"
+                />
+              </SelectTrigger>
+              <SelectContent className="focus-visible:ring-0">
+                <SelectItem value="EASY">Easy</SelectItem>
+                <SelectItem value="MEDIUM">Medium</SelectItem>
+                <SelectItem value="HARD">Hard</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
-        <div>
+        <div className="space-y-2">
           <Label>Topics</Label>
-          <div className="flex gap-x-4 items-center">
-            <Input
-              className="w-full focus-visible:ring-0"
-              type="text"
-              placeholder="Topics"
-              {...register("topics")}
+          <Command>
+            <CommandInput
+              id="input1"
+              onClick={() => setx(true)}
+              onFocus={() => setx(true)}
+              onBlur={() => setx(false)}
+              placeholder="Type a command or search..."
             />
-            {/* <Button
+
+            <CommandList className={cn(`max-h-0`, x && "max-h-100")}>
+              <CommandEmpty>No results found.</CommandEmpty>
+              <CommandGroup>
+                {topicList.length > 1 &&
+                  topicList.map((item, index) => {
+                    return (
+                      <CommandItem
+                        key={index}
+                        onSelect={() => selecttopic(item)}
+                        onClick={() => setx(!x)}
+                      >
+                        {item}
+                      </CommandItem>
+                    );
+                  })}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+
+          {openInput && (
+            <div className="flex gap-x-4 items-center">
+              <Input
+                className="w-full focus-visible:ring-0"
+                type="text"
+                placeholder="Topics"
+                onChange={(e) => setInputValue(e.target.value)}
+              />
+              <Button
                 type="submit"
                 variant="outline"
                 className="hover:bg-gray-100"
+                onClick={() => newTopic()}
               >
                 Add
-              </Button> */}
+              </Button>
+            </div>
+          )}
+
+          <div className="flex gap-x-4">
+            {topicField.map((field, index) => {
+              const errorForField = errors?.topics?.[index]?.topic;
+              return (
+                <div
+                  key={index}
+                  className="flex relative"
+                  {...register(`topics.${index}.topic` as const)}
+                >
+                  <div className="flex capitalize px-3 py-1 text-[16px] text-zinc-800 bg-zinc-300/50 w-fit mb-2 rounded-md">
+                    {field.topic}
+                  </div>
+                  <button
+                    type="button"
+                    className="absolute bg-rose-500 text-white rounded-full top-0 right-0 h-3 w-3 md:h-3 md:w-3"
+                    onClick={() => removeTopic(index)}
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </div>
+              );
+            })}
           </div>
         </div>
 

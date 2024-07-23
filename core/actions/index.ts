@@ -1,5 +1,13 @@
 import { UserDetail, UserUpdate } from "./user";
 import { Submissions, NewSubmission } from "./submission";
 import { NewProblem } from "./problem";
-
-export { UserDetail, UserUpdate, Submissions, NewSubmission, NewProblem };
+import { TopicList, NewTopic } from "./topics";
+export {
+  UserDetail,
+  UserUpdate,
+  Submissions,
+  NewSubmission,
+  NewProblem,
+  NewTopic,
+  TopicList,
+};
