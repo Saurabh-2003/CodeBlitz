@@ -1,14 +1,8 @@
 import { z } from "zod";
 import { Constraint, Hint, Topic, User } from "@prisma/client";
 import { title } from "process";
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-=======
+
 import { uniqBy } from "lodash";
->>>>>>> Stashed changes
-=======
-import { uniqBy } from "lodash";
->>>>>>> Stashed changes
 
 export const problemSchema = z.object({
   title: z.string().min(5, "title should be greater than 5 charcaters"),
