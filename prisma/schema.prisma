@@ -15,6 +15,7 @@ model User {
   emailVerified DateTime?
   image         String?
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   Session       Session[]
   Account       Account?
 
@@ -28,6 +29,13 @@ model User {
 
   // Optional for WebAuthn support
   Authenticator Authenticator[]
+=======
+  Session      Session[]
+  Account      Account?
+
+  // Optional for WebAuthn support
+  Authenticator Authenticator[]
+>>>>>>> Stashed changes
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
 >>>>>>> Stashed changes
