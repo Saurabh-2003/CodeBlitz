@@ -1,11 +1,5 @@
 "use client";
-import React, {
-  useState,
-  useOptimistic,
-  useRef,
-  useEffect,
-  useLayoutEffect,
-} from "react";
+import React, { useState, useOptimistic, useRef, useEffect } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -125,20 +119,23 @@ export const AddProblem = () => {
     setx(false);
     if (item !== "others") {
       appendTopic({ topic: item });
-      const uniqueTopicMap = new Map(
-        topicField.map((item) => [item.topic, { topic: item.topic }]),
-      );
-
-      // Convert the map back to an array
-      const uniqueTopics = Array.from(uniqueTopicMap.values());
-      console.log(topicField);
-      console.log(uniqueTopics);
-
-      // replaceTopic([...uniqueTopics]);
     } else {
       setOpenInput(true);
     }
   };
+
+  useEffect(() => {
+    const uniqueTopicsSet = new Set(
+      topicField.map((topicObj) => topicObj.topic),
+    );
+    const uniqueTopicsArray = Array.from(uniqueTopicsSet).map((topic) => ({
+      topic,
+    }));
+
+    if (uniqueTopicsArray.length !== topicField.length) {
+      replaceTopic(uniqueTopicsArray);
+    }
+  }, [topicField, replaceTopic]);
 
   const newTopic = () => {
     setOpenInput(false);
@@ -223,22 +220,25 @@ export const AddProblem = () => {
           <Command>
             <CommandInput
               id="input1"
-              onClick={() => setx(true)}
+              onClick={() => setx((prev) => !prev)}
               onFocus={() => setx(true)}
               onBlur={() => setx(false)}
-              placeholder="Type a command or search..."
+              placeholder="Search the topics from  list"
             />
 
             <CommandList className={cn(`max-h-0`, x && "max-h-100")}>
               <CommandEmpty>No results found.</CommandEmpty>
-              <CommandGroup>
+              <CommandGroup heading="Topics">
                 {topicList.length > 1 &&
                   topicList.map((item, index) => {
                     return (
                       <CommandItem
                         key={index}
                         onSelect={() => selecttopic(item)}
-                        onClick={() => setx(!x)}
+                        onMouseDown={() => {
+                          selecttopic(item);
+                          setx(!x);
+                        }}
                       >
                         {item}
                       </CommandItem>
@@ -276,12 +276,12 @@ export const AddProblem = () => {
                   className="flex relative"
                   {...register(`topics.${index}.topic` as const)}
                 >
-                  <div className="flex capitalize px-3 py-1 text-[16px] text-zinc-800 bg-zinc-300/50 w-fit mb-2 rounded-md">
+                  <div className="flex text-xs capitalize px-3 py-1 text-[16px] text-zinc-800 bg-zinc-300/50 w-fit mb-2 rounded-md">
                     {field.topic}
                   </div>
                   <button
                     type="button"
-                    className="absolute bg-rose-500 text-white rounded-full top-0 right-0 h-3 w-3 md:h-3 md:w-3"
+                    className="absolute bg-rose-500 text-white rounded-full top-[-4px] right-[-5px] h-3 w-3 md:h-3 md:w-3"
                     onClick={() => removeTopic(index)}
                   >
                     <X className="h-3 w-3" />
