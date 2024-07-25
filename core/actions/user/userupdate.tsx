@@ -1,7 +1,8 @@
 "use server"
 
+import { authOptions } from "@/core/auth/auth";
 import { db } from "@/core/db/db";
-import GetServerSession from "@/core/hooks/getServerSession";
+import { getServerSession } from "next-auth";
 
 interface UserProp {
     values: {
@@ -17,7 +18,7 @@ export const UserUpdate = async (data: UserProp) => {
     try {
 
         const { values } = data;
-        const session = await GetServerSession();
+        const session = await getServerSession(authOptions);
         const email = session?.user?.email
         if (!email) {
             return { error: "not logged in" };

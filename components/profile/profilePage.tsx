@@ -1,20 +1,20 @@
 "use client";
+
+import { useEffect } from "react";
+import { usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { ContestRating, Profile } from "@/components/index";
 import { LiaClipboardListSolid } from "react-icons/lia";
 import { HiOutlineClipboardDocumentList } from "react-icons/hi2";
 import { GoCheckbox } from "react-icons/go";
 import { PiChatsCircleLight } from "react-icons/pi";
-import { usePathname } from "next/navigation";
 import { useProfileStore } from "@/core/providers/profile-store-provider";
-import { useEffect } from "react";
 import { UserDetail } from "@/core";
 import { User } from "@prisma/client";
-import { useSession } from "next-auth/react";
 
 const Profilepage = () => {
   const { user, setUser } = useProfileStore((state) => state);
   const { data: session, status } = useSession();
-
   const location = usePathname();
 
   const navItems = [
@@ -60,17 +60,21 @@ const Profilepage = () => {
   ];
 
   useEffect(() => {
-    console.log("session  : " + session);
-  }, [session]);
-
-  useEffect(() => {
     const fetchUser = async () => {
       const response: any = await UserDetail();
-      console.log("response : ", response);
       setUser(response);
     };
-    fetchUser();
-  }, [setUser]);
+
+    if (!user && status === "authenticated") {
+      fetchUser();
+    }
+  }, [user, setUser, status]);
+
+  useEffect(() => {
+    if (user) {
+      console.table("user  : " + user?.email);
+    }
+  }, [user]);
 
   return (
     <main className="flex gap-6 py-6 px-20 min-h-screen">

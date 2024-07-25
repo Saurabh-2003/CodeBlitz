@@ -162,10 +162,10 @@ export const AddProblem = () => {
   }, [setTopic]);
 
   return (
-    <div className="w-full h-full items-center justify-center p-8 max-md:p-6 max-sm:p-2">
+    <div className="w-full h-full antialiased items-center justify-center p-8 max-md:p-6 max-sm:p-2">
       <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-4">
         <div className="flex items-center justify-between mb-10 bg-zinc-200 p-4 rounded-md border border-zinc-400">
-          <h2 className="text-xl">Create Problem</h2>
+          <h2 className="text-2xl font-bold">Create Problem</h2>
           <Button type="submit">
             <p>Submit</p>
             {/* {!isSubmittable && <p>(Disabled)</p>} */}
@@ -196,7 +196,7 @@ export const AddProblem = () => {
         </div>
         <div className="w-full space-y-2">
           <Label>Difficulty</Label>
-          <div className="px-2 w-full">
+          <div className=" w-full">
             <Select
               onValueChange={(e: Difficulty) => setValue("difficulty", e)}
             >
@@ -221,12 +221,13 @@ export const AddProblem = () => {
             <CommandInput
               id="input1"
               onClick={() => setx((prev) => !prev)}
-              onFocus={() => setx(true)}
               onBlur={() => setx(false)}
               placeholder="Search the topics from  list"
             />
 
-            <CommandList className={cn(`max-h-0`, x && "max-h-100")}>
+            <CommandList
+              className={cn(`max-h-0 bg-white top-10`, x && "max-h-100")}
+            >
               <CommandEmpty>No results found.</CommandEmpty>
               <CommandGroup heading="Topics">
                 {topicList.length > 1 &&

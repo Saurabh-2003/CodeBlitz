@@ -5,7 +5,7 @@ import {
   FaListUl,
   FaPlay,
 } from "react-icons/fa";
-import { IoShuffle, IoAlarmOutline } from "react-icons/io5";
+import { IoAlarmOutline, IoShuffle } from "react-icons/io5";
 import { MdOutlineCloudUpload } from "react-icons/md";
 import { TbFlame } from "react-icons/tb";
 import { Button } from "../ui/button";

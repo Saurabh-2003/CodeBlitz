@@ -1,58 +1,46 @@
-import React from "react";
-import TopBar from "@/components/code-editor/top-bar";
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-} from "@/components/ui/resizable";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  FaCode,
-  FaLightbulb,
-  FaRegLightbulb,
-  FaTag,
-  FaTerminal,
-} from "react-icons/fa";
-import { BsFillFileTextFill } from "react-icons/bs";
-import { GoBook, GoTag } from "react-icons/go";
-import { AiFillExperiment } from "react-icons/ai";
-import { FaHistory } from "react-icons/fa";
-import { LuMaximize } from "react-icons/lu";
-import { IoCodeSlashOutline } from "react-icons/io5";
-import { GrPowerReset } from "react-icons/gr";
-import { Maximize2 } from "lucide-react";
-import { LanguageDropDown } from "@/components/code-editor/language-dropdown";
-import { IoIosCheckboxOutline } from "react-icons/io";
-import { Input } from "@/components/ui/input";
+/** eslint-disable react/jsx-no-undef */
+/** eslint-disable react/jsx-no-undef */
+/** eslint-disable react/jsx-no-undef */
+/** eslint-disable react/jsx-no-undef */
+/** eslint-disable react/jsx-no-comment-textnodes */
+/** eslint-disable react/jsx-no-undef */
+/** eslint-disable react/jsx-no-undef */
 import { Editor } from "@/components/code-editor/editor";
-import { Label } from "@radix-ui/react-dropdown-menu";
+import { LanguageDropDown } from "@/components/code-editor/language-dropdown";
+import TopBar from "@/components/code-editor/top-bar";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { TbTagOff } from "react-icons/tb";
+import { Input } from "@/components/ui/input";
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "@/components/ui/resizable";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Label } from "@radix-ui/react-dropdown-menu";
+import { Maximize2 } from "lucide-react";
+import React from "react";
+import { AiFillExperiment } from "react-icons/ai";
+import { BsFillFileTextFill } from "react-icons/bs";
+import { FaHistory, FaRegLightbulb, FaTerminal } from "react-icons/fa";
+import { GoBook, GoTag } from "react-icons/go";
+import { GrPowerReset } from "react-icons/gr";
+import { IoIosCheckboxOutline } from "react-icons/io";
+import { IoCodeSlashOutline } from "react-icons/io5";
+import { LuMaximize } from "react-icons/lu";
 
-const Constraint = ({ text }: { text: string }) => {
-  const renderText = (text: string) => {
-    const parts = text.split(/(\^\d+)/); // Split on superscript pattern
-    return parts.map((part, index) => {
-      if (part.startsWith("^")) {
-        return <sup key={index}>{part.slice(1)}</sup>;
-      }
-      return part;
-    });
-  };
+// Define types for props
+interface ExampleProps {
+  input: string;
+  output: string;
+  explanation: string;
+}
 
-  return (
-    <div className="  border bg-zinc-100 rounded-lg text-zinc-600 border-slate-300 px-2 py- w-fit">
-      {renderText(text)}
-    </div>
-  );
-};
-
-const Example = ({ index, input, output, explanation }) => (
+const Example: React.FC<ExampleProps> = ({ input, output, explanation }) => (
   <div className="pl-6 border-l mt-1">
     <span className="text-sm">
       <strong>Input: </strong> {input}
@@ -64,19 +52,48 @@ const Example = ({ index, input, output, explanation }) => (
   </div>
 );
 
-type QuestionDescriptionProps = {
+interface ConstraintProps {
+  text: string;
+}
+
+const Constraint: React.FC<ConstraintProps> = ({ text }) => {
+  const renderText = (text: string) => {
+    const parts = text.split(/(\^\d+)/); // Split on superscript pattern
+    return parts.map((part, index) => {
+      if (part.startsWith("^")) {
+        return <sup key={index}>{part.slice(1)}</sup>;
+      }
+      return part;
+    });
+  };
+
+  return (
+    <div className="border bg-zinc-100 rounded-lg text-zinc-600 border-slate-300 px-2 py- w-fit">
+      {renderText(text)}
+    </div>
+  );
+};
+
+// Define types for question data
+interface ExampleData {
+  input: string;
+  output: string;
+  explanation: string;
+}
+
+interface QuestionDescriptionProps {
   id: number;
   title: string;
   problemStatement: string;
   level: string;
   constraints: string[];
   companies: string[];
-  examples: [];
+  examples: ExampleData[];
   hints: string[];
   topics: string[];
-};
+}
 
-const QuestionDescription = ({
+const QuestionDescription: React.FC<QuestionDescriptionProps> = ({
   id,
   title,
   problemStatement,
@@ -86,7 +103,7 @@ const QuestionDescription = ({
   examples,
   hints,
   topics,
-}: QuestionDescriptionProps) => (
+}) => (
   <div className="flex flex-col gap-2 p-4">
     <span className="text-xl font-bold ">
       {id}. {title}
@@ -109,9 +126,9 @@ const QuestionDescription = ({
         <Example {...example} />
       </div>
     ))}
-    <Label className="text-sm font-bold mt-6">Constraints : </Label>
-    <ul className="flex list-disc   flex-col gap-2 ml-4 text-sm my-2">
-      {constraints.map((constraint: string, index: number) => (
+    <Label className="text-sm font-bold mt-6">Constraints:</Label>
+    <ul className="flex list-disc flex-col gap-2 ml-4 text-sm my-2">
+      {constraints.map((constraint, index) => (
         <li key={index}>
           <Constraint text={constraint} />
         </li>
@@ -120,14 +137,14 @@ const QuestionDescription = ({
 
     <Accordion type="single" collapsible>
       <AccordionItem value="item-1">
-        <AccordionTrigger className="text-xs gap-2  font-medium">
+        <AccordionTrigger className="text-xs gap-2 font-medium">
           <div className="flex items-center gap-2">
             <GoTag />
             <span>Topics</span>
           </div>
         </AccordionTrigger>
         <AccordionContent className="my-1 flex gap-2 flex-wrap">
-          {topics.map((topic: string, index: number) => (
+          {topics.map((topic, index) => (
             <span
               key={index}
               className="text-xs w-fit px-3 border border-zinc-200 bg-zinc-100 text-zinc-600 text-center py-[2px] rounded-full"
@@ -140,10 +157,10 @@ const QuestionDescription = ({
     </Accordion>
 
     <div>
-      {hints.map((hint: string, index: number) => (
+      {hints.map((hint, index) => (
         <Accordion key={index} type="single" collapsible>
-          <AccordionItem value="item-1">
-            <AccordionTrigger className="text-xs gap-2  font-medium">
+          <AccordionItem value={`item-${index}`}>
+            <AccordionTrigger className="text-xs gap-2 font-medium">
               <div className="flex items-center gap-2">
                 <FaRegLightbulb />
                 <span>Hint {index}</span>
@@ -156,7 +173,7 @@ const QuestionDescription = ({
     </div>
 
     <div className="flex flex-wrap gap-2 my-2">
-      {companies.map((company: string, index: number) => (
+      {companies.map((company, index) => (
         <span
           key={index}
           className="bg-zinc-200 text-zinc-600 text-xs rounded-full py-1 px-2 border border-zinc-300"
@@ -168,7 +185,7 @@ const QuestionDescription = ({
   </div>
 );
 
-const Page = () => {
+const Page: React.FC = () => {
   const questionData = {
     _id: 1,
     level: "easy",
@@ -176,11 +193,10 @@ const Page = () => {
     companies: ["Google", "Facebook"],
     title: "Longest Increasing Subsequence",
     titleSlug: "longest-increasing-subsequence",
-
     likes: 120,
     dislikes: 5,
     problemStatement:
-      "You are given an array of strings names, and an array heights that consists of distinct positive integers. Both arrays are of length n.For each index i, names[i] and heights[i] denote the name and height of the ith person.Return names sorted in descending order by the people's heights.", // Removed raw HTML
+      "You are given an array of strings names, and an array heights that consists of distinct positive integers. Both arrays are of length n.For each index i, names[i] and heights[i] denote the name and height of the ith person.Return names sorted in descending order by the people's heights.",
     codeSnippets: [
       {
         lang: "JavaScript",
@@ -188,7 +204,7 @@ const Page = () => {
         code: `var lengthOfLIS = function(nums) {
           const dp = new Array(nums.length).fill(1);
           for (let i = 1; i < nums.length; i++) {
-            for (let j = 0; i < i; j++) {
+            for (let j = 0; j < i; j++) {
               if (nums[i] > nums[j]) {
                 dp[i] = Math.max(dp[i], dp[j] + 1);
               }

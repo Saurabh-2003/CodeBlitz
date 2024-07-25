@@ -14,31 +14,14 @@ model User {
   email         String?   @unique
   emailVerified DateTime?
   image         String?
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-  Session       Session[]
-  Account       Account?
+
+  Session Session[]
+  Account Account?
 
   // Optional for WebAuthn support
   Authenticator Authenticator[]
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
-=======
-  Session      Session[]
-  Account      Account?
-
-  // Optional for WebAuthn support
-  Authenticator Authenticator[]
-=======
-  Session      Session[]
-  Account      Account?
-
-  // Optional for WebAuthn support
-  Authenticator Authenticator[]
->>>>>>> Stashed changes
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
->>>>>>> Stashed changes
 
   role           Role    @default(USER)
   easySolved     Int     @default(0)
@@ -53,6 +36,7 @@ model User {
 
   submissions Submission[]
 }
+
 model Account {
   id                       String  @id @default(cuid())
   userId                   String  @unique
@@ -111,7 +95,7 @@ model Authenticator {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([userId, credentialID])
-  }
+}
 
 model Problem {
   id          String         @id @default(uuid()) @db.VarChar(36)

@@ -1,17 +1,18 @@
 "use client";
 export const dynamic = "force-dynamic";
-import React, { useRef, useState } from "react";
+import { useProfileStore } from "@/core/providers/profile-store-provider";
+import Image from "next/image";
+import { useState } from "react";
 import { FaStar } from "react-icons/fa";
 import { HiOutlineTag } from "react-icons/hi";
 import { IoIosChatbubbles } from "react-icons/io";
 import { IoCheckbox, IoEyeSharp, IoLocationOutline } from "react-icons/io5";
-import Image from "next/image";
-import { useProfileStore } from "@/core/providers/profile-store-provider";
 
 export const Profile = () => {
   const { user, error, success, message, isAuthenticated } = useProfileStore(
     (state) => state,
   );
+  console.log(Object.entries(user ?? ""));
   const [name, setName] = useState("Saurabh Thapliyal");
   const [username, setUsername] = useState("grinding_leetcode");
   const [rank, setRank] = useState(83437);
@@ -36,11 +37,11 @@ export const Profile = () => {
           width={40}
           alt="User Image"
           className=" size-20 bg-red-600 rounded-xl overflow-hidden object-fill"
-          src="/placeholder.jpg"
+          src={user?.image ? user?.image : "/placeholder.jpg"}
         />
         <div className="flex flex-col gap-3 items-start">
           <div className="flex flex-col items-start">
-            <span className="font-bold">{name}</span>
+            <span className="font-bold">{user?.name}</span>
             <span className="text-slate-400 text-sm">{username}</span>
           </div>
           <span className="text-slate-600">Rank {rank}</span>
