@@ -5,6 +5,8 @@ import os from "os";
 import path from "path";
 
 const TEMP_DIR = path.join(os.tmpdir(), "code_execution");
+const DOCKER_HOST = process.env.DOCKER_HOST || "tcp://dind_service:2375"; // Replace with your Docker daemon address
+
 const createDir = () => {
   if (!fs.existsSync(TEMP_DIR)) {
     fs.mkdirSync(TEMP_DIR, { recursive: true });
@@ -18,7 +20,7 @@ export const handleCPPCode = async (userCode: string) => {
   const filePath = path.resolve(TEMP_DIR, fileName);
   fs.writeFileSync(filePath, userCode, "utf-8");
 
-  const compileCommand = `sudo docker run --rm -v ${TEMP_DIR}:/code -w /code codeblitz-cpp_service g++ ${fileName} -o main`;
+  const compileCommand = `docker run --rm -v ${TEMP_DIR}:/code -w /code codeblitz-cpp_service g++ ${fileName} -o main`;
 
   try {
     await compileCode(compileCommand);
@@ -36,7 +38,10 @@ export const handleCPPCode = async (userCode: string) => {
 
 const compileCode = (compileCommand: string): Promise<void> => {
   return new Promise((resolve, reject) => {
-    const compileProcess = spawn(compileCommand, { shell: true });
+    const compileProcess = spawn(compileCommand, {
+      shell: true,
+      env: { ...process.env, DOCKER_HOST },
+    });
     let compilationError = "";
 
     compileProcess.stderr.on("data", (data) => {
@@ -57,11 +62,12 @@ const runCPPCode = (): Promise<string> => {
   return new Promise((resolve, reject) => {
     const outputFilePath = path.join(TEMP_DIR, "output.txt"); // Define output file path
 
-    const runCommand = `sudo docker run --rm -i -v ${TEMP_DIR}:/code codeblitz-cpp_service ./main`;
+    const runCommand = `docker run --rm -i -v ${TEMP_DIR}:/code codeblitz-cpp_service ./main`;
 
     const dockerProcess = spawn(runCommand, {
       shell: true,
       stdio: ["pipe", "pipe", "pipe"],
+      env: { ...process.env, DOCKER_HOST },
     });
 
     let outputValue = "";

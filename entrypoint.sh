@@ -1,0 +1,7 @@
+#!/bin/sh
+
+# Run Prisma database push
+npx prisma db push
+
+# Execute the main command
+exec "$@"
