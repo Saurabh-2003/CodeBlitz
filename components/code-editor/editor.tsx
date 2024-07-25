@@ -1,25 +1,48 @@
+// components/Editor.tsx
 "use client";
-import ReactCodeMirror from "@uiw/react-codemirror";
+
+import { handleCPPCode } from "@/core/actions/coderun/runCppCode";
 import { loadLanguage } from "@uiw/codemirror-extensions-langs";
-import { tokyoNight } from "@uiw/codemirror-theme-tokyo-night";
-import { xcodeLight, xcodeDark } from "@uiw/codemirror-theme-xcode";
-import { githubLight, githubDark } from "@uiw/codemirror-theme-github";
+import { xcodeLight } from "@uiw/codemirror-theme-xcode";
+import ReactCodeMirror from "@uiw/react-codemirror";
 import { useState } from "react";
+import { Button } from "../ui/button";
 
 export const Editor = () => {
   const [initCode, setInitCode] = useState<string>("");
   const [code, setCode] = useState<string>("");
+  const [output, setOutput] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const runCode = async () => {
+    setLoading(true);
+    try {
+      const result = await handleCPPCode(code);
+      setOutput(result.outputValue);
+    } catch (error: any) {
+      setOutput(`Error: ${error.message || error}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <ReactCodeMirror
-      value={code === "" || code == null ? initCode || "" : code || ""}
-      extensions={[loadLanguage("cpp")!]}
-      theme={xcodeLight}
-      onChange={(value) => {
-        setCode(value);
-      }}
-      width="100%"
-      height="100%"
-      className=" h-full"
-    />
+    <div className="editor-container">
+      <ReactCodeMirror
+        value={code || initCode || ""}
+        extensions={[loadLanguage("cpp")!]}
+        theme={xcodeLight}
+        onChange={(value) => {
+          setCode(value);
+        }}
+        width="100%"
+        height="400px"
+        className="h-full"
+      />
+      <Button onClick={runCode} disabled={loading}>
+        {loading ? "Running..." : "Run Code"}
+      </Button>
+      <pre>{output}</pre>
+    </div>
   );
 };

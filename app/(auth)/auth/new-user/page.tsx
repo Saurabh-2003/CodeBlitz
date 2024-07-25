@@ -1,9 +1,12 @@
 "use client";
-import { Login } from "@/components/login-signup/login";
-import { useSession } from "next-auth/react";
-import { redirect } from "next/navigation";
+
+import NewUserProfileDetails from "@/components/profile/newUserProfileDetails";
 
 const Page = () => {
-  return <div> New User</div>;
+  return (
+    <div>
+      <NewUserProfileDetails />
+    </div>
+  );
 };
 export default Page;

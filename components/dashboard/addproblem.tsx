@@ -1,19 +1,17 @@
 "use client";
-import React, { useState, useOptimistic, useRef, useEffect } from "react";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { problemSchema } from "@/core/types/types";
-import { useFieldArray } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useFieldArray, useForm } from "react-hook-form";
+import { z } from "zod";
+import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
-import { Button } from "../ui/button";
-import { Plus, X } from "lucide-react";
 
 import {
   Command,
-  CommandDialog,
   CommandEmpty,
   CommandGroup,
   CommandInput,
@@ -21,11 +19,11 @@ import {
   CommandList,
 } from "@/components/ui/command";
 
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "../ui/hover-card";
+import { TopicList } from "@/core/actions";
+import { NewProblem } from "@/core/actions/problem/newproblem";
+import { NewTopic } from "@/core/actions/topics";
+import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 import { ScrollArea } from "../ui/scroll-area";
 import {
   Select,
@@ -34,15 +32,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { Difficulty } from "@prisma/client";
-import { UserDetail } from "@/core";
-import { NewProblem } from "@/core/actions/problem/newproblem";
-import { toast } from "sonner";
-import { cn } from "@/lib/utils";
-import { TopicList } from "@/core/actions";
-import { fetchData } from "next-auth/client/_utils";
-import { NewTopic } from "@/core/actions/topics";
-
+type Difficulty = "EASY" | "MEDIUM" | "HARD";
 interface ProblemSchemaType extends z.infer<typeof problemSchema> {}
 
 const Constraint = ({ text }: { text: string }) => {
@@ -162,10 +152,10 @@ export const AddProblem = () => {
   }, [setTopic]);
 
   return (
-    <div className="w-full h-full items-center justify-center p-8 max-md:p-6 max-sm:p-2">
+    <div className="w-full h-full antialiased items-center justify-center p-8 max-md:p-6 max-sm:p-2">
       <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-4">
         <div className="flex items-center justify-between mb-10 bg-zinc-200 p-4 rounded-md border border-zinc-400">
-          <h2 className="text-xl">Create Problem</h2>
+          <h2 className="text-2xl font-bold">Create Problem</h2>
           <Button type="submit">
             <p>Submit</p>
             {/* {!isSubmittable && <p>(Disabled)</p>} */}
@@ -196,7 +186,7 @@ export const AddProblem = () => {
         </div>
         <div className="w-full space-y-2">
           <Label>Difficulty</Label>
-          <div className="px-2 w-full">
+          <div className=" w-full">
             <Select
               onValueChange={(e: Difficulty) => setValue("difficulty", e)}
             >
@@ -221,12 +211,13 @@ export const AddProblem = () => {
             <CommandInput
               id="input1"
               onClick={() => setx((prev) => !prev)}
-              onFocus={() => setx(true)}
               onBlur={() => setx(false)}
               placeholder="Search the topics from  list"
             />
 
-            <CommandList className={cn(`max-h-0`, x && "max-h-100")}>
+            <CommandList
+              className={cn(`max-h-0 bg-white top-10`, x && "max-h-100")}
+            >
               <CommandEmpty>No results found.</CommandEmpty>
               <CommandGroup heading="Topics">
                 {topicList.length > 1 &&
