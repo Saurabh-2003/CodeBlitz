@@ -1,7 +1,7 @@
 import { Calendar } from "@/components/ui/calendar";
 import Header from "../header";
 import { ColumnDef } from "@tanstack/react-table"
-import { DataTable } from "@/components/home";
+import { DataTable } from "@/components/home/problemPage"
 import { problemArray,columns} from "@/components/home/problemPage/column";
 
 type ProblemProps = {
@@ -22,11 +22,11 @@ const page = () => {
         <div className="w-full"><DataTable columns={columns} data={problemArray} />
         </div>
         </div>
-        <div className="w-1/4">
+        <div className="">
           <Calendar
             mode="single"
 
-            className="w-fit rounded-md shadow-md  "
+            className="ounded-md shadow-md  "
           />
         </div>
 
