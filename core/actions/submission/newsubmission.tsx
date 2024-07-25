@@ -1,9 +1,9 @@
 "use server"
 
+import { authOptions } from "@/core/auth/auth";
 import { db } from "@/core/db/db";
-import GetServerSession from "@/core/hooks/getServerSession";
-import { SubmissionStatus } from "@prisma/client"
-import { error } from "console";
+import { SubmissionStatus } from "@prisma/client";
+import { getServerSession } from "next-auth";
 import { v4 as uuidv4 } from 'uuid';
 
 interface SubmissionProp {
@@ -16,8 +16,8 @@ export const NewSubmission = async (data: SubmissionProp) => {
 
     try {
         const { code, status, problemId } = data;
-        
-        const session = await GetServerSession();
+
+        const session = await getServerSession(authOptions);
         const email = session?.user?.email;
 
         if (!email) {

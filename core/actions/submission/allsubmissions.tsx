@@ -1,14 +1,14 @@
 "use server"
 
+import { authOptions } from "@/core/auth/auth";
 import { db } from "@/core/db/db";
-import GetServerSession from "@/core/hooks/getServerSession";
-import { error } from "console";
+import { getServerSession } from "next-auth";
 
 
 export const Submissions = async () => {
     try {
 
-        const session = await GetServerSession();
+        const session = await getServerSession(authOptions);
         const email = session?.user?.email;
 
         if (!email) {

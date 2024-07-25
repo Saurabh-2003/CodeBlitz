@@ -1,0 +1,29 @@
+version: "3.8"
+
+services:
+  cpp_service:
+    build:
+      context: ./coderunners/c++_coderunner
+      dockerfile: Dockerfile
+    volumes:
+      - ./coderunners/c++_coderunner:/code
+    working_dir: /code
+    command: g++ main.cpp -o main && ./main
+
+  js_service:
+    build:
+      context: ./coderunners/javascript_coderunner
+      dockerfile: Dockerfile
+    volumes:
+      - ./coderunners/javascript_coderunner:/code
+    working_dir: /code
+    command: node main.js
+
+  python_service:
+    build:
+      context: ./coderunners/python_coderunner
+      dockerfile: Dockerfile
+    volumes:
+      - ./coderunners/python_coderunner:/code
+    working_dir: /code
+    command: python main.py

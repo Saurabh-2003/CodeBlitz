@@ -8,8 +8,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { FaChevronDown } from "react-icons/fa";
 
 enum Languages {
   CPP = "C++",
@@ -31,7 +29,7 @@ export function LanguageDropDown() {
       value={selectedLanguage}
       onValueChange={(value) => setSelectedLanguage(value as Languages)}
     >
-      <SelectTrigger className="w-[80px] flex items-center gap-1 h-6 text-xs">
+      <SelectTrigger className="w-[150px]  gap-1 h-6 text-xs">
         <SelectValue>{getSelectedLanguage()}</SelectValue>
       </SelectTrigger>
       <SelectContent>

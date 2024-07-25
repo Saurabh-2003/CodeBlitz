@@ -1,6 +1,5 @@
+import { User } from "@prisma/client";
 import { z } from "zod";
-import { Constraint, Hint, Topic, User } from "@prisma/client";
-import { title } from "process";
 
 import { uniqBy } from "lodash";
 
@@ -32,3 +31,22 @@ export type profileSchema = {
   success: boolean | null;
   error: string | null;
 };
+
+export const UpdateProfileSchema = z.object({
+  username: z.string().min(5, "User name should be greater than 4 characters"),
+  bio: z
+    .string()
+    .min(10, "Description length should be greater than 10 characters")
+    .optional(),
+  collegename: z
+    .string()
+    .min(5, "College name should be at least 5 characters long")
+    .optional(),
+  skills: z
+    .array(
+      z.object({
+        skill: z.string().min(1, "Skill cannot be empty"),
+      }),
+    )
+    .transform((data) => uniqBy(data, "skill")),
+});
