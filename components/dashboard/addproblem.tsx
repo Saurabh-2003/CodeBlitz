@@ -1,19 +1,17 @@
 "use client";
-import React, { useState, useOptimistic, useRef, useEffect } from "react";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { problemSchema } from "@/core/types/types";
-import { useFieldArray } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useFieldArray, useForm } from "react-hook-form";
+import { z } from "zod";
+import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
-import { Button } from "../ui/button";
-import { Plus, X } from "lucide-react";
 
 import {
   Command,
-  CommandDialog,
   CommandEmpty,
   CommandGroup,
   CommandInput,
@@ -21,11 +19,11 @@ import {
   CommandList,
 } from "@/components/ui/command";
 
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "../ui/hover-card";
+import { TopicList } from "@/core/actions";
+import { NewProblem } from "@/core/actions/problem/newproblem";
+import { NewTopic } from "@/core/actions/topics";
+import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 import { ScrollArea } from "../ui/scroll-area";
 import {
   Select,
@@ -34,15 +32,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { Difficulty } from "@prisma/client";
-import { UserDetail } from "@/core";
-import { NewProblem } from "@/core/actions/problem/newproblem";
-import { toast } from "sonner";
-import { cn } from "@/lib/utils";
-import { TopicList } from "@/core/actions";
-import { fetchData } from "next-auth/client/_utils";
-import { NewTopic } from "@/core/actions/topics";
-
+type Difficulty = "EASY" | "MEDIUM" | "HARD";
 interface ProblemSchemaType extends z.infer<typeof problemSchema> {}
 
 const Constraint = ({ text }: { text: string }) => {

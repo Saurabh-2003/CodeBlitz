@@ -1,16 +1,15 @@
 "use client";
 
-import { useEffect } from "react";
-import { usePathname } from "next/navigation";
-import { useSession } from "next-auth/react";
 import { ContestRating, Profile } from "@/components/index";
-import { LiaClipboardListSolid } from "react-icons/lia";
-import { HiOutlineClipboardDocumentList } from "react-icons/hi2";
-import { GoCheckbox } from "react-icons/go";
-import { PiChatsCircleLight } from "react-icons/pi";
-import { useProfileStore } from "@/core/providers/profile-store-provider";
 import { UserDetail } from "@/core";
-import { User } from "@prisma/client";
+import { useProfileStore } from "@/core/providers/profile-store-provider";
+import { useSession } from "next-auth/react";
+import { usePathname } from "next/navigation";
+import { useEffect } from "react";
+import { GoCheckbox } from "react-icons/go";
+import { HiOutlineClipboardDocumentList } from "react-icons/hi2";
+import { LiaClipboardListSolid } from "react-icons/lia";
+import { PiChatsCircleLight } from "react-icons/pi";
 
 const Profilepage = () => {
   const { user, setUser } = useProfileStore((state) => state);
