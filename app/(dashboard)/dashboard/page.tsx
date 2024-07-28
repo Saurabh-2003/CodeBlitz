@@ -1,10 +1,7 @@
 import { AddProblem } from "@/components/dashboard/addproblem";
 
 const Page = () => {
-    return (  
-        <AddProblem/>
+  return <AddProblem />;
+};
 
-    );
-}
- 
 export default Page;

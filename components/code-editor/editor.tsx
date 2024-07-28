@@ -1,4 +1,11 @@
 "use client";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { handleCPPCode } from "@/core/actions/coderun/runCppCode";
 import { handleJSCode } from "@/core/actions/coderun/runJavascriptCode";
 import { handlePythonCode } from "@/core/actions/coderun/runPythonCode";
@@ -55,20 +62,21 @@ const Editor = () => {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex text-zinc-600 justify-between items-center p-2 bg-zinc-100/50  ">
+      <div className="flex text-zinc-600 justify-between items-center p-2 bg-zinc-100/50">
         <div className="flex items-center gap-2">
           <IoCodeSlashOutline size={20} className="text-green-500" />
           Code
         </div>
-        <select
-          value={language}
-          onChange={(e) => setLanguage(e.target.value)}
-          className="border rounded text-xs py-1 outline-none cursor-pointer "
-        >
-          <option value="cpp">C++</option>
-          <option value="javascript">JavaScript</option>
-          <option value="python">Python</option>
-        </select>
+        <Select onValueChange={(value) => setLanguage(value)}>
+          <SelectTrigger className="border w-36 rounded text-xs py-1 outline-none cursor-pointer">
+            <SelectValue placeholder="Select Language" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="cpp">C++</SelectItem>
+            <SelectItem value="javascript">JavaScript</SelectItem>
+            <SelectItem value="python">Python</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="overflow-y-auto">

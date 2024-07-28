@@ -20,14 +20,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`container px-0  ${inter.className}`}>
-        <ProfileStoreProvider>
-          <AuthProvider>
-            <Header />
-            <Toaster />
-            {children}
-          </AuthProvider>
-        </ProfileStoreProvider>
+      <body>
+        <div className={`container px-0  ${inter.className}`}>
+          <ProfileStoreProvider>
+            <AuthProvider>
+              <Header />
+              <Toaster />
+              {children}
+            </AuthProvider>
+          </ProfileStoreProvider>
+        </div>
       </body>
     </html>
   );
