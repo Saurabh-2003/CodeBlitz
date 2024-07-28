@@ -1,29 +1,22 @@
-"use client"
-
+"use client";
 
 import {
   ColumnDef,
   ColumnFiltersState,
   flexRender,
-  SortingState,
-  getPaginationRowModel,
-  getFilteredRowModel,
   getCoreRowModel,
   getFacetedMinMaxValues,
   getFacetedRowModel,
   getFacetedUniqueValues,
-  VisibilityState,
+  getFilteredRowModel,
+  getPaginationRowModel,
   getSortedRowModel,
+  SortingState,
   useReactTable,
-} from "@tanstack/react-table"
+  VisibilityState,
+} from "@tanstack/react-table";
 
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -31,32 +24,29 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { cn } from "@/lib/utils"
-import { DataTablePagination } from "./dataTablePagination"
-import { Input } from "@/components/ui/input"
-import React from "react"
-import { Search } from "lucide-react"
-import { Button } from "@/components/ui/button"
+} from "@/components/ui/table";
+import { cn } from "@/lib/utils";
+import { Search } from "lucide-react";
+import React from "react";
+import { IoMdCheckmarkCircleOutline } from "react-icons/io";
+import { IoInvertModeOutline } from "react-icons/io5";
+import { DataTablePagination } from "./dataTablePagination";
 
 interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[] | []
-  data: TData[]
+  columns: ColumnDef<TData, TValue>[] | [];
+  data: TData[];
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
-
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  )
-  const [sorting, setSorting] = React.useState<SortingState>([])
+    [],
+  );
+  const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({})
-
-
+    React.useState<VisibilityState>({});
 
   const table = useReactTable({
     data,
@@ -66,32 +56,22 @@ export function DataTable<TData, TValue>({
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
-
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
-    getFacetedUniqueValues: getFacetedUniqueValues(), // generate unique values for select filter/autocomplete
-    getFacetedMinMaxValues: getFacetedMinMaxValues(), // generate min/max values for range filter
+    getFacetedUniqueValues: getFacetedUniqueValues(),
+    getFacetedMinMaxValues: getFacetedMinMaxValues(),
     onColumnVisibilityChange: setColumnVisibility,
     state: {
       sorting,
       columnFilters,
-      
       columnVisibility,
     },
-    
-    
-  })
+  });
 
- 
-  const column=table.getColumn("difficulty");
-  console.log(column)
-  //columns.setFilterValue();
   return (
-
     <div>
       <div className="flex items-center py-4 w-full justify-between">
-        <div>
-        </div>
+        <div></div>
 
         <div className="flex bg-gray-100 items-center px-3 rounded-md">
           <Search size={20} className="text-gray-500" />
@@ -103,7 +83,6 @@ export function DataTable<TData, TValue>({
             }
             className="max-w-sm border-none focus-visible:ring-offset-0  bg-inherit focus-visible:ring-0"
           />
-
         </div>
       </div>
 
@@ -118,11 +97,11 @@ export function DataTable<TData, TValue>({
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
                     </TableHead>
-                  )
+                  );
                 })}
               </TableRow>
             ))}
@@ -136,23 +115,59 @@ export function DataTable<TData, TValue>({
                   data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className={cn(
-                      "p-3",
-                      cell.column.id === "difficulty" && {
-                        "text-green-600": cell.getValue() === "easy",
-                        "text-red-600": cell.getValue() === "hard",
-                        "text-yellow-400": cell.getValue() === "medium",
-                      }
-                    )}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      {cell.column.id === "acceptance" && '%'}
+                    <TableCell
+                      key={cell.id}
+                      className={cn(
+                        "p-3",
+                        cell.column.id === "difficulty" && {
+                          "text-green-600": cell.getValue() === "easy",
+                          "text-red-600": cell.getValue() === "hard",
+                          "text-yellow-400": cell.getValue() === "medium",
+                        },
+                        cell.column.id === "status" &&
+                          "flex items-center gap-2",
+                      )}
+                    >
+                      {cell.column.id === "status" ? (
+                        <>
+                          {cell.getValue() === "ACCEPTED" && (
+                            <IoMdCheckmarkCircleOutline
+                              className="text-green-500"
+                              size={20}
+                            />
+                          )}
+                          {cell.getValue() === "ATTEMPTED" && (
+                            <IoInvertModeOutline
+                              size={20}
+                              className="text-amber-400"
+                            />
+                          )}
+                        </>
+                      ) : cell.column.id === "title" ? (
+                        <>
+                          {row.original?.id}.{" "}
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext(),
+                          )}
+                        </>
+                      ) : (
+                        flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext(),
+                        )
+                      )}
+                      {cell.column.id === "acceptance" && "%"}
                     </TableCell>
                   ))}
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center"
+                >
                   No results.
                 </TableCell>
               </TableRow>
@@ -166,5 +181,5 @@ export function DataTable<TData, TValue>({
         </div>
       </div>
     </div>
-  )
+  );
 }

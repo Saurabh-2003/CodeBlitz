@@ -1,8 +1,9 @@
-FROM gcc:latest
+# Dockerfile for JavaScript container
+FROM node:latest
 
 # Create the working directory and set permissions
 RUN mkdir -p /code_execution && chmod -R 777 /code_execution
-
+COPY . .
 # Set the working directory inside the container
 WORKDIR /code_execution
 

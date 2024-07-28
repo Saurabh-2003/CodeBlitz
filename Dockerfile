@@ -1,7 +1,7 @@
 # Use the base image with Node.js
 FROM node:18-alpine AS base
 
-# Install Docker CLI
+# Install Docker CLI and docker compose
 RUN apk add --no-cache docker
 
 # Install dependencies only when needed

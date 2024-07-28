@@ -12,8 +12,8 @@ import { Button } from "../ui/button";
 
 const TopBar = () => {
   return (
-    <aside className="flex items-center w-full py-1 text-sm text-slate-600">
-      <div className="flex items-center gap-4  w-full">
+    <aside className="flex justify-between items-center w-full py-1 text-sm text-slate-600">
+      <div className="flex items-center gap-4  ">
         <Image
           height={20}
           width={20}
@@ -36,7 +36,7 @@ const TopBar = () => {
         <IoShuffle size={24} />
       </div>
 
-      <div className="flex items-center gap-1  w-full">
+      <div className="flex items-center gap-1  ">
         <div className="flex gap-2 bg-zinc-200 rounded-sm py-2 px-4 items-center">
           <FaPlay size={20} />
           <span>Run </span>

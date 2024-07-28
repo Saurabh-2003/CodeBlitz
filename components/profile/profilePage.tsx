@@ -1,6 +1,7 @@
 "use client";
 
-import { ContestRating, Profile } from "@/components/index";
+import { Profile } from "@/components/index";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UserDetail } from "@/core";
 import { useProfileStore } from "@/core/providers/profile-store-provider";
 import { useSession } from "next-auth/react";
@@ -13,7 +14,7 @@ import { PiChatsCircleLight } from "react-icons/pi";
 
 const Profilepage = () => {
   const { user, setUser } = useProfileStore((state) => state);
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const location = usePathname();
 
   const navItems = [
@@ -76,47 +77,52 @@ const Profilepage = () => {
   }, [user]);
 
   return (
-    <main className="flex gap-6 py-6 px-20 min-h-screen">
-      <Profile />
+    <main className="flex max-md:flex-col gap-6 mt-4 min-h-screen w-full">
+      <div className="min-w-72">
+        <Profile />
+      </div>
 
-      <div className="flex flex-col gap-4 rounded-xl w-full">
-        <ContestRating />
+      <div className="flex flex-col gap-4 rounded-xl w-full bg-white">
+        <Tabs defaultValue="recent-ac" className="w-full h-full p-2">
+          <TabsList className="flex h-fit w-full overflow-x-auto bg-transparent">
+            {navItems.map((item) => (
+              <TabsTrigger
+                key={item.path}
+                value={item.name.toLowerCase().replace(" ", "-")}
+                className="flex items-center gap-2 bg-transparent "
+              >
+                {item.icon}
+                {item.name}
+              </TabsTrigger>
+            ))}
+          </TabsList>
 
-        <div className="flex gap-4">
-          <div className="h-52 shadow-md rounded-xl bg-white w-full"></div>
-          <div className="h-52 shadow-md rounded-xl bg-white w-full"></div>
-        </div>
-
-        <div className="h-52 shadow-md rounded-xl bg-white w-full"></div>
-
-        <div className="h-fit flex gap-4 flex-col p-4 shadow-md rounded-xl bg-white w-full">
-          <nav>
-            <ul className="flex gap-6">
-              {navItems.map((item) => (
+          <TabsContent value="recent-ac">
+            <ul className="flex text-sm flex-col gap-2 ">
+              {dummyData.map((d) => (
                 <li
-                  key={item.path}
-                  className={location === item.path ? "active" : ""}
+                  className="flex p-4 odd:bg-zinc-100 rounded-xl  justify-between items-center"
+                  key={d.title}
                 >
-                  <div className="flex gap-2 px-4 py-2 bg-zinc-100 rounded-xl items-center text-sm text-slate-700">
-                    {item.icon}
-                    {item.name}
-                  </div>
+                  <span className="text-slate-800">{d.title}</span>
+                  <span className="text-slate-500">{d.daysAgo}</span>
                 </li>
               ))}
             </ul>
-          </nav>
-          <ul className="flex text-sm flex-col ">
-            {dummyData.map((d) => (
-              <li
-                className="flex p-4 odd:bg-zinc-100 rounded-xl justify-between items-center"
-                key={d.title}
-              >
-                <span className="text-slate-800">{d.title}</span>
-                <span className="text-slate-500">{d.daysAgo}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
+          </TabsContent>
+
+          <TabsContent value="list">
+            <div>List Content</div>
+          </TabsContent>
+
+          <TabsContent value="solutions">
+            <div>Solutions Content</div>
+          </TabsContent>
+
+          <TabsContent value="discuss">
+            <div>Discuss Content</div>
+          </TabsContent>
+        </Tabs>
       </div>
     </main>
   );

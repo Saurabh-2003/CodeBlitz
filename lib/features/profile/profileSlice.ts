@@ -43,5 +43,5 @@ export const {
   getUserSuccess,
   getUserFailure,
   clearUserErros,
-} = profileSlice?.actions;
+} = profileSlice.actions;
 export default profileSlice.reducer;

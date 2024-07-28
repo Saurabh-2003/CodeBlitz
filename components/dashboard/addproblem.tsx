@@ -1,3 +1,5 @@
+/** eslint-disable no-unused-vars */
+/** eslint-disable no-unused-vars */
 "use client";
 import { problemSchema } from "@/core/types/types";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -35,19 +37,19 @@ import {
 type Difficulty = "EASY" | "MEDIUM" | "HARD";
 interface ProblemSchemaType extends z.infer<typeof problemSchema> {}
 
-const Constraint = ({ text }: { text: string }) => {
-  const renderText = (text: string) => {
-    const parts = text.split(/(\^\d+)/); // Split on superscript pattern
-    return parts.map((part, index) => {
-      if (part.startsWith("^")) {
-        return <sup key={index}>{part.slice(1)}</sup>;
-      }
-      return part;
-    });
-  };
+// const Constraint = ({ text }: { text: string }) => {
+//   const renderText = (text: string) => {
+//     const parts = text.split(/(\^\d+)/); // Split on superscript pattern
+//     return parts.map((part, index) => {
+//       if (part.startsWith("^")) {
+//         return <sup key={index}>{part.slice(1)}</sup>;
+//       }
+//       return part;
+//     });
+//   };
 
-  return <div>{renderText(text)}</div>;
-};
+//   return <div>{renderText(text)}</div>;
+// };
 
 export const AddProblem = () => {
   const [x, setx] = useState(false);
@@ -58,11 +60,10 @@ export const AddProblem = () => {
   const {
     control,
     register,
-    watch,
-    getValues,
     setValue,
     handleSubmit,
-    formState: { errors, isLoading, isDirty, isValid },
+    // eslint-disable-next-line no-unused-vars
+    formState: { errors, isDirty, isValid },
   } = useForm<ProblemSchemaType>({
     resolver: zodResolver(problemSchema),
     defaultValues: {},
@@ -91,7 +92,7 @@ export const AddProblem = () => {
     name: "topics",
   });
 
-  const isSubmittable = !!isDirty && !!isValid;
+  // const isSubmittable = !!isDirty && !!isValid;
 
   const onSubmit = async (formdata: any) => {
     console.log(formdata, "form submitted");
@@ -260,7 +261,7 @@ export const AddProblem = () => {
 
           <div className="flex gap-x-4">
             {topicField.map((field, index) => {
-              const errorForField = errors?.topics?.[index]?.topic;
+              // eslint-disable-next-line no-unused-vars
               return (
                 <div
                   key={index}

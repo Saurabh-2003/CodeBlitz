@@ -1,36 +1,28 @@
+/** eslint-disable no-unused-vars */
 "use client";
 export const dynamic = "force-dynamic";
 import { useProfileStore } from "@/core/providers/profile-store-provider";
 import Image from "next/image";
-import { useState } from "react";
 import { FaStar } from "react-icons/fa";
 import { HiOutlineTag } from "react-icons/hi";
 import { IoIosChatbubbles } from "react-icons/io";
 import { IoCheckbox, IoEyeSharp, IoLocationOutline } from "react-icons/io5";
 
 export const Profile = () => {
-  const { user, error, success, message, isAuthenticated } = useProfileStore(
-    (state) => state,
-  );
+  const { user } = useProfileStore((state) => state);
   console.log(Object.entries(user ?? ""));
-  const [name, setName] = useState("Saurabh Thapliyal");
-  const [username, setUsername] = useState("grinding_leetcode");
-  const [rank, setRank] = useState(83437);
-  const [skills, setSkills] = useState([
-    "ReactJS",
-    "TailwindCSS",
-    "MongoDB",
-    "Express",
-  ]);
-  const [languages, setLanguages] = useState([
+  const username = "grinding_leetcode";
+  const rank = 83437;
+  const skills = ["ReactJS", "TailwindCSS", "MongoDB", "Express"];
+  const languages = [
     { name: "C++", sol: 480 },
     { name: "MySQL", sol: 50 },
     { name: "Pandas", sol: 6 },
     { name: "Bash", sol: 2 },
-  ]);
+  ];
   return (
-    <aside className="flex flex-col p-4 items-center h-fit bg-white w-1/3">
-      <div className="flex h-24 w-full gap-4">
+    <aside className="flex flex-col p-4 items-center h-fit bg-white ">
+      <div className="flex h-24 min-w-full gap-4">
         <Image
           loading="lazy"
           height={40}

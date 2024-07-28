@@ -1,15 +1,18 @@
-
-import { ColumnDef } from "@tanstack/react-table"
-
+import { ColumnDef } from "@tanstack/react-table";
 
 export type ProblemProps = {
-  id: string
-  title: string
-  acceptance: number
-  difficulty: string
-}
+  status: "ACCEPTED" | "NOT ATTEMPTED" | "ATTEMPTED";
+  id: string;
+  title: string;
+  acceptance: number;
+  difficulty: string;
+};
 
-export const columns: ColumnDef<ProblemProps | []>[] = [
+export const columns: ColumnDef<ProblemProps>[] = [
+  {
+    accessorKey: "status",
+    header: "Status",
+  },
   {
     accessorKey: "title",
     header: "Title",
@@ -17,499 +20,362 @@ export const columns: ColumnDef<ProblemProps | []>[] = [
   {
     accessorKey: "acceptance",
     header: "Acceptance",
-
   },
   {
     accessorKey: "difficulty",
     header: "Difficulty",
   },
-]
+];
 
-
-
-export const problemArray = [
+export const problemArray: ProblemProps[] = [
   {
     id: "1",
-    title: "easy",
+    title: "Optimizing Array Manipulation for Performance",
     acceptance: 85,
-    difficulty: "easy"
+    difficulty: "easy",
+    status: "NOT ATTEMPTED",
   },
   {
     id: "2",
     title: "Advanced Techniques in Dynamic Programming",
     acceptance: 70,
-    difficulty: "hard"
+    difficulty: "hard",
+    status: "ATTEMPTED",
   },
   {
     id: "3",
     title: "Efficient Graph Traversal Algorithms",
     acceptance: 75,
-    difficulty: "medium"
+    difficulty: "medium",
+    status: "ACCEPTED",
   },
   {
     id: "4",
     title: "String Matching and Pattern Recognition",
     acceptance: 80,
-    difficulty: "medium"
+    difficulty: "medium",
+    status: "NOT ATTEMPTED",
   },
   {
     id: "5",
     title: "Mastering Binary Search Techniques",
     acceptance: 90,
-    difficulty: "easy"
+    difficulty: "easy",
+    status: "ATTEMPTED",
   },
   {
     id: "6",
     title: "Optimizing Sorting Algorithms for Large Data Sets",
     acceptance: 65,
-    difficulty: "hard"
+    difficulty: "hard",
+    status: "NOT ATTEMPTED",
   },
   {
     id: "7",
     title: "Understanding Recursion in Depth",
     acceptance: 78,
-    difficulty: "medium"
+    difficulty: "medium",
+    status: "ACCEPTED",
   },
   {
     id: "8",
     title: "Comprehensive Guide to Tree Traversals",
     acceptance: 83,
-    difficulty: "easy"
+    difficulty: "easy",
+    status: "NOT ATTEMPTED",
   },
   {
     id: "9",
     title: "Dynamic Memory Management in C++",
     acceptance: 74,
-    difficulty: "medium"
+    difficulty: "medium",
+    status: "ATTEMPTED",
   },
   {
     id: "10",
     title: "Optimizing Network Flow Algorithms",
     acceptance: 68,
-    difficulty: "hard"
+    difficulty: "hard",
+    status: "NOT ATTEMPTED",
   },
   {
-    id: "1",
-    title: "Optimizing Array Manipulation for Performance",
-    acceptance: 85,
-    difficulty: "easy"
+    id: "11",
+    title: "Concurrency in Modern Systems",
+    acceptance: 62,
+    difficulty: "hard",
+    status: "NOT ATTEMPTED",
   },
   {
-    id: "2",
-    title: "Advanced Techniques in Dynamic Programming",
-    acceptance: 70,
-    difficulty: "hard"
+    id: "12",
+    title: "Advanced Tree Algorithms",
+    acceptance: 79,
+    difficulty: "medium",
+    status: "ACCEPTED",
   },
   {
-    id: "3",
-    title: "Efficient Graph Traversal Algorithms",
+    id: "13",
+    title: "Efficient String Manipulation Techniques",
+    acceptance: 81,
+    difficulty: "medium",
+    status: "ATTEMPTED",
+  },
+  {
+    id: "14",
+    title: "Data Structures for High Performance",
+    acceptance: 87,
+    difficulty: "easy",
+    status: "NOT ATTEMPTED",
+  },
+  {
+    id: "15",
+    title: "Algorithmic Game Theory",
+    acceptance: 72,
+    difficulty: "hard",
+    status: "ACCEPTED",
+  },
+  {
+    id: "16",
+    title: "Parallel Computing Essentials",
+    acceptance: 77,
+    difficulty: "medium",
+    status: "NOT ATTEMPTED",
+  },
+  {
+    id: "17",
+    title: "Optimization Techniques in Graph Theory",
+    acceptance: 69,
+    difficulty: "hard",
+    status: "ATTEMPTED",
+  },
+  {
+    id: "18",
+    title: "Fundamentals of Cryptography",
+    acceptance: 88,
+    difficulty: "easy",
+    status: "NOT ATTEMPTED",
+  },
+  {
+    id: "19",
+    title: "Machine Learning Basics",
     acceptance: 75,
-    difficulty: "medium"
+    difficulty: "medium",
+    status: "ACCEPTED",
   },
   {
-    id: "4",
-    title: "String Matching and Pattern Recognition",
-    acceptance: 80,
-    difficulty: "medium"
-  },
-  {
-    id: "5",
-    title: "Mastering Binary Search Techniques",
-    acceptance: 90,
-    difficulty: "easy"
-  },
-  {
-    id: "6",
-    title: "Optimizing Sorting Algorithms for Large Data Sets",
+    id: "20",
+    title: "Advanced Sorting Algorithms",
     acceptance: 65,
-    difficulty: "hard"
+    difficulty: "hard",
+    status: "ATTEMPTED",
   },
   {
-    id: "7",
-    title: "Understanding Recursion in Depth",
+    id: "21",
+    title: "Designing Scalable Systems",
+    acceptance: 82,
+    difficulty: "medium",
+    status: "NOT ATTEMPTED",
+  },
+  {
+    id: "22",
+    title: "Deep Learning Techniques",
+    acceptance: 73,
+    difficulty: "hard",
+    status: "ACCEPTED",
+  },
+  {
+    id: "23",
+    title: "Graph Data Structures and Algorithms",
+    acceptance: 76,
+    difficulty: "medium",
+    status: "NOT ATTEMPTED",
+  },
+  {
+    id: "24",
+    title: "Big Data Processing",
+    acceptance: 64,
+    difficulty: "hard",
+    status: "ATTEMPTED",
+  },
+  {
+    id: "25",
+    title: "Cloud Computing Fundamentals",
+    acceptance: 86,
+    difficulty: "easy",
+    status: "NOT ATTEMPTED",
+  },
+  {
+    id: "26",
+    title: "Mobile Application Development",
+    acceptance: 84,
+    difficulty: "medium",
+    status: "ACCEPTED",
+  },
+  {
+    id: "27",
+    title: "Internet of Things (IoT) Essentials",
+    acceptance: 79,
+    difficulty: "medium",
+    status: "NOT ATTEMPTED",
+  },
+  {
+    id: "28",
+    title: "Cybersecurity Best Practices",
+    acceptance: 67,
+    difficulty: "hard",
+    status: "ATTEMPTED",
+  },
+  {
+    id: "29",
+    title: "Blockchain Technology Overview",
+    acceptance: 89,
+    difficulty: "easy",
+    status: "NOT ATTEMPTED",
+  },
+  {
+    id: "30",
+    title: "Artificial Intelligence in Practice",
     acceptance: 78,
-    difficulty: "medium"
+    difficulty: "medium",
+    status: "ACCEPTED",
   },
   {
-    id: "8",
-    title: "Comprehensive Guide to Tree Traversals",
-    acceptance: 83,
-    difficulty: "easy"
+    id: "31",
+    title: "Introduction to Quantum Computing",
+    acceptance: 66,
+    difficulty: "hard",
+    status: "NOT ATTEMPTED",
   },
   {
-    id: "9",
-    title: "Dynamic Memory Management in C++",
-    acceptance: 74,
-    difficulty: "medium"
+    id: "32",
+    title: "Natural Language Processing (NLP)",
+    acceptance: 80,
+    difficulty: "medium",
+    status: "ATTEMPTED",
   },
   {
-    id: "10",
-    title: "Optimizing Network Flow Algorithms",
-    acceptance: 68,
-    difficulty: "hard"
+    id: "33",
+    title: "Computer Vision Techniques",
+    acceptance: 71,
+    difficulty: "hard",
+    status: "NOT ATTEMPTED",
   },
-
   {
-    id: "1",
-    title: "Optimizing Array Manipulation for Performance",
+    id: "34",
+    title: "Ethical Hacking",
     acceptance: 85,
-    difficulty: "easy"
+    difficulty: "easy",
+    status: "ACCEPTED",
   },
   {
-    id: "2",
-    title: "Advanced Techniques in Dynamic Programming",
-    acceptance: 70,
-    difficulty: "hard"
+    id: "35",
+    title: "Game Development Essentials",
+    acceptance: 82,
+    difficulty: "medium",
+    status: "NOT ATTEMPTED",
   },
   {
-    id: "3",
-    title: "Efficient Graph Traversal Algorithms",
-    acceptance: 75,
-    difficulty: "medium"
-  },
-  {
-    id: "4",
-    title: "String Matching and Pattern Recognition",
-    acceptance: 80,
-    difficulty: "medium"
-  },
-  {
-    id: "5",
-    title: "Mastering Binary Search Techniques",
-    acceptance: 90,
-    difficulty: "easy"
-  },
-  {
-    id: "6",
-    title: "Optimizing Sorting Algorithms for Large Data Sets",
-    acceptance: 65,
-    difficulty: "hard"
-  },
-  {
-    id: "7",
-    title: "Understanding Recursion in Depth",
-    acceptance: 78,
-    difficulty: "medium"
-  },
-  {
-    id: "8",
-    title: "Comprehensive Guide to Tree Traversals",
-    acceptance: 83,
-    difficulty: "easy"
-  },
-  {
-    id: "9",
-    title: "saurabh chitiya",
-    acceptance: 74,
-    difficulty: "medium"
-  },
-  {
-    id: "10",
-    title: "Optimizing Network Flow Algorithms",
+    id: "36",
+    title: "DevOps Practices and Tools",
     acceptance: 68,
-    difficulty: "hard"
+    difficulty: "hard",
+    status: "ATTEMPTED",
   },
   {
-    id: "1",
-    title: "Optimizing Array Manipulation for Performance",
-    acceptance: 85,
-    difficulty: "easy"
+    id: "37",
+    title: "Robotics Programming",
+    acceptance: 77,
+    difficulty: "medium",
+    status: "NOT ATTEMPTED",
   },
   {
-    id: "2",
-    title: "Advanced Techniques in Dynamic Programming",
-    acceptance: 70,
-    difficulty: "hard"
+    id: "38",
+    title: "Augmented Reality (AR) Basics",
+    acceptance: 84,
+    difficulty: "easy",
+    status: "ACCEPTED",
   },
   {
-    id: "3",
-    title: "Efficient Graph Traversal Algorithms",
-    acceptance: 75,
-    difficulty: "medium"
-  },
-  {
-    id: "4",
-    title: "String Matching and Pattern Recognition",
-    acceptance: 80,
-    difficulty: "medium"
-  },
-  {
-    id: "5",
-    title: "Mastering Binary Search Techniques",
-    acceptance: 90,
-    difficulty: "easy"
-  },
-  {
-    id: "6",
-    title: "Optimizing Sorting Algorithms for Large Data Sets",
-    acceptance: 65,
-    difficulty: "hard"
-  },
-  {
-    id: "7",
-    title: "Understanding Recursion in Depth",
-    acceptance: 78,
-    difficulty: "medium"
-  },
-  {
-    id: "8",
-    title: "Comprehensive Guide to Tree Traversals",
-    acceptance: 83,
-    difficulty: "easy"
-  },
-  {
-    id: "9",
-    title: "Dynamic Memory Management in C++",
+    id: "39",
+    title: "Virtual Reality (VR) Development",
     acceptance: 74,
-    difficulty: "medium"
+    difficulty: "medium",
+    status: "NOT ATTEMPTED",
   },
   {
-    id: "10",
-    title: "f u",
-    acceptance: 68,
-    difficulty: "hard"
-  },
-
-  {
-    id: "1",
-    title: "Optimizing Array Manipulation for Performance",
-    acceptance: 85,
-    difficulty: "easy"
+    id: "40",
+    title: "Data Mining and Warehousing",
+    acceptance: 72,
+    difficulty: "hard",
+    status: "ATTEMPTED",
   },
   {
-    id: "2",
-    title: "Advanced Techniques in Dynamic Programming",
-    acceptance: 70,
-    difficulty: "hard"
-  },
-  {
-    id: "3",
-    title: "Efficient Graph Traversal Algorithms",
-    acceptance: 75,
-    difficulty: "medium"
-  },
-  {
-    id: "4",
-    title: "String Matching and Pattern Recognition",
-    acceptance: 80,
-    difficulty: "medium"
-  },
-  {
-    id: "5",
-    title: "Mastering Binary Search Techniques",
-    acceptance: 90,
-    difficulty: "easy"
-  },
-  {
-    id: "6",
-    title: "Optimizing Sorting Algorithms for Large Data Sets",
-    acceptance: 65,
-    difficulty: "hard"
-  },
-  {
-    id: "7",
-    title: "Understanding Recursion in Depth",
-    acceptance: 78,
-    difficulty: "medium"
-  },
-  {
-    id: "8",
-    title: "Comprehensive Guide to Tree Traversals",
+    id: "41",
+    title: "Database Design and Management",
     acceptance: 83,
-    difficulty: "easy"
+    difficulty: "easy",
+    status: "NOT ATTEMPTED",
   },
   {
-    id: "9",
-    title: "Dynamic Memory Management in C++",
-    acceptance: 74,
-    difficulty: "medium"
+    id: "42",
+    title: "Web Development Frameworks",
+    acceptance: 81,
+    difficulty: "medium",
+    status: "ACCEPTED",
   },
   {
-    id: "10",
-    title: "Optimizing Network Flow Algorithms",
-    acceptance: 68,
-    difficulty: "hard"
+    id: "43",
+    title: "Functional Programming Concepts",
+    acceptance: 69,
+    difficulty: "hard",
+    status: "NOT ATTEMPTED",
   },
   {
-    id: "1",
-    title: "Optimizing Array Manipulation for Performance",
-    acceptance: 85,
-    difficulty: "easy"
-  },
-  {
-    id: "2",
-    title: "Advanced Techniques in Dynamic Programming",
-    acceptance: 70,
-    difficulty: "hard"
-  },
-  {
-    id: "3",
-    title: "Efficient Graph Traversal Algorithms",
-    acceptance: 75,
-    difficulty: "medium"
-  },
-  {
-    id: "4",
-    title: "String Matching and Pattern Recognition",
-    acceptance: 80,
-    difficulty: "medium"
-  },
-  {
-    id: "5",
-    title: "Mastering Binary Search Techniques",
-    acceptance: 90,
-    difficulty: "easy"
-  },
-  {
-    id: "6",
-    title: "Optimizing Sorting Algorithms for Large Data Sets",
-    acceptance: 65,
-    difficulty: "hard"
-  },
-  {
-    id: "7",
-    title: "Understanding Recursion in Depth",
+    id: "44",
+    title: "Scripting Languages for Automation",
     acceptance: 78,
-    difficulty: "medium"
+    difficulty: "medium",
+    status: "ATTEMPTED",
   },
   {
-    id: "8",
-    title: "Comprehensive Guide to Tree Traversals",
-    acceptance: 83,
-    difficulty: "easy"
+    id: "45",
+    title: "Software Testing and QA",
+    acceptance: 87,
+    difficulty: "easy",
+    status: "NOT ATTEMPTED",
   },
   {
-    id: "9",
-    title: "Dynamic Memory Management in C++",
-    acceptance: 74,
-    difficulty: "medium"
-  },
-  {
-    id: "10",
-    title: "Optimizing Network Flow Algorithms",
-    acceptance: 68,
-    difficulty: "hard"
-  },
-
-  {
-    id: "1",
-    title: "Optimizing Array Manipulation for Performance",
-    acceptance: 85,
-    difficulty: "easy"
-  },
-  {
-    id: "2",
-    title: "Advanced Techniques in Dynamic Programming",
-    acceptance: 70,
-    difficulty: "hard"
-  },
-  {
-    id: "3",
-    title: "Efficient Graph Traversal Algorithms",
+    id: "46",
+    title: "Agile Development Methodologies",
     acceptance: 75,
-    difficulty: "medium"
+    difficulty: "medium",
+    status: "ACCEPTED",
   },
   {
-    id: "4",
-    title: "String Matching and Pattern Recognition",
-    acceptance: 80,
-    difficulty: "medium"
-  },
-  {
-    id: "5",
-    title: "Mastering Binary Search Techniques",
-    acceptance: 90,
-    difficulty: "easy"
-  },
-  {
-    id: "6",
-    title: "Optimizing Sorting Algorithms for Large Data Sets",
-    acceptance: 65,
-    difficulty: "hard"
-  },
-  {
-    id: "7",
-    title: "Understanding Recursion in Depth",
-    acceptance: 78,
-    difficulty: "medium"
-  },
-  {
-    id: "8",
-    title: "Comprehensive Guide to Tree Traversals",
-    acceptance: 83,
-    difficulty: "easy"
-  },
-  {
-    id: "9",
-    title: "saurabh chitiya",
-    acceptance: 74,
-    difficulty: "medium"
-  },
-  {
-    id: "10",
-    title: "Optimizing Network Flow Algorithms",
-    acceptance: 68,
-    difficulty: "hard"
-  },
-  {
-    id: "1",
-    title: "Optimizing Array Manipulation for Performance",
-    acceptance: 85,
-    difficulty: "easy"
-  },
-  {
-    id: "2",
-    title: "Advanced Techniques in Dynamic Programming",
+    id: "47",
+    title: "Introduction to Microservices",
     acceptance: 70,
-    difficulty: "hard"
+    difficulty: "hard",
+    status: "NOT ATTEMPTED",
   },
   {
-    id: "3",
-    title: "Efficient Graph Traversal Algorithms",
-    acceptance: 75,
-    difficulty: "medium"
+    id: "48",
+    title: "API Design and Development",
+    acceptance: 86,
+    difficulty: "easy",
+    status: "NOT ATTEMPTED",
   },
   {
-    id: "4",
-    title: "String Matching and Pattern Recognition",
-    acceptance: 80,
-    difficulty: "medium"
+    id: "49",
+    title: "Continuous Integration and Deployment",
+    acceptance: 73,
+    difficulty: "medium",
+    status: "ATTEMPTED",
   },
   {
-    id: "5",
-    title: "Mastering Binary Search Techniques",
-    acceptance: 90,
-    difficulty: "easy"
+    id: "50",
+    title: "Security in Web Applications",
+    acceptance: 64,
+    difficulty: "hard",
+    status: "NOT ATTEMPTED",
   },
-  {
-    id: "6",
-    title: "Optimizing Sorting Algorithms for Large Data Sets",
-    acceptance: 65,
-    difficulty: "hard"
-  },
-  {
-    id: "7",
-    title: "Understanding Recursion in Depth",
-    acceptance: 78,
-    difficulty: "medium"
-  },
-  {
-    id: "8",
-    title: "Comprehensive Guide to Tree Traversals",
-    acceptance: 83,
-    difficulty: "easy"
-  },
-  {
-    id: "9",
-    title: "Dynamic Memory Management in C++",
-    acceptance: 74,
-    difficulty: "medium"
-  },
-  {
-    id: "10",
-    title: "f u",
-    acceptance: 68,
-    difficulty: "hard"
-  },
-
 ];
