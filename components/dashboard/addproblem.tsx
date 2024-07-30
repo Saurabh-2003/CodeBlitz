@@ -153,7 +153,7 @@ export const AddProblem = () => {
   }, [setTopic]);
 
   return (
-    <div className="w-full h-full antialiased items-center justify-center p-8 max-md:p-6 max-sm:p-2">
+    <div className="w-full h-full antialiased items-center justify-center">
       <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-4">
         <div className="flex items-center justify-between mb-10 bg-zinc-200 p-4 rounded-md border border-zinc-400">
           <h2 className="text-2xl font-bold">Create Problem</h2>

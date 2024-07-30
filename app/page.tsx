@@ -1,3 +1,11 @@
-export default function Home() {
-  return <main>anurag</main>;
-}
+import Home from "@/components/home/home";
+
+const Page = () => {
+  return (
+    <div>
+      {" "}
+      <Home />{" "}
+    </div>
+  );
+};
+export default Page;

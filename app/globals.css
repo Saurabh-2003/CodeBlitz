@@ -2,10 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-:root,
-body {
-    @apply bg-stone-100;
-}
 @layer base {
     :root {
         --background: 0 0% 100%;
@@ -70,4 +66,16 @@ body {
     body {
         @apply bg-background text-foreground;
     }
+}
+
+::-webkit-scrollbar {
+    @apply w-[6px];
+}
+
+::-webkit-scrollbar-thumb {
+    @apply bg-zinc-800 dark:bg-slate-200 rounded-full;
+}
+
+::-webkit-scrollbar-track {
+    @apply rounded-full bg-slate-300 dark:bg-gray-800;
 }

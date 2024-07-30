@@ -14,6 +14,7 @@ import { xcodeLight } from "@uiw/codemirror-theme-xcode";
 import ReactCodeMirror from "@uiw/react-codemirror";
 import { useEffect, useState } from "react";
 import { IoCodeSlashOutline } from "react-icons/io5";
+import { Button } from "../ui/button";
 
 const languageMap: Record<string, any> = {
   cpp: loadLanguage("cpp"),
@@ -63,20 +64,25 @@ const Editor = () => {
   return (
     <div className="flex flex-col h-full">
       <div className="flex text-zinc-600 justify-between items-center p-2 bg-zinc-100/50">
-        <div className="flex items-center gap-2">
-          <IoCodeSlashOutline size={20} className="text-green-500" />
-          Code
+        <div className="flex gap-8">
+          <div className="flex items-center gap-1 text-sm">
+            <IoCodeSlashOutline size={20} className="text-green-500" />
+            Code
+          </div>
+          <Select onValueChange={(value) => setLanguage(value)}>
+            <SelectTrigger className="border w-36 rounded text-xs py-1 outline-none cursor-pointer">
+              <SelectValue placeholder="Select Language" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="cpp">C++</SelectItem>
+              <SelectItem value="javascript">JavaScript</SelectItem>
+              <SelectItem value="python">Python</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
-        <Select onValueChange={(value) => setLanguage(value)}>
-          <SelectTrigger className="border w-36 rounded text-xs py-1 outline-none cursor-pointer">
-            <SelectValue placeholder="Select Language" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="cpp">C++</SelectItem>
-            <SelectItem value="javascript">JavaScript</SelectItem>
-            <SelectItem value="python">Python</SelectItem>
-          </SelectContent>
-        </Select>
+        <Button onClick={() => runCode()} className="flex items-center">
+          Run
+        </Button>
       </div>
 
       <div className="overflow-y-auto">

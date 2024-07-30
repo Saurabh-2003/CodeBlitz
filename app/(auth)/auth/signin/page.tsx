@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 const Page = () => {
   const { data: session } = useSession();
   if (session) {
-    redirect("/home");
+    redirect("/");
   }
   return <Login />;
 };

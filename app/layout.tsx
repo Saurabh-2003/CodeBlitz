@@ -1,5 +1,6 @@
 import Header from "@/components/layout/header";
 import { Toaster } from "@/components/ui/sonner";
+import { ThemeProvider } from "@/core/context/theme-context";
 import AuthProvider from "@/core/providers/auth-provider";
 import { ProfileStoreProvider } from "@/core/providers/profile-store-provider";
 import type { Metadata } from "next";
@@ -21,12 +22,16 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <div className={`container px-0  ${inter.className}`}>
+        <div
+          className={`container px-0 max-w-[1920px] bg-background  ${inter.className}`}
+        >
           <ProfileStoreProvider>
             <AuthProvider>
-              <Header />
-              <Toaster />
-              {children}
+              <ThemeProvider>
+                <Header />
+                <Toaster />
+                {children}
+              </ThemeProvider>
             </AuthProvider>
           </ProfileStoreProvider>
         </div>
