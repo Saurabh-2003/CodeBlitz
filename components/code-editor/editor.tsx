@@ -80,7 +80,7 @@ const Editor = () => {
             </SelectContent>
           </Select>
         </div>
-        <Button onClick={() => runCode()} className="flex items-center">
+        <Button onClick={() => runCode()} disabled={loading} className="flex items-center">
           Run
         </Button>
       </div>

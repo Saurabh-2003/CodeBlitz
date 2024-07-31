@@ -4,41 +4,33 @@ import { db } from "@/core/db/db";
 import GetServerSession from "@/core/hooks/getServerSession";
 import { Difficulty, SubmissionStatus } from "@prisma/client";
 import { error } from "console";
-import { create } from "domain";
-import { v4 as uuidv4 } from "uuid";
 
 interface ProblemProp {
   title: string;
   description: string;
   difficulty: Difficulty;
-  topics: string;
+  topics: [{topic:string}];
   hints: string[];
   constraints: string[];
+  driverFunction: {
+    cplusplus : string,
+    python : string,
+    javascript : string,
+  }
 }
 
 export const NewProblem = async (data: ProblemProp) => {
   try {
-    const { title, description, difficulty, topics, hints, constraints } = data;
-
-    let topicValue = await db.topic.findFirst({
+    const { title, description, difficulty, topics, hints, constraints,driverFunction } = data;
+    const topicNames = topics.map((topicObj: { topic: string }) => topicObj.topic);
+    const topicRecords = await db.topic.findMany({
       where: {
-        name: topics,
+        name: {
+          in: topicNames,
+        },
       },
     });
-
-    if (!topicValue) {
-      topicValue = await db.topic.create({
-        data: {
-          name: topics,
-        },
-      });
-    }
-
-    if (topicValue) {
-      console.log("Topic found:", topicValue);
-    } else {
-      console.log("No topic found with the name:", topics);
-    }
+console.log("hello",topicRecords);
 
     const problem = await db.problem.create({
       data: {
@@ -47,9 +39,11 @@ export const NewProblem = async (data: ProblemProp) => {
         difficulty,
         createdAt: new Date(),
         topics: {
-          create: {
-            topicId: topicValue.id,
-          },
+          create: topicRecords.map(topic => ({
+            topic: {
+              connect: { id: topic.id }
+            }
+          }))
         },
         hints: {
           create: hints.map((hintObj: any) => ({
@@ -61,6 +55,9 @@ export const NewProblem = async (data: ProblemProp) => {
             name: constraintObj?.constraint,
           })),
         },
+        cppDriver:driverFunction.cplusplus,
+        jsDriver: driverFunction.javascript,
+        pythonDriver: driverFunction.python
       },
     });
 

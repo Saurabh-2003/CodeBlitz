@@ -35,8 +35,28 @@ import {
   SelectValue,
 } from "../ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
+import { useParams, useRouter } from "next/navigation";
+import { getProblem } from "@/core/actions/problem/getproblem";
+import { UpdateProblemAction } from "@/core/actions/problem/updateproblem";
+
+
+
 type Difficulty = "EASY" | "MEDIUM" | "HARD";
 interface ProblemSchemaType extends z.infer<typeof problemSchema> { }
+
+interface ProblemProp {
+  title: string;
+  description: string;
+  difficulty: Difficulty;
+  topics: string[];
+  hints: string[];
+  constraints: string[];
+  driverFunction: {
+    cplusplus: string,
+    python: string,
+    javascript: string,
+  }
+}
 
 // const Constraint = ({ text }: { text: string }) => {
 //   const renderText = (text: string) => {
@@ -52,18 +72,28 @@ interface ProblemSchemaType extends z.infer<typeof problemSchema> { }
 //   return <div>{renderText(text)}</div>;
 // };
 
-export const AddProblem = () => {
+export const UpdateProblem = () => {
   const [x, setx] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [openInput, setOpenInput] = useState(false);
   const [topicList, setTopic] = useState<string[]>([]);
 
+  const params = useParams();
+  let problemId: string;
 
+  if (Array.isArray(params.id)) {
+    // If it's an array, take the first element, or handle it as needed
+    problemId = params.id[0];
+  } else {
+    // If it's already a string
+    problemId = params.id;
+  }
   const {
     control,
     register,
     setValue,
     handleSubmit,
+    reset,
     // eslint-disable-next-line no-unused-vars
     formState: { errors, isDirty, isValid },
   } = useForm<ProblemSchemaType>({
@@ -98,7 +128,7 @@ export const AddProblem = () => {
 
   const onSubmit = async (formdata: any) => {
     console.log(formdata, "form submitted");
-    const { message, error } = await NewProblem(formdata);
+    const { message, error } = await UpdateProblemAction(formdata,problemId);
     if (error) {
       toast.error(error);
     }
@@ -106,7 +136,6 @@ export const AddProblem = () => {
     if (message) {
       toast.success(message);
     }
-
   };
 
   const selecttopic = (item: string) => {
@@ -144,12 +173,19 @@ export const AddProblem = () => {
   useEffect(() => {
     const fetchData = async () => {
       const { newtopicList, message } = await TopicList();
-      if (!newtopicList || message) {
+      const { problem } = await getProblem(problemId)
+      if (!newtopicList || message || !problem) {
         toast.error(message);
         return;
       }
-      const newData = [...newtopicList, "others"];
+      console.log(problem);
+      const topicNames = problem.topics.map(pt => pt.topic.name);
+      const hintNames = problem.hints.map(pt => pt.name);
+      const constraintNames = problem.constraints.map(pt => pt.name);
 
+      const newData = [...newtopicList, "others"];
+      reset({ title: problem.title, description: problem.description, difficulty: problem.difficulty, topics:  topicNames.map((topic) => ({ topic })), hints: hintNames.map((hint) => ({ hint })),
+      constraints: constraintNames.map((constraint) => ({ constraint })), driverFunction: { cplusplus: problem.cppDriver, python: problem.pythonDriver, javascript: problem.jsDriver } });
       setTopic(newData);
     };
     fetchData();
@@ -159,7 +195,7 @@ export const AddProblem = () => {
     <div className="w-full h-full antialiased items-center justify-center">
       <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-4">
         <div className="flex items-center justify-between mb-10 bg-zinc-200 p-4 rounded-md border border-zinc-400">
-          <h2 className="text-2xl font-bold">Create Problem</h2>
+          <h2 className="text-2xl font-bold">Update Problem</h2>
           <Button type="submit">
             <p>Submit</p>
             {/* {!isSubmittable && <p>(Disabled)</p>} */}
@@ -428,7 +464,7 @@ export const AddProblem = () => {
               <TabsTrigger value="javascript">Javascript</TabsTrigger>
             </TabsList>
             <TabsContent value="c++">
-              <Textarea className="min-h-[200px]" placeholder="Write c++ driver function here..." {...register("driverFunction.cplusplus")}/>
+              <Textarea className="min-h-[200px]" placeholder="Write c++ driver function here..." {...register("driverFunction.cplusplus")} />
             </TabsContent>
 
             <TabsContent value="python">

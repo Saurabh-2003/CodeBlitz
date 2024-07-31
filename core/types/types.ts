@@ -4,7 +4,7 @@ import { z } from "zod";
 import { uniqBy } from "lodash";
 
 export const problemSchema = z.object({
-  title: z.string().min(5, "title should be greater than 5 charcaters"),
+  title: z.string().min(5, "Title should be greater than 5 charcaters"),
   description: z
     .string()
     .min(20, "Description length should be greater than 20 characters"),
@@ -17,11 +17,17 @@ export const problemSchema = z.object({
     )
     .transform((data) => uniqBy(data, "topic")),
 
-  constraints: z.array(z.object({ constraint: z.string() })).min(1),
+  constraints: z.array(z.object({ constraint: z.string() })).min(1,"Atleast one constraint should be provided."),
 
   hints: z
     .array(z.object({ hint: z.string() }))
     .min(1, "Atleast one hint should be provided."),
+  
+  driverFunction: z.object({
+      cplusplus: z.string(),
+      python: z.string(),
+      javascript: z.string()
+    })
 });
 
 export type profileSchema = {

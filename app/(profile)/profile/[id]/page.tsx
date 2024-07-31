@@ -1,9 +1,7 @@
-import { AddProblem } from "@/components/dashboard/addproblem";
 import { UpdateProblem } from "@/components/dashboard/updateproblem";
 
 const Page = () => {
-  return <AddProblem/>;
+  return <UpdateProblem/>;
 };
 
 export default Page;
-
