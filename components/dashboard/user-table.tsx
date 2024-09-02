@@ -1,16 +1,3 @@
-import {
-  ColumnDef,
-  ColumnFiltersState,
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  SortingState,
-  useReactTable,
-  VisibilityState,
-} from "@tanstack/react-table";
-
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -28,9 +15,22 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
+import {
+  ColumnDef,
+  ColumnFiltersState,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  SortingState,
+  useReactTable,
+  VisibilityState,
+} from "@tanstack/react-table";
 import { Search } from "lucide-react";
 import React from "react";
 import { DataTablePagination } from "../home/problemPage/dataTablePagination";
+
 interface DataType {
   id: string;
   name: string | null;
@@ -62,8 +62,30 @@ export function UserDataTable<TData extends DataType, TValue>({
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
 
+  // Filter data based on role and search
+  const filteredData = React.useMemo(() => {
+    let filtered = data;
+
+    // Filter by role
+    if (filters.role && filters.role !== "all") {
+      filtered = filtered.filter((item) => item.role === filters.role);
+    }
+
+    // Filter by search
+    if (filters.search) {
+      const searchLower = filters.search.toLowerCase();
+      filtered = filtered.filter(
+        (item) =>
+          (item.name && item.name.toLowerCase().includes(searchLower)) ||
+          (item.email && item.email.toLowerCase().includes(searchLower)),
+      );
+    }
+
+    return filtered;
+  }, [data, filters]);
+
   const table = useReactTable({
-    data,
+    data: filteredData,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),

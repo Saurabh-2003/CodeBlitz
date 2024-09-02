@@ -69,7 +69,7 @@ export default function DashboardUsers() {
   const handleDeleteUser = async () => {
     if (selectedUser) {
       try {
-        const result = await deleteUser(selectedUser.email);
+        const result = await deleteUser(selectedUser?.email);
         if (result.success) {
           setUsers((prevUsers) =>
             prevUsers.filter((user) => user.id !== selectedUser.id),
@@ -230,7 +230,7 @@ function ChangeRoleDialog({
           <DialogTitle>Change User Role</DialogTitle>
         </DialogHeader>
         {selectedUser && (
-          <div>
+          <div className="flex flex-col gap-3">
             <p>Change role for {selectedUser.name}:</p>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -259,8 +259,18 @@ function ChangeRoleDialog({
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            <Button onClick={onSave}>Save</Button>
-            <Button onClick={() => onOpenChange(false)}>Cancel</Button>
+            <div className="flex gap-2 w-full ">
+              <Button className="w-1/2" onClick={onSave}>
+                Save
+              </Button>
+              <Button
+                variant={"outline"}
+                className="w-1/2"
+                onClick={() => onOpenChange(false)}
+              >
+                Cancel
+              </Button>
+            </div>
           </div>
         )}
       </DialogContent>
