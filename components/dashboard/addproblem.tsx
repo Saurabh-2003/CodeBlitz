@@ -24,6 +24,7 @@ import {
 import { TopicList } from "@/core/actions";
 import { NewProblem } from "@/core/actions/problem/newproblem";
 import { NewTopic } from "@/core/actions/topics";
+import { uploadToCloudinary } from "@/lib/uploadfile";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { ScrollArea } from "../ui/scroll-area";
@@ -38,25 +39,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 type Difficulty = "EASY" | "MEDIUM" | "HARD";
 interface ProblemSchemaType extends z.infer<typeof problemSchema> {}
 
-// const Constraint = ({ text }: { text: string }) => {
-//   const renderText = (text: string) => {
-//     const parts = text.split(/(\^\d+)/); // Split on superscript pattern
-//     return parts.map((part, index) => {
-//       if (part.startsWith("^")) {
-//         return <sup key={index}>{part.slice(1)}</sup>;
-//       }
-//       return part;
-//     });
-//   };
-
-//   return <div>{renderText(text)}</div>;
-// };
-
 export const AddProblem = () => {
   const [x, setx] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [openInput, setOpenInput] = useState(false);
   const [topicList, setTopic] = useState<string[]>([]);
+  const [inputUrl, setInputUrl] = useState<string | null>(null);
+  const [outputUrl, setOutputUrl] = useState<string | null>(null);
 
   const {
     control,
@@ -64,7 +53,8 @@ export const AddProblem = () => {
     setValue,
     handleSubmit,
     // eslint-disable-next-line no-unused-vars
-    formState: { errors, isDirty, isValid },
+    formState: { errors, isDirty, isValid, isLoading },
+    reset,
   } = useForm<ProblemSchemaType>({
     resolver: zodResolver(problemSchema),
     defaultValues: {},
@@ -74,6 +64,7 @@ export const AddProblem = () => {
     control,
     name: "hints",
   });
+
   const {
     fields: constraintField,
     remove: removeConstrain,
@@ -96,24 +87,27 @@ export const AddProblem = () => {
   // const isSubmittable = !!isDirty && !!isValid;
 
   const onSubmit = async (formdata: any) => {
+    formdata.inputUrl = inputUrl;
+    formdata.outputUrl = outputUrl;
     console.log(formdata, "form submitted");
     const { message, error } = await NewProblem(formdata);
     if (error) {
       toast.error(error);
+      return;
     }
-
+    reset();
     if (message) {
       toast.success(message);
     }
   };
 
   const selecttopic = (item: string) => {
-    setx(false);
-    if (item !== "others") {
-      appendTopic({ topic: item });
-    } else {
+    if (item === "others") {
       setOpenInput(true);
+    } else {
+      appendTopic({ topic: item });
     }
+    setx(false);
   };
 
   useEffect(() => {
@@ -137,6 +131,39 @@ export const AddProblem = () => {
       NewTopic(inputValue);
       setInputValue("");
     }
+  };
+
+  // Input and Output File Upload :
+
+  const handleFileUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    setUrl: React.Dispatch<React.SetStateAction<string | null>>,
+  ) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    const file = e.target.files[0];
+
+    try {
+      const base64 = await convertToBase64(file);
+      const response = await uploadToCloudinary(base64, file.name);
+
+      if (response.success) {
+        setUrl(response.result?.secure_url || null);
+        console.log("File uploaded successfully:", response.result?.secure_url);
+      } else {
+        console.error("File upload failed:", response.error);
+      }
+    } catch (error) {
+      console.error("Error uploading file:", error);
+    }
+  };
+
+  const convertToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+    });
   };
 
   useEffect(() => {
@@ -180,6 +207,7 @@ export const AddProblem = () => {
             )}
           </ul>
         </div>
+
         <div className="w-full">
           <Label>Description</Label>
           <Textarea
@@ -195,6 +223,7 @@ export const AddProblem = () => {
             )}
           </ul>
         </div>
+
         <div className="w-full space-y-2">
           <Label>Difficulty</Label>
           <div className=" w-full">
@@ -460,10 +489,28 @@ export const AddProblem = () => {
         </div>
 
         <div className="w-full space-y-2">
-          <div className="flex gap-x-4 items-center justify-between">
-            <Label>Inputs</Label>
+          <div className="flex flex-col gap-2 justify-between">
+            <Label htmlFor="inputFile">Input File</Label>
+            <div className="flex gap-x-4">
+              <Input
+                id="inputFile"
+                type="file"
+                onChange={(e) => handleFileUpload(e, setInputUrl)}
+              />
+              <Button>Upload</Button>
+            </div>
           </div>
-          <div className="w-full h-[100px]">space</div>
+          <div className="flex flex-col gap-2 justify-between">
+            <Label htmlFor="outputFile">Output File</Label>
+            <div className="flex gap-x-4">
+              <Input
+                id="outputFile"
+                type="file"
+                onChange={(e) => handleFileUpload(e, setOutputUrl)}
+              />
+              <Button>Upload</Button>
+            </div>
+          </div>
         </div>
 
         {/* <div>{errors.map((error, index))}</div> */}
