@@ -9,7 +9,6 @@ import { ImMenu } from "react-icons/im";
 import { IoCreateOutline } from "react-icons/io5";
 import { LuShoppingBag } from "react-icons/lu";
 import { MdExitToApp, MdLightMode, MdOutlineDashboard } from "react-icons/md";
-import { PiPackage } from "react-icons/pi";
 import { TbUsers } from "react-icons/tb";
 
 const menuItems = [
@@ -31,12 +30,7 @@ const menuItems = [
     path: "/dashboard/create-problem",
     icon: <IoCreateOutline size={20} />,
   },
-  {
-    id: "update-problem",
-    label: "Update Problem",
-    path: "/dashboard/update-problem",
-    icon: <PiPackage size={20} />,
-  },
+
   {
     id: "users",
     label: "Users",
@@ -98,7 +92,7 @@ const DashboardSidebar = () => {
             alt="Leetcode Icon"
             className=" size-8 dark:bg-zinc-700  text-zinc-700 dark:text-zinc-300 p-1 rounded-lg"
           />
-          <span className="font-bold dark:text-zinc-200 "> Leetcode</span>
+          <span className="font-bold dark:text-zinc-200 "> Codeblitz</span>
           <CgChevronDown className=" dark:text-zinc-200 " />
         </div>
         <nav className="flex flex-col gap-4 mt-6">

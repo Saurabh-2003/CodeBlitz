@@ -1,3 +1,4 @@
+"use client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,152 +16,66 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { getDashboardData } from "@/core/actions/dashboard/get-dashboard-data";
 import { Activity, ArrowUpRight, Users } from "lucide-react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { IoCreateOutline } from "react-icons/io5";
 import { SiThealgorithms } from "react-icons/si";
-export default function DashboardMain() {
-  // Dummy data for recently added problems
-  const recentProblems = [
-    {
-      name: "Two Sum",
-      tags: ["Array", "Hash Table"],
-      admin: {
-        name: "Admin A",
-        avatar: "/avatars/admin-a.png",
-      },
-    },
-    {
-      name: "Binary Tree Inorder Traversal",
-      tags: ["Tree", "Depth-First Search"],
-      admin: {
-        name: "Admin B",
-        avatar: "/avatars/admin-b.png",
-      },
-    },
-    {
-      name: "Longest Substring Without Repeating Characters",
-      tags: ["String", "Sliding Window"],
-      admin: {
-        name: "Admin C",
-        avatar: "/avatars/admin-c.png",
-      },
-    },
-    {
-      name: "Merge k Sorted Lists",
-      tags: ["Linked List", "Heap"],
-      admin: {
-        name: "Admin D",
-        avatar: "/avatars/admin-d.png",
-      },
-    },
-    {
-      name: "Word Ladder",
-      tags: ["Breadth-First Search", "Graph"],
-      admin: {
-        name: "Admin E",
-        avatar: "/avatars/admin-e.png",
-      },
-    },
-    {
-      name: "Clone Graph",
-      tags: ["Depth-First Search", "Graph"],
-      admin: {
-        name: "Admin F",
-        avatar: "/avatars/admin-f.png",
-      },
-    },
-    {
-      name: "Find Median from Data Stream",
-      tags: ["Heap", "Design"],
-      admin: {
-        name: "Admin G",
-        avatar: "/avatars/admin-g.png",
-      },
-    },
-    {
-      name: "Maximum Product Subarray",
-      tags: ["Array", "Dynamic Programming"],
-      admin: {
-        name: "Admin H",
-        avatar: "/avatars/admin-h.png",
-      },
-    },
-    {
-      name: "Search in Rotated Sorted Array",
-      tags: ["Array", "Binary Search"],
-      admin: {
-        name: "Admin I",
-        avatar: "/avatars/admin-i.png",
-      },
-    },
-    {
-      name: "Edit Distance",
-      tags: ["String", "Dynamic Programming"],
-      admin: {
-        name: "Admin J",
-        avatar: "/avatars/admin-j.png",
-      },
-    },
-  ];
+import { Badge } from "../ui/badge";
 
-  // Dummy data for recent new users
-  const recentUsers = [
-    {
-      name: "Olivia Martin",
-      email: "olivia.martin@email.com",
-      avatar: "/avatars/01.png",
-    },
-    {
-      name: "Jackson Lee",
-      email: "jackson.lee@email.com",
-      avatar: "/avatars/02.png",
-    },
-    {
-      name: "Emma Johnson",
-      email: "emma.johnson@email.com",
-      avatar: "/avatars/03.png",
-    },
-    {
-      name: "Noah Williams",
-      email: "noah.williams@email.com",
-      avatar: "/avatars/04.png",
-    },
-    {
-      name: "Ava Brown",
-      email: "ava.brown@email.com",
-      avatar: "/avatars/05.png",
-    },
-    {
-      name: "Liam Jones",
-      email: "liam.jones@email.com",
-      avatar: "/avatars/06.png",
-    },
-    {
-      name: "Sophia Garcia",
-      email: "sophia.garcia@email.com",
-      avatar: "/avatars/07.png",
-    },
-    {
-      name: "Mason Rodriguez",
-      email: "mason.rodriguez@email.com",
-      avatar: "/avatars/08.png",
-    },
-    {
-      name: "Isabella Martinez",
-      email: "isabella.martinez@email.com",
-      avatar: "/avatars/09.png",
-    },
-    {
-      name: "James Hernandez",
-      email: "james.hernandez@email.com",
-      avatar: "/avatars/10.png",
-    },
-  ];
+// Define types for the data
+interface Problem {
+  title: string;
+  createdAt: Date;
+  difficulty: string;
+}
+
+interface User {
+  name: string | null;
+  email: string | null;
+  createdAt: Date;
+  image: string | null;
+}
+
+interface DashboardData {
+  totalUsers: number;
+  totalActiveUsers: number;
+  totalProblems: number;
+  totalAdmins: number;
+  recentProblems: Problem[];
+  recentUsers: User[];
+}
+const difficultyColors = new Map<string, string>([
+  ["EASY", "bg-green-100 text-green-800 hover:bg-green-100"],
+  [
+    "MEDIUM",
+    "bg-amber-200/50 dark:text-yellow-400 text-yellow-500 hover:bg-amber-200/50",
+  ],
+  ["HARD", "bg-red-100 text-red-800 hover:bg-red-100"],
+]);
+export default function DashboardMain() {
+  const [data, setData] = useState<DashboardData>({
+    totalUsers: 0,
+    totalActiveUsers: 0,
+    totalProblems: 0,
+    totalAdmins: 0,
+    recentProblems: [],
+    recentUsers: [],
+  });
+
+  useEffect(() => {
+    async function fetchData() {
+      const dashboardData = await getDashboardData();
+      setData(dashboardData);
+    }
+
+    fetchData();
+  }, []);
 
   return (
     <>
-      <main className="flex flex-1 flex-col gap-4  md:gap-8">
+      <main className="flex flex-1 flex-col gap-4 md:gap-8">
         <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -170,11 +85,7 @@ export default function DashboardMain() {
               <SiThealgorithms className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">1,245</div>{" "}
-              {/* Example Data */}
-              <p className="text-xs text-muted-foreground">
-                +15% from last month {/* Example Percentage */}
-              </p>
+              <div className="text-2xl font-bold">{data.totalProblems}</div>
             </CardContent>
           </Card>
 
@@ -184,11 +95,7 @@ export default function DashboardMain() {
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">5,300</div>{" "}
-              {/* Example Data */}
-              <p className="text-xs text-muted-foreground">
-                +12.5% signed up last month {/* Example Percentage */}
-              </p>
+              <div className="text-2xl font-bold">{data.totalUsers}</div>
             </CardContent>
           </Card>
 
@@ -200,11 +107,7 @@ export default function DashboardMain() {
               <Activity className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">2,435</div>{" "}
-              {/* Example Data */}
-              <p className="text-xs text-muted-foreground">
-                +8% active today {/* Example Percentage */}
-              </p>
+              <div className="text-2xl font-bold">{data.totalActiveUsers}</div>
             </CardContent>
           </Card>
 
@@ -216,10 +119,7 @@ export default function DashboardMain() {
               <IoCreateOutline className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">150</div> {/* Example Data */}
-              <p className="text-xs text-muted-foreground">
-                +5% added last month {/* Example Percentage */}
-              </p>
+              <div className="text-2xl font-bold">{data.totalAdmins}</div>
             </CardContent>
           </Card>
         </div>
@@ -234,7 +134,7 @@ export default function DashboardMain() {
                 </CardDescription>
               </div>
               <Button asChild size="sm" className="ml-auto gap-1">
-                <Link href="#">
+                <Link href="/dashboard/problems">
                   View All
                   <ArrowUpRight className="h-4 w-4" />
                 </Link>
@@ -245,33 +145,27 @@ export default function DashboardMain() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Problem</TableHead>
-                    <TableHead>Admin</TableHead>
+                    <TableHead>Date Added</TableHead>
+                    <TableHead>Difficulty</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {recentProblems.map((problem, index) => (
+                  {data.recentProblems.map((problem, index) => (
                     <TableRow key={index}>
                       <TableCell>
-                        <div className="font-medium">{problem.name}</div>
-                        <div className="text-sm text-muted-foreground">
-                          {problem.tags.join(", ")}
-                        </div>
+                        <div className="font-medium">{problem?.title}</div>
                       </TableCell>
                       <TableCell>
-                        <div className="flex items-center">
-                          <Avatar className="h-8 w-8">
-                            <AvatarImage
-                              src={problem.admin.avatar}
-                              alt={problem.admin.name}
-                            />
-                            <AvatarFallback>
-                              {problem.admin.name[0]}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="ml-2">
-                            {problem.admin.name.split(" ")[0]}
-                          </div>
+                        <div className="text-sm text-muted-foreground">
+                          {new Date(problem.createdAt).toLocaleDateString()}
                         </div>
+                      </TableCell>
+                      <TableCell className="text-xs">
+                        <Badge
+                          className={difficultyColors.get(problem.difficulty)}
+                        >
+                          {problem.difficulty}
+                        </Badge>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -285,15 +179,20 @@ export default function DashboardMain() {
               <CardTitle>Recent New Users</CardTitle>
             </CardHeader>
             <CardContent className="grid gap-8">
-              {recentUsers.map((user, index) => (
+              {data.recentUsers.map((user, index) => (
                 <div className="flex items-center gap-4" key={index}>
                   <Avatar className="hidden h-9 w-9 sm:flex">
-                    <AvatarImage src={user.avatar} alt="Avatar" />
-                    <AvatarFallback>{user.name[0]}</AvatarFallback>
+                    <AvatarImage
+                      src={user?.image || "/placeholder.png"}
+                      alt="Avatar"
+                    />
+                    <AvatarFallback>
+                      {user?.name && user?.name[0]}
+                    </AvatarFallback>
                   </Avatar>
                   <div className="grid gap-1">
                     <p className="text-sm font-medium leading-none">
-                      {user.name.split(" ")[0]}
+                      {user.name}
                     </p>
                     <p className="text-sm text-muted-foreground">
                       {user.email}

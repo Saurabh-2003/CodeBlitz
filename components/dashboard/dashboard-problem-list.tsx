@@ -3,39 +3,39 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
 } from "@/components/ui/card";
 import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { deleteProblem } from "@/core/actions/problem/delete-problem";
 import { getAdminAllProblems } from "@/core/actions/problem/get-admin-problems";
-import { ListFilter, MoreHorizontal, PlusCircle } from "lucide-react";
+import { MoreHorizontal, PlusCircle } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -78,17 +78,18 @@ export default function DashboardProblems() {
   const handleDelete = async () => {
     if (selectedProblem) {
       try {
-        const {success, message, error} = await deleteProblem(selectedProblem.id)
-        if(success){
+        const { success, message, error } = await deleteProblem(
+          selectedProblem.id,
+        );
+        if (success) {
           setProblems(
             problems.filter((problem) => problem.id !== selectedProblem.id),
           );
           setIsDeleteDialogOpen(false);
-          toast.success(message)
-        }else{
-          toast.error(error)
+          toast.success(message);
+        } else {
+          toast.error(error);
         }
-
       } catch (error) {
         toast.error("Failed to delete the problem");
       }
@@ -126,29 +127,14 @@ export default function DashboardProblems() {
             </TabsTrigger>
           </TabsList>
           <div className="ml-auto flex items-center gap-2">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="h-8 gap-1">
-                  <ListFilter className="h-3.5 w-3.5" />
-                  <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                    Filter
-                  </span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>Filter by</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>Easy</DropdownMenuItem>
-                <DropdownMenuItem>Medium</DropdownMenuItem>
-                <DropdownMenuItem>Hard</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <Button size="sm" variant="outline" className="h-8 gap-1">
-              <PlusCircle className="h-3.5 w-3.5" />
-              <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                Add Problem
-              </span>
-            </Button>
+            <Link href={"/dashboard/create-problem"}>
+              <Button size="sm" variant="outline" className="h-8 gap-1">
+                <PlusCircle className="h-3.5 w-3.5" />
+                <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                  Add Problem
+                </span>
+              </Button>
+            </Link>
           </div>
         </div>
         <TabsContent value="all">
