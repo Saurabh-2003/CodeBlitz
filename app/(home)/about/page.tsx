@@ -1,26 +1,23 @@
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { FaCogs, FaDatabase, FaDocker, FaNetworkWired, FaShieldAlt, FaSyncAlt } from "react-icons/fa";
+import { MdCode, MdOutlineIntegrationInstructions } from "react-icons/md";
+
 import {
-  FaCalendarAlt,
-  FaCartPlus,
-  FaFilter,
-  FaGithub,
-  FaLink,
-  FaNewspaper,
-  FaReact,
-  FaSignInAlt,
+    FaGithub,
+    FaReact
 } from "react-icons/fa";
 import { IoMdCart } from "react-icons/io";
-import { MdBuild, MdDynamicForm, MdFindInPage } from "react-icons/md";
+import { MdBuild } from "react-icons/md";
 import { RiTailwindCssFill } from "react-icons/ri";
 import {
-  SiDocker,
-  SiMysql,
-  SiNextdotjs,
-  SiPrisma,
-  SiRedux,
-  SiShadcnui,
+    SiDocker,
+    SiMysql,
+    SiNextdotjs,
+    SiPrisma,
+    SiRedux,
+    SiShadcnui,
 } from "react-icons/si";
 import { TiFilter } from "react-icons/ti";
 
@@ -75,12 +72,23 @@ const About = () => {
           <h1 className="text-6xl font-extrabold mb-6 leading-tight">
             CodeBlitz
           </h1>
-          <p className="text-lg mb-8 max-w-2xl mx-auto">
-            This project is a learning experience I created to dive into
-            frontend development with Next.js. Through this project, I have
-            explored app directory routing, various optimizations in Next.js,
-            linking and routing, better folder structures, and working with URL
-            parameters.
+          <p className="text-lg mb-8 max-w-4xl mx-auto">
+            This project is a learning experience I created to dive into the
+            basics of Docker and Docker Compose while building a DSA
+            problem-solving platform similar to leetcode with boiled down
+            functionalities. Through this project, I have explored core Docker
+            functionalities such as containerization, working with Docker
+            volumes, and managing file permissions within volumes. I also gained
+            hands-on experience with Prisma ORM connected to a MySQL database.
+            The platform is fully Dockerized, with both the website and code
+            runners running in isolated Docker containers. The Next.js container
+            interacts with the code runner containers using Docker-in-Docker
+            (DinD) configuration, enabling seamless execution of user-submitted
+            code. By exposing Docker Socket from the host machine and installing
+            Docker within the Next.js container, I was able to achieve this
+            integration. This project was a fun and educational experience,
+            deepening my understanding of how Docker can be leveraged in a
+            real-world application.
           </p>
           <p className=" text-2xl flex items-center justify-center mb-6 text-stone-400 gap-3">
             <SiNextdotjs />
@@ -109,56 +117,58 @@ const About = () => {
 export default About;
 
 function DesignAndFeatures() {
+
   const features = [
     {
-      title: "Dynamic Routing",
+      title: "Dockerized Code Runners",
       description:
-        "Site uses dynamic routing using app directory to handle multiple pages efficiently, providing a seamless user experience.",
-      icon: <MdDynamicForm />,
+        "Each code submission is executed within its own Docker container, ensuring isolated and secure environments for running code.",
+      icon: <FaDocker />,
     },
     {
-      title: "Sleek UI Design",
+      title: "Docker-in-Docker Setup",
       description:
-        "The user interface is designed to be modern and visually appealing, ensuring a smooth and attractive experience for users.",
-      icon: <FaNewspaper />,
+        "The Next.js container interacts with other containers using Docker-in-Docker configuration, allowing the platform to manage and run code within containers seamlessly.",
+      icon: <MdOutlineIntegrationInstructions />,
     },
     {
-      title: "Easy URL Sharing",
+      title: "Prisma ORM with MySQL",
       description:
-        "Filters and search parameters are saved in the URL, allowing easy sharing of filtered views and search results.",
-      icon: <FaLink />,
+        "Utilizes Prisma ORM to interact with a MySQL database, providing efficient and type-safe database operations.",
+      icon: <FaDatabase />,
     },
     {
-      title: "Landing Page",
+      title: "Volumes and File Permissions",
       description:
-        "The landing page provides a welcoming introduction to the site, highlighting key features and offerings.",
-      icon: <FaCalendarAlt />,
+        "Manages Docker volumes and file permissions to securely store and handle code submissions, logs, and outputs.",
+      icon: <FaShieldAlt />,
     },
     {
-      title: "Products Page with Pagination",
+      title: "Containerized Web Interface",
       description:
-        "Browse through products with pagination to manage large listings efficiently and improve load times.",
-      icon: <MdFindInPage />,
+        "The entire web platform, built with Next.js, runs within a Docker container, enabling consistent and replicable deployments.",
+      icon: <FaNetworkWired />,
     },
     {
-      title: "Comprehensive Product Filters",
+      title: "Automated Environment Setup",
       description:
-        "Features include filters for ratings, price range, color, and discount, managed using React Context API.",
-      icon: <FaFilter />,
+        "Using Docker Compose, the platform automates the setup of development and production environments, simplifying the deployment process.",
+      icon: <FaCogs />,
     },
     {
-      title: "Login and Signup Pages",
+      title: "Real-Time Code Execution",
       description:
-        "User authentication is handled through dedicated login and signup pages, offering a secure and intuitive experience.",
-      icon: <FaSignInAlt />,
+        "Supports real-time feedback on code submissions by dynamically managing and running containers, enhancing the coding experience.",
+      icon: <MdCode />,
     },
     {
-      title: "Real-Time Cart Functionality",
+      title: "Continuous Integration",
       description:
-        "The cart icon updates dynamically to reflect the real-time count of items in the cart, enhancing user interaction.",
-      icon: <FaCartPlus />,
+        "Integrates with CI/CD pipelines to ensure that all containers and services are up-to-date, providing a reliable and consistent platform.",
+      icon: <FaSyncAlt />,
     },
   ];
+
 
   return (
     <section
