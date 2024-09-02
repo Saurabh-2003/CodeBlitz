@@ -114,10 +114,10 @@ export function UserDataTable<TData extends DataType, TValue>({
                 }}
               >
                 <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Role" />
+                  <SelectValue placeholder="All" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Role</SelectItem>
+                  <SelectItem value="all">All</SelectItem>
                   <SelectItem value="USER">User</SelectItem>
                   <SelectItem value="ADMIN">Admin</SelectItem>
                   <SelectItem value="SUPERADMIN">Super Admin</SelectItem>

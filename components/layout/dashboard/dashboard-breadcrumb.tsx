@@ -34,6 +34,7 @@ const BreadCrumbs: React.FC = () => {
             <BreadcrumbLink href="/">Home</BreadcrumbLink>
           </span>
         </BreadcrumbItem>
+        <BreadcrumbSeparator />
         {/* Use a separator before breadcrumb items but not inside them */}
         {breadcrumbs.map((crumb, index) => (
           <React.Fragment key={crumb.href}>
