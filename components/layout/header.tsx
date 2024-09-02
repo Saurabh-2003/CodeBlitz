@@ -1,31 +1,44 @@
 "use client";
 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { ThemeContext } from "@/core/context/theme-context";
+import { useAdminCheck } from "@/core/hooks/verify-admin-user";
+import { DashboardIcon } from "@radix-ui/react-icons";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useContext } from "react";
-import { BsSun } from "react-icons/bs";
+import { BsGear, BsSun } from "react-icons/bs";
 import { MdDarkMode } from "react-icons/md";
+import { PiSignOut } from "react-icons/pi";
 
 const Header = () => {
   const pathname = usePathname();
   const router = useRouter();
   const themeContext = useContext(ThemeContext);
+  const { isAdmin, loading, error } = useAdminCheck(); // Use the custom hook
 
   if (pathname.includes("problem/") || pathname.includes("/dashboard")) {
     return null;
   }
 
   const isActiveRoute = (route: string) => {
+    if (route === "/") {
+      return pathname === route
+        ? "border-b-2 border-amber-400"
+        : "text-gray-500";
+    }
     return pathname.includes(route)
       ? "border-b-2 border-amber-400"
       : "text-gray-500";
   };
 
   return (
-    <div
-      className={`flex shadow-sm py-2 justify-between min-h-10 w-full px-2 items-center `}
-    >
+    <header className="flex shadow-sm py-2 justify-between min-h-10 w-full px-2 items-center bg-white dark:bg-gray-900">
       <div className="w-1/3">
         <Image
           src="/images/leetcode.png"
@@ -36,31 +49,31 @@ const Header = () => {
         />
       </div>
 
-      <div className="flex gap-4 p-2 justify-center w-1/3 items-center">
+      <nav className="flex gap-4 p-2 justify-center w-1/3 items-center">
         <ul
           className={`flex items-center gap-4 max-sm:hidden text-sm cursor-pointer ${
             themeContext?.theme === "light" ? "text-gray-800" : "text-gray-300"
           }`}
         >
-          <li onClick={() => router.push("/")} className={isActiveRoute("/")}>
-            Home
+          <li>
+            <a href="/" className={isActiveRoute("/")}>
+              Home
+            </a>
           </li>
-          <li
-            onClick={() => router.push("/problem")}
-            className={isActiveRoute("problem")}
-          >
-            Problems
+          <li>
+            <a href="/problem" className={isActiveRoute("problem")}>
+              Problems
+            </a>
           </li>
-          <li
-            onClick={() => router.push("/about")}
-            className={isActiveRoute("about")}
-          >
-            About
+          <li>
+            <a href="/about" className={isActiveRoute("about")}>
+              About
+            </a>
           </li>
         </ul>
-      </div>
+      </nav>
 
-      <ul className="flex gap-4 w-1/3 justify-end items-center">
+      <div className="flex gap-4 w-1/3 justify-end items-center">
         {themeContext?.theme === "light" ? (
           <BsSun
             className="text-amber-400 cursor-pointer"
@@ -74,26 +87,61 @@ const Header = () => {
             onClick={() => themeContext.setTheme("light")}
           />
         )}
-        <li>
-          <Image
-            src="/images/placeholder.jpg"
-            width={25}
-            height={25}
-            alt="User avatar"
-            className="rounded-full"
-          />
-        </li>
-        <li
-          className={`text-sm font-mono px-4 py-2 rounded-md ${
-            themeContext?.theme === "light"
-              ? "text-amber-500 bg-orange-200/30 hover:bg-[#ffa11633]"
-              : "text-orange-400 bg-orange-800/30 hover:bg-[#b66d13]"
-          } cursor-pointer`}
-        >
-          Premium
-        </li>
-      </ul>
-    </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger>
+            <div className="cursor-pointer">
+              <Image
+                src="/images/placeholder.jpg"
+                width={25}
+                height={25}
+                alt="User avatar"
+                className="rounded-full"
+              />
+            </div>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem
+              className="gap-x-2 cursor-pointer"
+              onClick={() => router.push("/profile")}
+            >
+              <Image
+                src={`/images/placeholder.jpg`}
+                alt="User Image"
+                height={30}
+                width={30}
+                className="rounded-full"
+              />
+              <span> Saurabh Thapliyal </span>
+            </DropdownMenuItem>
+
+            {isAdmin && (
+              <DropdownMenuItem
+                className="gap-x-2 cursor-pointer"
+                onClick={() => router.push("/dashboard")}
+              >
+                <DashboardIcon />
+                <span>Dashboard </span>
+              </DropdownMenuItem>
+            )}
+
+            <DropdownMenuItem
+              className="gap-x-2 cursor-pointer"
+              onClick={() => router.push("/settings")}
+            >
+              <BsGear />
+              <span>Settings </span>
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="gap-x-2 cursor-pointer"
+              onClick={() => router.push("/logout")}
+            >
+              <PiSignOut />
+              <span>Signout </span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    </header>
   );
 };
 

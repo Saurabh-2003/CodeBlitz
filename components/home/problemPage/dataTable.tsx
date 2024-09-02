@@ -32,9 +32,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { getAllProblems } from "@/core/actions/problem/getAllProblems";
 import { cn } from "@/lib/utils";
 import { Search } from "lucide-react";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { IoMdCheckmarkCircleOutline } from "react-icons/io";
 import { IoInvertModeOutline } from "react-icons/io5";
 import { DataTablePagination } from "./dataTablePagination";
@@ -54,15 +55,29 @@ interface DataTableProps<TData extends DataType, TValue> {
 
 export function DataTable<TData extends DataType, TValue>({
   columns,
-  data,
 }: DataTableProps<TData, TValue>) {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
   );
+  const [data, setData] = useState<
+    {
+      title: string;
+      difficulty: string;
+      acceptancePercentage: string;
+    }[]
+  >([]);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
 
+  useEffect(() => {
+    const fetchData = async () => {
+      const { data, error } = await getAllProblems();
+      setData(data);
+      console.log(data);
+    };
+    fetchData();
+  }, []);
   const table = useReactTable({
     data,
     columns,
@@ -177,9 +192,9 @@ export function DataTable<TData extends DataType, TValue>({
                       className={cn(
                         "p-3",
                         cell.column.id === "difficulty" && {
-                          "text-green-600": cell.getValue() === "easy",
-                          "text-red-600": cell.getValue() === "hard",
-                          "text-yellow-400": cell.getValue() === "medium",
+                          "text-green-600": cell.getValue() === "EASY",
+                          "text-red-600": cell.getValue() === "HARD",
+                          "text-yellow-400": cell.getValue() === "MEDIUM",
                         },
                         cell.column.id === "status" &&
                           "flex items-center gap-2",
@@ -202,7 +217,7 @@ export function DataTable<TData extends DataType, TValue>({
                         </>
                       ) : cell.column.id === "title" ? (
                         <>
-                          {row?.original?.id}.{" "}
+                          {index + 1}.{" "}
                           {flexRender(
                             cell.column.columnDef.cell,
                             cell.getContext(),

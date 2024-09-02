@@ -11,7 +11,7 @@ export default function Home() {
       <h1
         className="text-4xl sm:text-7xl font-bold relative z-20 bg-clip-text text-transparent py-8
         dark:bg-gradient-to-b dark:from-neutral-200 dark:to-neutral-500
-        bg-gradient-to-b from-neutral-700 to-neutral-800"
+        bg-gradient-to-b from-neutral-700 to-neutral-800 max-md:text-center"
       >
         Welcome to CodeBlitz
       </h1>

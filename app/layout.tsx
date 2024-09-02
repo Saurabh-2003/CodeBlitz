@@ -23,7 +23,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <div
-          className={`container px-0 max-w-[1920px] bg-background  ${inter.className}`}
+          className={`container px-0 antialiased max-w-[1920px] bg-background  ${inter.className}`}
         >
           <ProfileStoreProvider>
             <AuthProvider>

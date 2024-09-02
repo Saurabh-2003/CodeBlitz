@@ -27,7 +27,7 @@ const menuItems = [
   },
   {
     id: "create-problem",
-    label: "Create Product",
+    label: "Create Problem",
     path: "/dashboard/create-problem",
     icon: <IoCreateOutline size={20} />,
   },
@@ -128,7 +128,7 @@ const DashboardSidebar = () => {
 
           <div
             className="flex group overflow-visible  rounded-lg  cursor-pointer px-2 py-2 gap-2 items-center  dark:hover:text-violet-100 hover:text-amber-600 hover:bg-[#ffa11633]  "
-            onClick={() => navigate.push("/products")}
+            onClick={() => navigate.push("/problem")}
           >
             <MdExitToApp size={20} />
             <span>Exit</span>
@@ -142,7 +142,7 @@ const DashboardSidebar = () => {
             />
             <div className="flex flex-col">
               <h3 className="text-sm text-zinc-800 dark:text-slate-200 font-bold">
-                {user?.name ? user?.image : "test"}
+                {user?.name ? user?.name : "test"}
               </h3>
               <h3 className="text-xs">
                 {user?.email ? user?.email : "test@gmail.com"}

@@ -1,181 +1,125 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+"use client";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
 } from "@/components/ui/card";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { deleteProblem } from "@/core/actions/problem/delete-problem";
+import { getAdminAllProblems } from "@/core/actions/problem/get-admin-problems";
 import { ListFilter, MoreHorizontal, PlusCircle } from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
-const problems = [
-  {
-    number: 1,
-    name: "Two Sum",
-    createdAt: "2024-01-01 12:00 AM",
-    difficulty: "Easy",
-    tags: ["Array", "HashTable"],
-    author: {
-      name: "Jane Doe",
-      image: "/path/to/author-image.jpg",
-    },
-  },
-  {
-    number: 2,
-    name: "Longest Substring Without Repeating Characters",
-    createdAt: "2024-01-05 02:30 PM",
-    difficulty: "Medium",
-    tags: ["String", "Sliding Window"],
-    author: {
-      name: "John Smith",
-      image: "/path/to/author-image.jpg",
-    },
-  },
-  {
-    number: 3,
-    name: "Median of Two Sorted Arrays",
-    createdAt: "2024-01-10 09:15 AM",
-    difficulty: "Hard",
-    tags: ["Array", "Binary Search"],
-    author: {
-      name: "Alice Johnson",
-      image: "/path/to/author-image.jpg",
-    },
-  },
-  {
-    number: 4,
-    name: "Valid Parentheses",
-    createdAt: "2024-01-12 04:45 PM",
-    difficulty: "Easy",
-    tags: ["Stack", "String"],
-    author: {
-      name: "Emily Davis",
-      image: "/path/to/author-image.jpg",
-    },
-  },
-  {
-    number: 5,
-    name: "Merge Intervals",
-    createdAt: "2024-01-15 11:30 AM",
-    difficulty: "Medium",
-    tags: ["Array", "Sorting"],
-    author: {
-      name: "Michael Brown",
-      image: "/path/to/author-image.jpg",
-    },
-  },
-  {
-    number: 6,
-    name: "Jump Game",
-    createdAt: "2024-01-20 06:20 PM",
-    difficulty: "Hard",
-    tags: ["Array", "Dynamic Programming"],
-    author: {
-      name: "Linda White",
-      image: "/path/to/author-image.jpg",
-    },
-  },
-  {
-    number: 7,
-    name: "Word Break",
-    createdAt: "2024-01-25 08:10 AM",
-    difficulty: "Medium",
-    tags: ["String", "Dynamic Programming"],
-    author: {
-      name: "David Wilson",
-      image: "/path/to/author-image.jpg",
-    },
-  },
-  {
-    number: 8,
-    name: "Climbing Stairs",
-    createdAt: "2024-02-01 03:00 PM",
-    difficulty: "Easy",
-    tags: ["Dynamic Programming", "Math"],
-    author: {
-      name: "Sophia Martinez",
-      image: "/path/to/author-image.jpg",
-    },
-  },
-  {
-    number: 9,
-    name: "Decode Ways",
-    createdAt: "2024-02-05 10:00 AM",
-    difficulty: "Medium",
-    tags: ["String", "Dynamic Programming"],
-    author: {
-      name: "Oliver Garcia",
-      image: "/path/to/author-image.jpg",
-    },
-  },
-  {
-    number: 10,
-    name: "Longest Palindromic Substring",
-    createdAt: "2024-02-10 01:45 PM",
-    difficulty: "Hard",
-    tags: ["String", "Dynamic Programming"],
-    author: {
-      name: "Amelia Rodriguez",
-      image: "/path/to/author-image.jpg",
-    },
-  },
-];
-
-const difficultyColors = new Map([
-  ["Easy", "bg-green-100 text-green-800 hover:bg-green-100"],
+const difficultyColors = new Map<string, string>([
+  ["EASY", "bg-green-100 text-green-800 hover:bg-green-100"],
   [
-    "Medium",
+    "MEDIUM",
     "bg-amber-200/50 dark:text-yellow-400 text-yellow-500 hover:bg-amber-200/50",
   ],
-  ["Hard", "bg-red-100 text-red-800 hover:bg-red-100"],
+  ["HARD", "bg-red-100 text-red-800 hover:bg-red-100"],
 ]);
 
+interface ProblemWithTopics {
+  id: string;
+  title: string;
+  createdAt: Date;
+  difficulty: string;
+  topics: string[];
+}
+
 export default function DashboardProblems() {
+  const [problems, setProblems] = useState<ProblemWithTopics[]>([]);
+  const [selectedProblem, setSelectedProblem] =
+    useState<ProblemWithTopics | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
+  useEffect(() => {
+    async function fetchProblems() {
+      const { data, error } = await getAdminAllProblems();
+      if (error) {
+        toast.error(error);
+      } else {
+        setProblems(data ?? []);
+      }
+    }
+
+    fetchProblems();
+  }, []);
+
+  const handleDelete = async () => {
+    if (selectedProblem) {
+      try {
+        const {success, message, error} = await deleteProblem(selectedProblem.id)
+        if(success){
+          setProblems(
+            problems.filter((problem) => problem.id !== selectedProblem.id),
+          );
+          setIsDeleteDialogOpen(false);
+          toast.success(message)
+        }else{
+          toast.error(error)
+        }
+
+      } catch (error) {
+        toast.error("Failed to delete the problem");
+      }
+    }
+  };
+
   return (
-    <main className="grid flex-1 items-start gap-4  md:gap-8">
+    <main className="grid flex-1 items-start gap-4 md:gap-8">
       <Tabs defaultValue="all">
         <div className="flex items-center">
           <TabsList className="bg-white dark:bg-zinc-800">
             <TabsTrigger
-              className=" dark:data-[state=active]:bg-zinc-600 dark:data-[state=active]:text-slate-300"
+              className="dark:data-[state=active]:bg-zinc-600 dark:data-[state=active]:text-slate-300"
               value="all"
             >
               All
             </TabsTrigger>
             <TabsTrigger
-              className=" dark:data-[state=active]:bg-zinc-600 dark:data-[state=active]:text-slate-300"
+              className="dark:data-[state=active]:bg-zinc-600 dark:data-[state=active]:text-slate-300"
               value="easy"
             >
               Easy
             </TabsTrigger>
             <TabsTrigger
-              className=" dark:data-[state=active]:bg-zinc-600 dark:data-[state=active]:text-slate-300"
+              className="dark:data-[state=active]:bg-zinc-600 dark:data-[state=active]:text-slate-300"
               value="medium"
             >
               Medium
             </TabsTrigger>
             <TabsTrigger
-              className=" dark:data-[state=active]:bg-zinc-600 dark:data-[state=active]:text-slate-300"
+              className="dark:data-[state=active]:bg-zinc-600 dark:data-[state=active]:text-slate-300"
               value="hard"
             >
               Hard
@@ -219,57 +163,43 @@ export default function DashboardProblems() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Number</TableHead> {/* Added Number Header */}
-                    <TableHead>Name</TableHead>
+                    <TableHead>Number</TableHead>
+                    <TableHead>Title</TableHead>
                     <TableHead>Created At</TableHead>
                     <TableHead>Difficulty</TableHead>
-                    <TableHead>Tags</TableHead>
-                    <TableHead>Author</TableHead>
+                    <TableHead>Topics</TableHead>
                     <TableHead>
                       <span className="sr-only">Actions</span>
                     </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {problems.map((problem) => (
-                    <TableRow key={problem.number}>
-                      {" "}
-                      {/* Use problem.number as key */}
-                      <TableCell>{problem.number}</TableCell>{" "}
-                      {/* Added Number Cell */}
+                  {problems.map((problem, index) => (
+                    <TableRow key={index}>
+                      <TableCell>{index + 1}</TableCell>
                       <TableCell className="font-medium">
-                        {problem.name}
+                        {problem.title}
                       </TableCell>
-                      <TableCell>{problem.createdAt}</TableCell>
+                      <TableCell>
+                        {new Date(problem.createdAt).toLocaleString()}
+                      </TableCell>
                       <TableCell>
                         <Badge
-                          className={`${difficultyColors.get(problem?.difficulty)}`}
+                          className={difficultyColors.get(problem.difficulty)}
                         >
                           {problem.difficulty}
                         </Badge>
                       </TableCell>
-                      <TableCell className=" space-y-2">
-                        {problem.tags.slice(0, 2).map((tag) => (
+                      <TableCell className="space-y-2">
+                        {problem.topics.slice(0, 2).map((topic, idx) => (
                           <Badge
                             variant={"secondary"}
-                            key={tag}
+                            key={idx}
                             className="mr-1"
                           >
-                            {tag}
+                            {topic}
                           </Badge>
                         ))}
-                      </TableCell>
-                      <TableCell className="flex items-center gap-2">
-                        <Avatar>
-                          <AvatarImage
-                            src={problem.author.image}
-                            alt={problem.author.name}
-                          />
-                          <AvatarFallback>
-                            {problem.author.name.charAt(0)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <span>{problem.author.name}</span>
                       </TableCell>
                       <TableCell>
                         <DropdownMenu>
@@ -286,7 +216,14 @@ export default function DashboardProblems() {
                           <DropdownMenuContent align="end">
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
                             <DropdownMenuItem>Edit</DropdownMenuItem>
-                            <DropdownMenuItem>Delete</DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => {
+                                setSelectedProblem(problem);
+                                setIsDeleteDialogOpen(true);
+                              }}
+                            >
+                              Delete
+                            </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>
@@ -297,12 +234,56 @@ export default function DashboardProblems() {
             </CardContent>
             <CardFooter>
               <div className="text-xs text-muted-foreground">
-                Showing <strong>1-10</strong> of <strong>32</strong> problems
+                Showing <strong>1-{problems.length}</strong> of{" "}
+                <strong>{problems.length}</strong> problems
               </div>
             </CardFooter>
           </Card>
         </TabsContent>
       </Tabs>
+
+      <DeleteProblemDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+        selectedProblem={selectedProblem}
+        onDelete={handleDelete}
+      />
     </main>
+  );
+}
+
+interface DeleteProblemDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  selectedProblem: ProblemWithTopics | null;
+  onDelete: () => void;
+}
+
+function DeleteProblemDialog({
+  open,
+  onOpenChange,
+  selectedProblem,
+  onDelete,
+}: DeleteProblemDialogProps) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Delete Problem</DialogTitle>
+        </DialogHeader>
+        <p>Are you sure you want to delete this problem?</p>
+        <p>
+          <strong>{selectedProblem?.title}</strong>
+        </p>
+        <div className="flex justify-end mt-4">
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Cancel
+          </Button>
+          <Button variant="destructive" className="ml-2" onClick={onDelete}>
+            Delete
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }

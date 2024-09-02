@@ -2,7 +2,6 @@
 
 import { authOptions } from "@/core/auth/auth";
 import { db } from "@/core/db/db";
-import GetServerSession from "@/core/hooks/getServerSession";
 import { getServerSession } from "next-auth";
 
 export const UserDetail = async () => {
@@ -24,7 +23,7 @@ export const UserDetail = async () => {
       },
     });
 
-    return user;
+    return { user: user };
   } catch (error: any) {
     return { e: "Internal server error" };
   }

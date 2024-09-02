@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Home } from "lucide-react";
 import { usePathname } from "next/navigation";
+import React from "react";
 
 const BreadCrumbs: React.FC = () => {
   const pathname = usePathname();
@@ -25,7 +26,7 @@ const BreadCrumbs: React.FC = () => {
   });
 
   return (
-    <Breadcrumb className="text-xs  flex items-center  w-full mb-10  p-4 rounded-xl bg-white dark:bg-zinc-800">
+    <Breadcrumb className="text-xs flex items-center w-full mb-10 p-4 rounded-xl bg-white shadow-md border dark:bg-zinc-800">
       <BreadcrumbList className="flex items-center w-auto px-0">
         <BreadcrumbItem>
           <span className="flex flex-row items-center gap-1">
@@ -33,16 +34,18 @@ const BreadCrumbs: React.FC = () => {
             <BreadcrumbLink href="/">Home</BreadcrumbLink>
           </span>
         </BreadcrumbItem>
-        <BreadcrumbSeparator />
+        {/* Use a separator before breadcrumb items but not inside them */}
         {breadcrumbs.map((crumb, index) => (
-          <BreadcrumbItem key={crumb.href}>
-            <BreadcrumbLink href={crumb.href}>
-              <span className="flex items-center gap-1">
-                {index > 0 && <BreadcrumbSeparator />}
-                {decodeURIComponent(crumb.label)}
-              </span>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
+          <React.Fragment key={crumb.href}>
+            {index > 0 && <BreadcrumbSeparator />}
+            <BreadcrumbItem>
+              <BreadcrumbLink href={crumb.href}>
+                <span className="flex items-center gap-1">
+                  {decodeURIComponent(crumb.label)}
+                </span>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+          </React.Fragment>
         ))}
       </BreadcrumbList>
     </Breadcrumb>

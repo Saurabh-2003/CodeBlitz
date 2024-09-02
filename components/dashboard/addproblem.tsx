@@ -36,7 +36,7 @@ import {
 } from "../ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 type Difficulty = "EASY" | "MEDIUM" | "HARD";
-interface ProblemSchemaType extends z.infer<typeof problemSchema> { }
+interface ProblemSchemaType extends z.infer<typeof problemSchema> {}
 
 // const Constraint = ({ text }: { text: string }) => {
 //   const renderText = (text: string) => {
@@ -57,7 +57,6 @@ export const AddProblem = () => {
   const [inputValue, setInputValue] = useState("");
   const [openInput, setOpenInput] = useState(false);
   const [topicList, setTopic] = useState<string[]>([]);
-
 
   const {
     control,
@@ -106,7 +105,6 @@ export const AddProblem = () => {
     if (message) {
       toast.success(message);
     }
-
   };
 
   const selecttopic = (item: string) => {
@@ -176,7 +174,9 @@ export const AddProblem = () => {
           />
           <ul>
             {errors?.title && (
-              <p className="text-red-500 text-xs pt-2">{errors?.title?.message}</p>
+              <p className="text-red-500 text-xs pt-2">
+                {errors?.title?.message}
+              </p>
             )}
           </ul>
         </div>
@@ -189,7 +189,9 @@ export const AddProblem = () => {
           />
           <ul>
             {errors?.description && (
-              <p className="text-red-500 text-xs pt-2">{errors?.description?.message}</p>
+              <p className="text-red-500 text-xs pt-2">
+                {errors?.description?.message}
+              </p>
             )}
           </ul>
         </div>
@@ -214,7 +216,9 @@ export const AddProblem = () => {
           </div>
           <ul>
             {errors?.difficulty && (
-              <p className="text-red-500 text-xs">{errors?.difficulty?.message}</p>
+              <p className="text-red-500 text-xs">
+                {errors?.difficulty?.message}
+              </p>
             )}
           </ul>
         </div>
@@ -234,7 +238,7 @@ export const AddProblem = () => {
             >
               <CommandEmpty>No results found.</CommandEmpty>
               <CommandGroup heading="Topics">
-                {topicList.length > 1 &&
+                {topicList.length >= 1 &&
                   topicList.map((item, index) => {
                     return (
                       <CommandItem
@@ -412,7 +416,9 @@ export const AddProblem = () => {
           </ScrollArea>
           <ul>
             {errors?.constraints && (
-              <p className="text-red-500 text-xs">{errors?.constraints?.message}</p>
+              <p className="text-red-500 text-xs">
+                {errors?.constraints?.message}
+              </p>
             )}
           </ul>
         </div>
@@ -428,15 +434,27 @@ export const AddProblem = () => {
               <TabsTrigger value="javascript">Javascript</TabsTrigger>
             </TabsList>
             <TabsContent value="c++">
-              <Textarea className="min-h-[200px]" placeholder="Write c++ driver function here..." {...register("driverFunction.cplusplus")}/>
+              <Textarea
+                className="min-h-[200px]"
+                placeholder="Write c++ driver function here..."
+                {...register("driverFunction.cplusplus")}
+              />
             </TabsContent>
 
             <TabsContent value="python">
-              <Textarea className="min-h-[200px]" placeholder="Write python driver function here..." {...register("driverFunction.python")} />
+              <Textarea
+                className="min-h-[200px]"
+                placeholder="Write python driver function here..."
+                {...register("driverFunction.python")}
+              />
             </TabsContent>
 
             <TabsContent value="javascript">
-              <Textarea className="min-h-[200px]" placeholder="Write javascript driver function here..." {...register("driverFunction.javascript")} />
+              <Textarea
+                className="min-h-[200px]"
+                placeholder="Write javascript driver function here..."
+                {...register("driverFunction.javascript")}
+              />
             </TabsContent>
           </Tabs>
         </div>
