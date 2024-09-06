@@ -88,7 +88,7 @@ const DashboardSidebar = () => {
           <Image
             height={20}
             width={20}
-            src={"/images/leetcode.png"}
+            src={"/codeblitz.png"}
             alt="Leetcode Icon"
             className=" size-8 dark:bg-zinc-700  text-zinc-700 dark:text-zinc-300 p-1 rounded-lg"
           />

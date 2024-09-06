@@ -100,7 +100,8 @@ model Authenticator {
 model Problem {
   id           String         @id @default(uuid()) @db.VarChar(36)
   title        String
-  description  String
+  // description  String
+  description  String         @db.MediumText
   difficulty   Difficulty
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @default(now())
@@ -110,14 +111,20 @@ model Problem {
   constraints  Constraint[]
   inputs       String?
   outputs      String?
-  pythonDriver String
-  cppDriver    String
-  jsDriver     String
+  // pythonDriver String
+  pythonDriver String         @db.MediumText
+  // cppDriver    String
+  cppDriver    String         @db.MediumText
+  // jsDriver     String
+  jsDriver     String         @db.MediumText
 }
+
+// @db.Text @db.MediumText @db.LongText for storing large text
 
 model Submission {
   id        String           @id @default(uuid()) @db.VarChar(36)
-  code      String
+  // code      String
+  code      String           @db.MediumText
   status    SubmissionStatus
   createdAt DateTime         @default(now())
   userId    String

@@ -4,11 +4,19 @@ import { useProfileStore } from "@/core/providers/profile-store-provider";
 import Image from "next/image";
 import { useEffect } from "react";
 import { HiOutlineTag } from "react-icons/hi";
-import { IoLocationOutline } from "react-icons/io5";
 import StatsCard from "./stats";
 
-export const Profile = () => {
+interface ProfileProps {
+  problemCounts: {
+    EASY: number;
+    MEDIUM: number;
+    HARD: number;
+  };
+}
+
+export const Profile: React.FC<ProfileProps> = ({ problemCounts }) => {
   const { user } = useProfileStore((state) => state);
+
   const username = "grinding_leetcode";
   const rank = 83437;
   const skills = [
@@ -20,6 +28,7 @@ export const Profile = () => {
     "MongoDB",
     "Express",
   ];
+
   useEffect(() => {
     console.log(user);
   }, [user]);
@@ -50,32 +59,38 @@ export const Profile = () => {
           </button>
         </div>
         <StatsCard
-          totalSolved={120}
-          totalProblems={200}
-          easySolved={50}
-          easyTotal={70}
-          mediumSolved={40}
-          mediumTotal={80}
-          hardSolved={30}
-          hardTotal={50}
+          totalSolved={
+            (user?.easySolved || 0) +
+            (user?.mediumSolved || 0) +
+            (user?.hardSolved || 0)
+          }
+          totalProblems={
+            problemCounts?.EASY + problemCounts?.MEDIUM + problemCounts?.HARD
+          }
+          easySolved={user?.easySolved || 0}
+          easyTotal={problemCounts?.EASY}
+          mediumSolved={user?.mediumSolved || 0}
+          mediumTotal={problemCounts?.MEDIUM}
+          hardSolved={user?.hardSolved || 0}
+          hardTotal={problemCounts?.HARD}
         />
       </div>
-      <div className="flex self-start mt-6 text-sm gap-2 text-gray-700">
-        <IoLocationOutline size={18} /> India
-      </div>
-      <div className="flex self-start mt-6 gap-2 text-gray-700">
-        <HiOutlineTag size={18} />
-        <ul className="flex flex-wrap gap-2">
-          {skills.map((skill, index) => (
-            <li
-              key={index}
-              className=" text-[11px] py-1 px-2 text-stone-700 bg-stone-100 rounded-full"
-            >
-              {skill}
-            </li>
-          ))}
-        </ul>
-      </div>
+
+      {user?.skills && (
+        <div className="flex self-start mt-6 gap-2 text-gray-700">
+          <HiOutlineTag size={30} />
+          <ul className="flex flex-wrap gap-2">
+            {skills.map((skill, index) => (
+              <li
+                key={index}
+                className=" text-[11px] py-1 px-2 text-stone-700 bg-stone-100 rounded-full"
+              >
+                {skill}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </aside>
   );
 };

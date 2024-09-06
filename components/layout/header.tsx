@@ -41,10 +41,10 @@ const Header = () => {
     <header className="flex shadow-sm py-2 justify-between min-h-10 w-full px-2 items-center bg-white dark:bg-gray-900">
       <div className="w-1/3">
         <Image
-          src="/images/leetcode.png"
+          src="/codeblitz.png"
           width={38}
           height={38}
-          alt="LeetCode logo"
+          alt="codeblitz logo"
           className="p-2"
         />
       </div>

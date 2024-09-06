@@ -30,6 +30,7 @@ export async function getAllProblems() {
           : 0;
 
       return {
+        id: problem.id,
         title: problem.title,
         difficulty: problem.difficulty,
         acceptancePercentage: acceptancePercentage.toFixed(2), // rounding to 2 decimal places

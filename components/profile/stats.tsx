@@ -93,10 +93,10 @@ const Questions: React.FC<QuestionsProps> = ({
       <div className="flex justify-between w-[200px] mb-1">
         <p className="w-[50px]  text-sm">{type}</p>
         <div className="flex items-center">
-          <span className="ml-[9px] mr-[5px] text-sm font-medium leading-[20px] text-[#FFFEFE]">
+          <span className="ml-[9px] mr-[5px] text-xs font-medium leading-[20px] text-stone-500">
             {solved}
           </span>
-          <span className="text-xs font-medium text-[#626367]">/{total}</span>
+          <span className="text-sm font-medium text-stone-700">/{total}</span>
         </div>
       </div>
       <Line color={color} total={total} solved={solved} />

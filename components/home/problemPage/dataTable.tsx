@@ -35,6 +35,7 @@ import {
 import { getAllProblems } from "@/core/actions/problem/getAllProblems";
 import { cn } from "@/lib/utils";
 import { Search } from "lucide-react";
+import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { IoMdCheckmarkCircleOutline } from "react-icons/io";
 import { IoInvertModeOutline } from "react-icons/io5";
@@ -61,11 +62,13 @@ export function DataTable<TData extends DataType, TValue>({
   );
   const [data, setData] = useState<
     {
+      id: string;
       title: string;
       difficulty: string;
       acceptancePercentage: string;
     }[]
   >([]);
+  const router = useRouter();
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
@@ -112,10 +115,10 @@ export function DataTable<TData extends DataType, TValue>({
                 }
               >
                 <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Difficulty" />
+                  <SelectValue placeholder="All Difficulty" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Difficulty</SelectItem>
+                  <SelectItem value="all">All Difficulty</SelectItem>
                   <SelectItem value="easy">Easy</SelectItem>
                   <SelectItem value="medium">Medium</SelectItem>
                   <SelectItem value="hard">Hard</SelectItem>
@@ -131,10 +134,10 @@ export function DataTable<TData extends DataType, TValue>({
                 }
               >
                 <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Status" />
+                  <SelectValue placeholder="All Status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Status</SelectItem>
+                  <SelectItem value="all">All Status</SelectItem>
                   <SelectItem value="ACCEPTED">Accepted</SelectItem>
                   <SelectItem value="ATTEMPTED">Attempted</SelectItem>
                   <SelectItem value="NOT ATTEMPTED">Not Attempted</SelectItem>
@@ -182,7 +185,12 @@ export function DataTable<TData extends DataType, TValue>({
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row, index) => (
                 <TableRow
-                  className={cn("border-b-0", index % 2 != 0 && "bg-gray-100")}
+                  onClick={() => router.push(`/problem/${row.original.id}`)}
+                  className={cn(
+                    "border-b-0",
+                    index % 2 != 0 && "bg-gray-100",
+                    "cursor-pointer",
+                  )}
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
                 >

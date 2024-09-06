@@ -186,7 +186,7 @@ export default function DashboardProblems() {
         </div>
         <div className="ml-auto flex items-center gap-2">
           <Link href={"/dashboard/create-problem"}>
-            <Button size="sm" variant="outline" className="h-8 gap-1">
+            <Button className=" gap-1">
               <PlusCircle className="h-3.5 w-3.5" />
               <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
                 Add Problem
