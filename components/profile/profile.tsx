@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useEffect } from "react";
 import { HiOutlineTag } from "react-icons/hi";
 import StatsCard from "./stats";
+import UpdateProfileDialogue from "./updateProfileDialog";
 
 interface ProfileProps {
   problemCounts: {
@@ -17,8 +18,6 @@ interface ProfileProps {
 export const Profile: React.FC<ProfileProps> = ({ problemCounts }) => {
   const { user } = useProfileStore((state) => state);
 
-  const username = "grinding_leetcode";
-  const rank = 83437;
   const skills = [
     "ReactJS",
     "TailwindCSS",
@@ -54,9 +53,7 @@ export const Profile: React.FC<ProfileProps> = ({ problemCounts }) => {
             <span className="font-bold">{user?.name}</span>
             <span className="text-slate-400 text-sm">{user?.email}</span>
           </div>
-          <button className="w-full text-green-500 p-2 mt-4 rounded-xl text-sm bg-emerald-500/10">
-            Edit Profile
-          </button>
+          <UpdateProfileDialogue user={user} />
         </div>
         <StatsCard
           totalSolved={

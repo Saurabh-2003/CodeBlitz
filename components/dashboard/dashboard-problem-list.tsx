@@ -52,6 +52,7 @@ import { MoreHorizontal, PlusCircle } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+import { UpdateProblem } from "./updateproblem";
 
 const difficultyColors = new Map<string, string>([
   ["EASY", "bg-green-100 text-green-800 hover:bg-green-100"],
@@ -75,7 +76,7 @@ export default function DashboardProblems() {
   const [selectedProblem, setSelectedProblem] =
     useState<ProblemWithTopics | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [difficultyFilter, setDifficultyFilter] = useState<string | "all">(
     "all",
   );
@@ -251,7 +252,14 @@ export default function DashboardProblems() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem>Edit</DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => {
+                            setSelectedProblem(problem);
+                            setIsEditDialogOpen(true);
+                          }}
+                        >
+                          Edit
+                        </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() => {
                             setSelectedProblem(problem);
@@ -276,6 +284,11 @@ export default function DashboardProblems() {
         </CardFooter>
       </Card>
 
+      <EditProblemDialogue
+        open={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
+        selectedProblem={selectedProblem}
+      />
       <DeleteProblemDialog
         open={isDeleteDialogOpen}
         onOpenChange={setIsDeleteDialogOpen}
@@ -291,6 +304,17 @@ interface DeleteProblemDialogProps {
   onOpenChange: (open: boolean) => void;
   selectedProblem: ProblemWithTopics | null;
   onDelete: () => void;
+}
+
+function EditProblemDialogue({ open, onOpenChange, selectedProblem }: any) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="h-full max-w-fit  overflow-y-scroll">
+        <div className="flex justify-end mt-4"></div>
+        <UpdateProblem id={selectedProblem?.id} />
+      </DialogContent>
+    </Dialog>
+  );
 }
 
 function DeleteProblemDialog({

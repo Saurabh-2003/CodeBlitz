@@ -22,7 +22,8 @@ import {
 } from "@/components/ui/command";
 
 import { TopicList } from "@/core/actions";
-import { NewProblem } from "@/core/actions/problem/newproblem";
+import { getProblem } from "@/core/actions/problem/getproblem";
+import { UpdateProblemAction } from "@/core/actions/problem/updateproblem";
 import { NewTopic } from "@/core/actions/topics";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -35,14 +36,9 @@ import {
   SelectValue,
 } from "../ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-import { useParams, useRouter } from "next/navigation";
-import { getProblem } from "@/core/actions/problem/getproblem";
-import { UpdateProblemAction } from "@/core/actions/problem/updateproblem";
-
-
 
 type Difficulty = "EASY" | "MEDIUM" | "HARD";
-interface ProblemSchemaType extends z.infer<typeof problemSchema> { }
+interface ProblemSchemaType extends z.infer<typeof problemSchema> {}
 
 interface ProblemProp {
   title: string;
@@ -52,10 +48,12 @@ interface ProblemProp {
   hints: string[];
   constraints: string[];
   driverFunction: {
-    cplusplus: string,
-    python: string,
-    javascript: string,
-  }
+    cplusplus: string;
+    python: string;
+    javascript: string;
+  };
+  inputs?: string;
+  outputs?: string;
 }
 
 // const Constraint = ({ text }: { text: string }) => {
@@ -72,22 +70,15 @@ interface ProblemProp {
 //   return <div>{renderText(text)}</div>;
 // };
 
-export const UpdateProblem = () => {
+export const UpdateProblem = ({ id }: { id: string }) => {
   const [x, setx] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [openInput, setOpenInput] = useState(false);
   const [topicList, setTopic] = useState<string[]>([]);
-
-  const params = useParams();
-  let problemId: string;
-
-  if (Array.isArray(params.id)) {
-    // If it's an array, take the first element, or handle it as needed
-    problemId = params.id[0];
-  } else {
-    // If it's already a string
-    problemId = params.id;
-  }
+  const [inputUrl, setInputUrl] = useState<string | null>(null);
+  const [outputUrl, setOutputUrl] = useState<string | null>(null);
+  const [inputBase64, setInputBase64] = useState<string | null>(null);
+  const [outputBase64, setOutputBase64] = useState<string | null>(null);
   const {
     control,
     register,
@@ -123,12 +114,12 @@ export const UpdateProblem = () => {
     control,
     name: "topics",
   });
-
+  const [problem, setProblem] = useState<any>(null);
   // const isSubmittable = !!isDirty && !!isValid;
 
   const onSubmit = async (formdata: any) => {
     console.log(formdata, "form submitted");
-    const { message, error } = await UpdateProblemAction(formdata,problemId);
+    const { message, error } = await UpdateProblemAction(formdata, id);
     if (error) {
       toast.error(error);
     }
@@ -170,29 +161,72 @@ export const UpdateProblem = () => {
     }
   };
 
+
+  // Convert the files
+  const handleFileUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    url:string,
+    setUrl: React.Dispatch<React.SetStateAction<string | null>>,
+  ) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    const file = e.target.files[0];
+
+    try {
+      const base64 = await convertToBase64(file);
+      // const response = await uploadToCloudinary(base64, file.name);
+      // const response = await axios.get(url);
+        setUrl(base64);
+    } catch (error) {
+      console.error("Error uploading file:", error);
+    }
+  };
+
+  const convertToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+    });
+  };
+
+  // Fetch the data of the problem and set the previous values as default values of the form
   useEffect(() => {
     const fetchData = async () => {
       const { newtopicList, message } = await TopicList();
-      const { problem } = await getProblem(problemId)
+      const { problem } = await getProblem(id);
+      setProblem(problem);
       if (!newtopicList || message || !problem) {
         toast.error(message);
         return;
       }
-      console.log(problem);
-      const topicNames = problem.topics.map(pt => pt.topic.name);
-      const hintNames = problem.hints.map(pt => pt.name);
-      const constraintNames = problem.constraints.map(pt => pt.name);
+      const topicNames = problem.topics.map((pt) => pt.topic.name);
+      const hintNames = problem.hints.map((pt) => pt.name);
+      const constraintNames = problem.constraints.map((pt) => pt.name);
 
       const newData = [...newtopicList, "others"];
-      reset({ title: problem.title, description: problem.description, difficulty: problem.difficulty, topics:  topicNames.map((topic) => ({ topic })), hints: hintNames.map((hint) => ({ hint })),
-      constraints: constraintNames.map((constraint) => ({ constraint })), driverFunction: { cplusplus: problem.cppDriver, python: problem.pythonDriver, javascript: problem.jsDriver } });
+      reset({
+        title: problem.title,
+        description: problem.description,
+        difficulty: problem.difficulty,
+        topics: topicNames.map((topic) => ({ topic })),
+        hints: hintNames.map((hint) => ({ hint })),
+        constraints: constraintNames.map((constraint) => ({ constraint })),
+        driverFunction: {
+          cplusplus: problem.cppDriver,
+          python: problem.pythonDriver,
+          javascript: problem.jsDriver,
+        },
+      });
+      setInputUrl(problem?.inputs);
+      setOutputUrl(problem?.outputs);
       setTopic(newData);
     };
     fetchData();
-  }, [setTopic]);
+  }, [id]);
 
   return (
-    <div className="w-full h-full antialiased items-center justify-center">
+    <div className="max-w-[90dvw] w-[80dvw] h-full antialiased items-center justify-center">
       <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-4">
         <div className="flex items-center justify-between mb-10 bg-zinc-200 p-4 rounded-md border border-zinc-400">
           <h2 className="text-2xl font-bold">Update Problem</h2>
@@ -212,7 +246,9 @@ export const UpdateProblem = () => {
           />
           <ul>
             {errors?.title && (
-              <p className="text-red-500 text-xs pt-2">{errors?.title?.message}</p>
+              <p className="text-red-500 text-xs pt-2">
+                {errors?.title?.message}
+              </p>
             )}
           </ul>
         </div>
@@ -225,7 +261,9 @@ export const UpdateProblem = () => {
           />
           <ul>
             {errors?.description && (
-              <p className="text-red-500 text-xs pt-2">{errors?.description?.message}</p>
+              <p className="text-red-500 text-xs pt-2">
+                {errors?.description?.message}
+              </p>
             )}
           </ul>
         </div>
@@ -233,6 +271,7 @@ export const UpdateProblem = () => {
           <Label>Difficulty</Label>
           <div className=" w-full">
             <Select
+              value={problem?.difficulty}
               onValueChange={(e: Difficulty) => setValue("difficulty", e)}
             >
               <SelectTrigger className="w-full focus-visible:ring-0">
@@ -250,7 +289,9 @@ export const UpdateProblem = () => {
           </div>
           <ul>
             {errors?.difficulty && (
-              <p className="text-red-500 text-xs">{errors?.difficulty?.message}</p>
+              <p className="text-red-500 text-xs">
+                {errors?.difficulty?.message}
+              </p>
             )}
           </ul>
         </div>
@@ -448,7 +489,9 @@ export const UpdateProblem = () => {
           </ScrollArea>
           <ul>
             {errors?.constraints && (
-              <p className="text-red-500 text-xs">{errors?.constraints?.message}</p>
+              <p className="text-red-500 text-xs">
+                {errors?.constraints?.message}
+              </p>
             )}
           </ul>
         </div>
@@ -464,24 +507,42 @@ export const UpdateProblem = () => {
               <TabsTrigger value="javascript">Javascript</TabsTrigger>
             </TabsList>
             <TabsContent value="c++">
-              <Textarea className="min-h-[200px]" placeholder="Write c++ driver function here..." {...register("driverFunction.cplusplus")} />
+              <Textarea
+                className="min-h-[200px]"
+                placeholder="Write c++ driver function here..."
+                {...register("driverFunction.cplusplus")}
+              />
             </TabsContent>
 
             <TabsContent value="python">
-              <Textarea className="min-h-[200px]" placeholder="Write python driver function here..." {...register("driverFunction.python")} />
+              <Textarea
+                className="min-h-[200px]"
+                placeholder="Write python driver function here..."
+                {...register("driverFunction.python")}
+              />
             </TabsContent>
 
             <TabsContent value="javascript">
-              <Textarea className="min-h-[200px]" placeholder="Write javascript driver function here..." {...register("driverFunction.javascript")} />
+              <Textarea
+                className="min-h-[200px]"
+                placeholder="Write javascript driver function here..."
+                {...register("driverFunction.javascript")}
+              />
             </TabsContent>
           </Tabs>
         </div>
 
         <div className="w-full space-y-2">
+          <Label>Input File</Label>
           <div className="flex gap-x-4 items-center justify-between">
-            <Label>Inputs</Label>
+            <Input type="file" />
+            <Button>Upload</Button>
           </div>
-          <div className="w-full h-[100px]">space</div>
+          <Label> Output File </Label>
+          <div className="flex gap-x-4 items-center justify-between">
+            <Input type="file" />
+            <Button>Upload</Button>
+          </div>
         </div>
 
         {/* <div>{errors.map((error, index))}</div> */}
