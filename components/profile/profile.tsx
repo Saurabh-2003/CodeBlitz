@@ -18,16 +18,6 @@ interface ProfileProps {
 export const Profile: React.FC<ProfileProps> = ({ problemCounts }) => {
   const { user } = useProfileStore((state) => state);
 
-  const skills = [
-    "ReactJS",
-    "TailwindCSS",
-    "MongoDB",
-    "Express",
-    "TailwindCSS",
-    "MongoDB",
-    "Express",
-  ];
-
   useEffect(() => {
     console.log(user);
   }, [user]);
@@ -41,7 +31,7 @@ export const Profile: React.FC<ProfileProps> = ({ problemCounts }) => {
             height={400}
             width={400}
             alt="User Image"
-            className=" size-24 bg-red-600 rounded-full overflow-hidden object-fill"
+            className=" size-24  rounded-full overflow-hidden object-fill"
             src={user?.image ? user?.image : "/placeholder.jpg"}
           />
           <div className="flex flex-col h-full items-center ">
@@ -77,10 +67,10 @@ export const Profile: React.FC<ProfileProps> = ({ problemCounts }) => {
         <div className="flex self-start mt-6 gap-2 text-gray-700">
           <HiOutlineTag size={30} />
           <ul className="flex flex-wrap gap-2">
-            {skills.map((skill, index) => (
+            {user.skills.split(",").map((skill, index) => (
               <li
                 key={index}
-                className=" text-[11px] py-1 px-2 text-stone-700 bg-stone-100 rounded-full"
+                className=" text-[10px] py-1 h-fit px-2 text-stone-700 bg-stone-100 rounded-full"
               >
                 {skill}
               </li>

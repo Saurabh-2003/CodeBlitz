@@ -23,8 +23,9 @@ import {
 
 import { TopicList } from "@/core/actions";
 import { getProblem } from "@/core/actions/problem/getproblem";
-import { UpdateProblemAction } from "@/core/actions/problem/updateproblem";
+import { updateProblemData } from "@/core/actions/problem/updateproblem";
 import { NewTopic } from "@/core/actions/topics";
+import { uploadToCloudinary } from "@/lib/uploadfile";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { ScrollArea } from "../ui/scroll-area";
@@ -118,8 +119,14 @@ export const UpdateProblem = ({ id }: { id: string }) => {
   // const isSubmittable = !!isDirty && !!isValid;
 
   const onSubmit = async (formdata: any) => {
+    formdata.inputUrl = inputUrl;
+    formdata.outputUrl = outputUrl;
+    formdata.id = id;
     console.log(formdata, "form submitted");
-    const { message, error } = await UpdateProblemAction(formdata, id);
+    const { message, error, hints } = await updateProblemData(formdata);
+    console.log("hints", hints);
+    console.log(error);
+    console.log(message);
     if (error) {
       toast.error(error);
     }
@@ -161,11 +168,9 @@ export const UpdateProblem = ({ id }: { id: string }) => {
     }
   };
 
-
   // Convert the files
   const handleFileUpload = async (
     e: React.ChangeEvent<HTMLInputElement>,
-    url:string,
     setUrl: React.Dispatch<React.SetStateAction<string | null>>,
   ) => {
     if (!e.target.files || e.target.files.length === 0) return;
@@ -173,9 +178,14 @@ export const UpdateProblem = ({ id }: { id: string }) => {
 
     try {
       const base64 = await convertToBase64(file);
-      // const response = await uploadToCloudinary(base64, file.name);
-      // const response = await axios.get(url);
-        setUrl(base64);
+      const response = await uploadToCloudinary(base64, file.name);
+
+      if (response.success) {
+        setUrl(response.result?.secure_url || null);
+        console.log("File uploaded successfully:", response.result?.secure_url);
+      } else {
+        console.error("File upload failed:", response.error);
+      }
     } catch (error) {
       console.error("Error uploading file:", error);
     }
@@ -533,15 +543,27 @@ export const UpdateProblem = ({ id }: { id: string }) => {
         </div>
 
         <div className="w-full space-y-2">
-          <Label>Input File</Label>
-          <div className="flex gap-x-4 items-center justify-between">
-            <Input type="file" />
-            <Button>Upload</Button>
+          <div className="flex flex-col gap-2 justify-between">
+            <Label htmlFor="inputFile">Input File</Label>
+            <div className="flex gap-x-4">
+              <Input
+                id="inputFile"
+                type="file"
+                onChange={(e) => handleFileUpload(e, setInputUrl)}
+              />
+              <Button>Upload</Button>
+            </div>
           </div>
-          <Label> Output File </Label>
-          <div className="flex gap-x-4 items-center justify-between">
-            <Input type="file" />
-            <Button>Upload</Button>
+          <div className="flex flex-col gap-2 justify-between">
+            <Label htmlFor="outputFile">Output File</Label>
+            <div className="flex gap-x-4">
+              <Input
+                id="outputFile"
+                type="file"
+                onChange={(e) => handleFileUpload(e, setOutputUrl)}
+              />
+              <Button>Upload</Button>
+            </div>
           </div>
         </div>
 

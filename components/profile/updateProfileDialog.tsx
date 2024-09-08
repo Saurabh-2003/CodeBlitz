@@ -13,25 +13,46 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useState } from "react";
+import { UserUpdate } from "@/core";
+import { useEffect, useState } from "react";
 import { BiTrash } from "react-icons/bi";
 import { CgLink } from "react-icons/cg";
 import { FaGithub, FaLinkedin } from "react-icons/fa";
+import { toast } from "sonner";
 
 export default function UpdateProfileDialogue({ user }: any) {
   // Initialize state with user props or default values
+  // Initialize state with user props or default values
+
+  const [previewImage, setPreviewImage] = useState<string>(user?.image);
+
+  const [organization, setOrganization] = useState<string>(
+    user?.collageName || "",
+  );
+  // Initialize state with user props or default values
   const [skills, setSkills] = useState<string[]>(
-    user?.skills || ["React", "JavaScript"],
+    user?.skills ? user.skills.split(",") : [], // Split the skills string by comma, or use an empty array
   );
-  const [previewImage, setPreviewImage] = useState<string | null>(
-    user?.image || null,
-  );
-  const [organization, setOrganization] = useState(user?.collageName || "");
+
   const [socialLinks, setSocialLinks] = useState({
-    linkedin: user?.socialLinks?.linkedin || "",
-    portfolio: user?.socialLinks?.portfolio || "",
-    github: user?.socialLinks?.github || "",
+    linkedin: user?.socialLinks ? user.socialLinks.split(",")[0] : "", // First value for LinkedIn
+    portfolio: user?.socialLinks ? user.socialLinks.split(",")[1] : "", // Second value for Portfolio
+    github: user?.socialLinks ? user.socialLinks.split(",")[2] : "", // Third value for GitHub
   });
+
+  const [name, setName] = useState<string>(user?.name);
+  const [bio, setBio] = useState<string>(user?.bio);
+  const [base64Image, setBase64Image] = useState<string | undefined>(undefined);
+
+  // Track loading state
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Set preview image when user image is available
+  useEffect(() => {
+    if (user?.image) {
+      setPreviewImage(user.image); // Set the initial preview image from user data
+    }
+  }, [user?.image]); // Watch for changes in user.image
 
   const addSkill = () => {
     setSkills([...skills, ""]);
@@ -49,9 +70,18 @@ export default function UpdateProfileDialogue({ user }: any) {
     setSkills(updatedSkills);
   };
 
+  // Convert image to base64 and update state
   const handleProfileImageChange = (e: any) => {
     const file = e.target.files[0];
-    setPreviewImage(URL.createObjectURL(file));
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        setBase64Image(base64String);
+        setPreviewImage(URL.createObjectURL(file)); // Update preview
+      };
+      reader.readAsDataURL(file); // Convert to base64
+    }
   };
 
   const handleOrganizationChange = (e: any) => {
@@ -63,6 +93,62 @@ export default function UpdateProfileDialogue({ user }: any) {
       ...prevState,
       [type]: value,
     }));
+  };
+
+  // Concatenate all fields into a single string and save changes
+  const handleUpdateClick = async () => {
+    setIsSaving(true); // Disable inputs when saving starts
+
+    // Convert socialLinks and skills into comma-separated strings
+    const socialLinksString = `${socialLinks.linkedin},${socialLinks.portfolio},${socialLinks.github}`;
+    const skillsString = skills.join(",");
+
+    // Construct data object
+    const data = {
+      name,
+      bio: bio || "",
+      socialLinks: socialLinksString,
+      skills: skillsString,
+      collegeName: organization,
+      previewImage: base64Image, // Send base64 image string
+    };
+
+    try {
+      // Send data object directly
+      const result = await UserUpdate(data);
+      if (result?.error) {
+        toast.error(result?.message);
+      } else if (result?.success) {
+        toast.success("Profile Updated Successfully");
+      }
+    } catch (error) {
+      console.error("Error saving profile:", error);
+    } finally {
+      setIsSaving(false); // Re-enable inputs once saving is completed
+    }
+  };
+  useEffect(() => {
+    return () => {
+      if (previewImage) {
+        URL.revokeObjectURL(previewImage);
+      }
+    };
+  }, [previewImage]);
+
+  // Mock API call for saving data
+  const saveProfileChanges = async (data: any) => {
+    try {
+      const result = await UserUpdate(data);
+      if (result?.error) {
+        toast.error(result?.message);
+        return;
+      }
+      if (result?.success) {
+        toast.success("Profile Updated Successfully");
+      }
+    } catch (error: any) {
+      toast.error(error?.message);
+    }
   };
 
   return (
@@ -79,47 +165,54 @@ export default function UpdateProfileDialogue({ user }: any) {
         <div className="grid gap-6 py-6 md:grid-cols-1">
           <div className="flex flex-col gap-4">
             <Label htmlFor="name">Name</Label>
-            <Input id="name" defaultValue={user?.name} />
+            <Input
+              id="name"
+              defaultValue={user?.name}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              disabled={isSaving}
+            />
           </div>
           <div className="flex flex-col gap-4">
             <Label>Email</Label>
-            <Input disabled={true} defaultValue={user?.email} />
+            <Input disabled defaultValue={user?.email} />
           </div>
           <div className="flex flex-col gap-4">
             <Label htmlFor="bio">Bio</Label>
             <Textarea
               id="bio"
+              value={bio}
+              onChange={(e) => setBio(e.target.value)}
               defaultValue={user?.bio}
               className="min-h-[100px]"
-              placeholder="Enter your bio(optional)"
+              placeholder="Enter your bio (optional)"
+              disabled={isSaving}
             />
           </div>
           <div className="flex flex-col gap-4">
             <Label htmlFor="organization">Organization</Label>
             <Input
-              placeholder="Enter your college or organization you are assiciated with(optional)"
+              placeholder="Enter your college or organization (optional)"
               id="organization"
               type="text"
               value={organization}
               onChange={handleOrganizationChange}
+              disabled={isSaving}
             />
           </div>
           <div className="flex flex-col gap-4">
             <Label htmlFor="profile-image">Profile Image</Label>
             <div className="flex items-center gap-4">
               <Avatar className="w-16 h-16">
-                {previewImage ? (
-                  <AvatarImage src={previewImage} alt="Profile Image" />
-                ) : (
-                  <AvatarImage src={user?.image} alt="Profile Image" />
-                )}
-                <AvatarFallback>JD</AvatarFallback>
+                <AvatarImage src={previewImage} alt="userImage" />
+                <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
               </Avatar>
               <Input
                 id="profile-image"
                 type="file"
                 accept="image/*"
                 onChange={handleProfileImageChange}
+                disabled={isSaving}
               />
             </div>
           </div>
@@ -137,18 +230,25 @@ export default function UpdateProfileDialogue({ user }: any) {
                       type="text"
                       value={skill}
                       onChange={(e) => updateSkill(index, e.target.value)}
+                      disabled={isSaving}
                     />
                     <Button
                       variant="ghost"
                       size="icon"
                       onClick={() => removeSkill(index)}
+                      disabled={isSaving}
                     >
                       <BiTrash size={20} />
                     </Button>
                   </div>
                 ))}
               </div>
-              <Button variant="outline" size="sm" onClick={addSkill}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={addSkill}
+                disabled={isSaving}
+              >
                 Add Skill
               </Button>
             </div>
@@ -166,6 +266,7 @@ export default function UpdateProfileDialogue({ user }: any) {
                     handleSocialLinkChange("linkedin", e.target.value)
                   }
                   placeholder="LinkedIn URL (optional)"
+                  disabled={isSaving}
                 />
               </div>
               <div className="flex items-center gap-2">
@@ -178,6 +279,7 @@ export default function UpdateProfileDialogue({ user }: any) {
                     handleSocialLinkChange("portfolio", e.target.value)
                   }
                   placeholder="Portfolio URL (optional)"
+                  disabled={isSaving}
                 />
               </div>
               <div className="flex items-center gap-2">
@@ -190,6 +292,7 @@ export default function UpdateProfileDialogue({ user }: any) {
                     handleSocialLinkChange("github", e.target.value)
                   }
                   placeholder="GitHub URL (optional)"
+                  disabled={isSaving}
                 />
               </div>
             </div>
@@ -197,10 +300,11 @@ export default function UpdateProfileDialogue({ user }: any) {
         </div>
         <DialogFooter className="w-full">
           <Button
-            type="submit"
+            onClick={handleUpdateClick}
             className="w-full bg-emerald-500/20 text-emerald-500 hover:bg-emerald-500/30 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+            disabled={isSaving} // Disable button while saving
           >
-            Save
+            {isSaving ? "Saving..." : "Save"}
           </Button>
         </DialogFooter>
       </DialogContent>

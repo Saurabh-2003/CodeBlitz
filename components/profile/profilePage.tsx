@@ -55,18 +55,22 @@ const Profilepage = () => {
       </div>
 
       <div className="flex flex-col gap-4 shadow-md border  rounded-xl w-full min-h-dvh  p-8">
-        <Label className="text-center bg-gray-200 py-4 rounded-md border">
+        <Label className="text-center bg-gray-200 dark:bg-stone-900/50 py-4 rounded-md border">
           Recent AC
         </Label>
         {recentAC.length > 0 ? (
           <ul className="flex text-sm flex-col gap-2">
             {recentAC.map((d) => (
               <li
-                className="flex p-4 odd:bg-zinc-100 rounded-xl justify-between items-center"
+                className="flex p-4 odd:bg-zinc-100 dark:odd:bg-stone-900/30 rounded-xl justify-between items-center"
                 key={d.title}
               >
-                <span className="text-slate-800">{d.title}</span>
-                <span className="text-slate-500">{d.daysAgo}</span>
+                <span className="text-slate-800 dark:text-slate-500">
+                  {d.title}
+                </span>
+                <span className="text-slate-500 dark:text-slate-600">
+                  {d.daysAgo}
+                </span>
               </li>
             ))}
           </ul>
