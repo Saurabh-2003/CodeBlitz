@@ -23,18 +23,20 @@ model User {
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
 
-  role           Role    @default(USER)
-  easySolved     Int     @default(0)
-  mediumSolved   Int     @default(0)
-  hardSolved     Int     @default(0)
+  role           Role         @default(USER)
+  easySolved     Int          @default(0)
+  mediumSolved   Int          @default(0)
+  hardSolved     Int          @default(0)
   bio            String?
   location       String?
   collegeName    String?
   socialLinks    String?
   skills         String?
   communityStats Json?
-
-  submissions Submission[]
+  linkedinUrl    String?
+  githubUrl      String?
+  portfolioUrl   String?
+  submissions    Submission[]
 }
 
 model Account {
@@ -124,6 +126,7 @@ model Problem {
 model Submission {
   id        String           @id @default(uuid()) @db.VarChar(36)
   // code      String
+  language  String
   code      String           @db.MediumText
   status    SubmissionStatus
   createdAt DateTime         @default(now())

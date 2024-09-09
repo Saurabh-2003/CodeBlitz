@@ -60,10 +60,10 @@ const Profilepage = () => {
         </Label>
         {recentAC.length > 0 ? (
           <ul className="flex text-sm flex-col gap-2">
-            {recentAC.map((d) => (
+            {recentAC.map((d, index) => (
               <li
                 className="flex p-4 odd:bg-zinc-100 dark:odd:bg-stone-900/30 rounded-xl justify-between items-center"
-                key={d.title}
+                key={index}
               >
                 <span className="text-slate-800 dark:text-slate-500">
                   {d.title}

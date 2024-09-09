@@ -12,6 +12,7 @@ import submitAllCode from "@/core/actions/coderun/submitCode";
 import { loadLanguage } from "@uiw/codemirror-extensions-langs";
 import { xcodeLight } from "@uiw/codemirror-theme-xcode";
 import ReactCodeMirror from "@uiw/react-codemirror";
+import { revalidatePath } from "next/cache";
 import React, { SetStateAction, useEffect, useState } from "react";
 import { BiLoaderAlt } from "react-icons/bi";
 import { FaPlay } from "react-icons/fa";
@@ -105,6 +106,7 @@ const Editor: React.FC<EditorProps> = ({
         if (result?.status === "success") {
           toast.success(result?.message);
           setActiveTab("submission"); // Switch to submission tab on successful "Submit"
+          revalidatePath("/problem", "page");
         } else if (result?.error) {
           toast.error(result?.error);
         }

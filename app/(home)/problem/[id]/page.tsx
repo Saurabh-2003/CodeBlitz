@@ -1,12 +1,19 @@
 "use client";
 
 import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getProblem } from "@/core/actions/problem/getproblem";
+import findProblemSubmissions from "@/core/actions/submission/get-problem-submission-for-user";
 import ReactCodeMirror, {
   EditorState,
   EditorView,
@@ -19,6 +26,7 @@ import { FaHistory, FaTerminal } from "react-icons/fa";
 import { GoBook } from "react-icons/go";
 import { IoIosCheckboxOutline } from "react-icons/io";
 import { IoCodeSlashOutline } from "react-icons/io5";
+import { toast } from "sonner";
 
 // Dynamic imports
 const QuestionDescription = dynamic(
@@ -64,6 +72,7 @@ const Page: React.FC = () => {
   const [question, setQuestion] = useState<ProblemData | null>(null);
   const [testCases, setTestCases] = useState<any>(null);
   const [submission, setSubmission] = useState<any>(null);
+  const [previousSubmissions, setPreviousSubmission] = useState<any>([]);
   const [driverCode, setDriverCode] = useState<{
     cpp: string;
     javascript: string;
@@ -105,6 +114,26 @@ const Page: React.FC = () => {
       }
     };
     getProblemData();
+  }, [id]);
+
+  useEffect(() => {
+    async function findPreviousSubmissions() {
+      // Ensure `id` is a string
+      const problemId = Array.isArray(id) ? id[0] : id;
+
+      const { error, success, problemSubmissions } =
+        await findProblemSubmissions(problemId);
+      console.log(problemSubmissions);
+      if (!success) {
+        toast.error(error);
+      } else {
+        setPreviousSubmission(problemSubmissions || []); // Set submissions if available, else empty array
+      }
+    }
+
+    if (id) {
+      findPreviousSubmissions();
+    }
   }, [id]);
 
   return (
@@ -161,7 +190,45 @@ const Page: React.FC = () => {
               </TabsContent>
 
               <TabsContent value="submissions">
-                Change your password here.
+                {previousSubmissions && previousSubmissions.length > 0 ? (
+                  <Accordion type="single" collapsible className="w-full">
+                    {previousSubmissions.map((ps: any) => (
+                      <AccordionItem value={`item-${ps?.id}`} key={ps?.id}>
+                        <AccordionTrigger className="text-xs mx-2  w-full">
+                          <div className="flex justify-between w-full">
+                            <span
+                              className={`${ps?.status === "ACCEPTED" ? "text-emerald-500" : "text-red-500"}`}
+                            >
+                              {ps?.status}
+                            </span>
+                            <p className="flex gap-4 self-end">
+                              <span></span>
+                              <span>
+                                {new Date(ps?.createdAt).toLocaleString()}
+                              </span>
+                            </p>
+                          </div>
+                        </AccordionTrigger>
+                        <AccordionContent>
+                          <ReactCodeMirror
+                            value={ps?.code}
+                            width="100%"
+                            className="h-full"
+                            basicSetup={{
+                              lineNumbers: false,
+                            }}
+                            extensions={[
+                              EditorView.editable.of(false),
+                              EditorState.readOnly.of(true),
+                            ]}
+                          />
+                        </AccordionContent>
+                      </AccordionItem>
+                    ))}
+                  </Accordion>
+                ) : (
+                  <p>No previous submissions available.</p>
+                )}
               </TabsContent>
             </Tabs>
           </ResizablePanel>

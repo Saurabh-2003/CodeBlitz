@@ -6,11 +6,18 @@ import { db } from "@/core/db/db";
 import { getServerSession } from "next-auth";
 import { z } from "zod";
 
+// Define schema with socialLinks as an object
 const userSchema = z.object({
   name: z.string().optional(),
   bio: z.string().max(500).optional(),
   collegeName: z.string().optional(),
-  socialLinks: z.string().optional(),
+  socialLinks: z
+    .object({
+      linkedin: z.string().optional(),
+      portfolio: z.string().optional(),
+      github: z.string().optional(),
+    })
+    .optional(),
   skills: z.string().optional(),
   previewImage: z.string().optional(), // Include previewImage as optional
 });
@@ -19,9 +26,13 @@ interface UserProp {
   name?: string;
   bio?: string;
   collegeName?: string;
-  socialLinks?: string;
+  socialLinks?: {
+    linkedin?: string;
+    portfolio?: string;
+    github?: string;
+  };
   skills?: string;
-  previewImage?: string; // Add previewImage to the values
+  previewImage?: string;
 }
 
 export const UserUpdate = async (data: UserProp) => {
@@ -80,7 +91,9 @@ export const UserUpdate = async (data: UserProp) => {
         name: validatedValues.data.name,
         bio: validatedValues.data.bio,
         collegeName: validatedValues.data.collegeName,
-        socialLinks: validatedValues.data.socialLinks,
+        linkedinUrl: validatedValues.data.socialLinks?.linkedin, // Extract from socialLinks object
+        portfolioUrl: validatedValues.data.socialLinks?.portfolio, // Extract from socialLinks object
+        githubUrl: validatedValues.data.socialLinks?.github, // Extract from socialLinks object
         skills: validatedValues.data.skills,
         image: newImageUrl, // Update image field with new or existing URL
       },

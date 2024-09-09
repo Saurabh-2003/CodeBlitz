@@ -21,47 +21,40 @@ import { FaGithub, FaLinkedin } from "react-icons/fa";
 import { toast } from "sonner";
 
 export default function UpdateProfileDialogue({ user }: any) {
-  // Initialize state with user props or default values
-  // Initialize state with user props or default values
-
-  const [previewImage, setPreviewImage] = useState<string>(user?.image);
-
+  const [previewImage, setPreviewImage] = useState<string>(user?.image || "");
   const [organization, setOrganization] = useState<string>(
-    user?.collageName || "",
+    user?.collegeName || "",
   );
-  // Initialize state with user props or default values
   const [skills, setSkills] = useState<string[]>(
-    user?.skills ? user.skills.split(",") : [], // Split the skills string by comma, or use an empty array
+    user?.skills ? user.skills.split(",") : [],
   );
-
   const [socialLinks, setSocialLinks] = useState({
-    linkedin: user?.socialLinks ? user.socialLinks.split(",")[0] : "", // First value for LinkedIn
-    portfolio: user?.socialLinks ? user.socialLinks.split(",")[1] : "", // Second value for Portfolio
-    github: user?.socialLinks ? user.socialLinks.split(",")[2] : "", // Third value for GitHub
+    linkedin: user?.linkedinUrl || "",
+    portfolio: user?.portfolioUrl || "",
+    github: user?.githubUrl || "",
   });
-
-  const [name, setName] = useState<string>(user?.name);
-  const [bio, setBio] = useState<string>(user?.bio);
+  const [name, setName] = useState<string>(user?.name || "");
+  const [bio, setBio] = useState<string>(user?.bio || "");
   const [base64Image, setBase64Image] = useState<string | undefined>(undefined);
-
-  // Track loading state
   const [isSaving, setIsSaving] = useState(false);
 
-  // Set preview image when user image is available
   useEffect(() => {
-    if (user?.image) {
-      setPreviewImage(user.image); // Set the initial preview image from user data
-    }
-  }, [user?.image]); // Watch for changes in user.image
+    setPreviewImage(user?.image || "");
+    setSkills(user?.skills ? user.skills.split(",") : []);
+    setSocialLinks({
+      linkedin: user?.linkedinUrl || "",
+      portfolio: user?.portfolioUrl || "",
+      github: user?.githubUrl || "",
+    });
+    setName(user?.name || "");
+    setBio(user?.bio || "");
+    setOrganization(user?.collegeName || "");
+  }, [user]);
 
-  const addSkill = () => {
-    setSkills([...skills, ""]);
-  };
+  const addSkill = () => setSkills([...skills, ""]);
 
   const removeSkill = (index: number) => {
-    const updatedSkills = [...skills];
-    updatedSkills.splice(index, 1);
-    setSkills(updatedSkills);
+    setSkills(skills.filter((_, i) => i !== index));
   };
 
   const updateSkill = (index: number, value: string) => {
@@ -70,7 +63,6 @@ export default function UpdateProfileDialogue({ user }: any) {
     setSkills(updatedSkills);
   };
 
-  // Convert image to base64 and update state
   const handleProfileImageChange = (e: any) => {
     const file = e.target.files[0];
     if (file) {
@@ -78,43 +70,33 @@ export default function UpdateProfileDialogue({ user }: any) {
       reader.onloadend = () => {
         const base64String = reader.result as string;
         setBase64Image(base64String);
-        setPreviewImage(URL.createObjectURL(file)); // Update preview
+        setPreviewImage(URL.createObjectURL(file));
       };
-      reader.readAsDataURL(file); // Convert to base64
+      reader.readAsDataURL(file);
     }
   };
 
-  const handleOrganizationChange = (e: any) => {
-    setOrganization(e.target.value);
-  };
-
   const handleSocialLinkChange = (type: string, value: string) => {
-    setSocialLinks((prevState) => ({
-      ...prevState,
+    setSocialLinks((prev) => ({
+      ...prev,
       [type]: value,
     }));
   };
 
-  // Concatenate all fields into a single string and save changes
   const handleUpdateClick = async () => {
-    setIsSaving(true); // Disable inputs when saving starts
+    setIsSaving(true);
 
-    // Convert socialLinks and skills into comma-separated strings
-    const socialLinksString = `${socialLinks.linkedin},${socialLinks.portfolio},${socialLinks.github}`;
     const skillsString = skills.join(",");
-
-    // Construct data object
     const data = {
       name,
       bio: bio || "",
-      socialLinks: socialLinksString,
+      socialLinks,
       skills: skillsString,
       collegeName: organization,
-      previewImage: base64Image, // Send base64 image string
+      previewImage: base64Image,
     };
 
     try {
-      // Send data object directly
       const result = await UserUpdate(data);
       if (result?.error) {
         toast.error(result?.message);
@@ -124,9 +106,10 @@ export default function UpdateProfileDialogue({ user }: any) {
     } catch (error) {
       console.error("Error saving profile:", error);
     } finally {
-      setIsSaving(false); // Re-enable inputs once saving is completed
+      setIsSaving(false);
     }
   };
+
   useEffect(() => {
     return () => {
       if (previewImage) {
@@ -135,26 +118,10 @@ export default function UpdateProfileDialogue({ user }: any) {
     };
   }, [previewImage]);
 
-  // Mock API call for saving data
-  const saveProfileChanges = async (data: any) => {
-    try {
-      const result = await UserUpdate(data);
-      if (result?.error) {
-        toast.error(result?.message);
-        return;
-      }
-      if (result?.success) {
-        toast.success("Profile Updated Successfully");
-      }
-    } catch (error: any) {
-      toast.error(error?.message);
-    }
-  };
-
   return (
     <Dialog defaultOpen>
       <DialogTrigger asChild>
-        <button className="w-full text-green-500 p-2 mt-4 rounded-xl text-sm bg-emerald-500/10">
+        <button className="w-full text-green-500 p-2 mt-4 rounded-sm text-sm bg-emerald-500/10">
           Edit Profile
         </button>
       </DialogTrigger>
@@ -167,7 +134,6 @@ export default function UpdateProfileDialogue({ user }: any) {
             <Label htmlFor="name">Name</Label>
             <Input
               id="name"
-              defaultValue={user?.name}
               value={name}
               onChange={(e) => setName(e.target.value)}
               disabled={isSaving}
@@ -183,7 +149,6 @@ export default function UpdateProfileDialogue({ user }: any) {
               id="bio"
               value={bio}
               onChange={(e) => setBio(e.target.value)}
-              defaultValue={user?.bio}
               className="min-h-[100px]"
               placeholder="Enter your bio (optional)"
               disabled={isSaving}
@@ -192,11 +157,10 @@ export default function UpdateProfileDialogue({ user }: any) {
           <div className="flex flex-col gap-4">
             <Label htmlFor="organization">Organization</Label>
             <Input
-              placeholder="Enter your college or organization (optional)"
               id="organization"
-              type="text"
               value={organization}
-              onChange={handleOrganizationChange}
+              onChange={(e) => setOrganization(e.target.value)}
+              placeholder="Enter your college or organization (optional)"
               disabled={isSaving}
             />
           </div>
@@ -302,7 +266,7 @@ export default function UpdateProfileDialogue({ user }: any) {
           <Button
             onClick={handleUpdateClick}
             className="w-full bg-emerald-500/20 text-emerald-500 hover:bg-emerald-500/30 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
-            disabled={isSaving} // Disable button while saving
+            disabled={isSaving}
           >
             {isSaving ? "Saving..." : "Save"}
           </Button>
