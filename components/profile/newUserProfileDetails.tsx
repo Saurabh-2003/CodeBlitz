@@ -1,180 +1,299 @@
 "use client";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
-// import { SkillList } from "@/core/actions"; // Renamed from TopicList to SkillList
-import { NewProblem } from "@/core/actions/problem/newproblem";
-import { UpdateProfileSchema } from "@/core/types/types";
-import { cn } from "@/lib/utils";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { X } from "lucide-react";
+
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { UserUpdate } from "@/core";
+import { useProfileStore } from "@/core/providers/profile-store-provider";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useFieldArray, useForm } from "react-hook-form";
+import { BiTrash } from "react-icons/bi";
+import { CgLink } from "react-icons/cg";
+import { FaGithub, FaLinkedin } from "react-icons/fa";
 import { toast } from "sonner";
-import { z } from "zod";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { Textarea } from "../ui/textarea";
-interface ProfileSchemaType extends z.infer<typeof UpdateProfileSchema> {}
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "../ui/card";
 
-const NewUserProfileDetails = () => {
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [skills, setSkills] = useState<string[]>([]);
+// Define the type for the user prop
+interface User {
+  email: string;
+  image?: string;
+  name?: string;
+  bio?: string;
+  collegeName?: string;
+  skills?: string;
+  linkedinUrl?: string;
+  portfolioUrl?: string;
+  githubUrl?: string;
+}
 
-  const {
-    control,
-    register,
-    handleSubmit,
-    formState: { errors, isDirty, isValid },
-  } = useForm<ProfileSchemaType>({
-    resolver: zodResolver(UpdateProfileSchema),
-    defaultValues: {},
+export default function NewUserSignin() {
+  const { user, setUser } = useProfileStore((state) => state);
+  const [previewImage, setPreviewImage] = useState<string>(user?.image || "");
+  const [organization, setOrganization] = useState<string>(
+    user?.collegeName || "",
+  );
+  const router = useRouter();
+  const [skills, setSkills] = useState<string[]>(
+    user?.skills ? user.skills.split(",") : [],
+  );
+  const [socialLinks, setSocialLinks] = useState({
+    linkedin: user?.linkedinUrl || "",
+    portfolio: user?.portfolioUrl || "",
+    github: user?.githubUrl || "",
   });
+  const [name, setName] = useState<string>(user?.name || "");
+  const [bio, setBio] = useState<string>(user?.bio || "");
+  const [base64Image, setBase64Image] = useState<string | undefined>(undefined);
+  const [isSaving, setIsSaving] = useState(false);
 
-  const { fields, remove, append } = useFieldArray({
-    control,
-    name: "skills",
-  });
+  useEffect(() => {
+    setPreviewImage(user?.image || "");
+    setSkills(user?.skills ? user.skills.split(",") : []);
+    setSocialLinks({
+      linkedin: user?.linkedinUrl || "",
+      portfolio: user?.portfolioUrl || "",
+      github: user?.githubUrl || "",
+    });
+    setName(user?.name || "");
+    setBio(user?.bio || "");
+    setOrganization(user?.collegeName || "");
+  }, [user]);
 
-  const isSubmittable = isDirty && isValid;
+  const addSkill = () => setSkills([...skills, ""]);
 
-  const onSubmit = async (formdata: any) => {
-    console.log(formdata, "form submitted");
-    const { message, error } = await NewProblem(formdata);
-    if (error) {
-      toast.error(error);
-    } else if (message) {
-      toast.success(message);
+  const removeSkill = (index: number) => {
+    setSkills(skills.filter((_, i) => i !== index));
+  };
+
+  const updateSkill = (index: number, value: string) => {
+    const updatedSkills = [...skills];
+    updatedSkills[index] = value;
+    setSkills(updatedSkills);
+  };
+
+  const handleProfileImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        setBase64Image(base64String);
+        setPreviewImage(URL.createObjectURL(file));
+      };
+      reader.readAsDataURL(file);
     }
   };
 
-  const selectSkill = (skill: string) => {
-    if (!fields.some((field) => field.skill === skill)) {
-      append({ skill });
+  const handleSocialLinkChange = (
+    type: keyof typeof socialLinks,
+    value: string,
+  ) => {
+    setSocialLinks((prev) => ({
+      ...prev,
+      [type]: value,
+    }));
+  };
+
+  const handleUpdateClick = async () => {
+    setIsSaving(true);
+
+    const skillsString = skills.join(",");
+    const data = {
+      name,
+      bio: bio || "",
+      socialLinks,
+      skills: skillsString,
+      collegeName: organization,
+      previewImage: base64Image,
+    };
+
+    try {
+      const result = await UserUpdate(data);
+      if (result?.error) {
+        toast.error(result?.message);
+      } else if (result?.success) {
+        toast.success("Profile Updated Successfully");
+      }
+    } catch (error) {
+      console.error("Error saving profile:", error);
+    } finally {
+      setIsSaving(false);
     }
-    setIsDropdownOpen(false);
   };
 
   useEffect(() => {
-    const fetchData = async () => {
-      // const { skillList, message } = await TopicList();
-      // if (message) {
-      //   toast.error(message);
-      // } else {
-      //   setSkills(skillList);
-      // }
-      setSkills(["dp", "web dev", "machine learning"]);
+    return () => {
+      if (previewImage) {
+        URL.revokeObjectURL(previewImage);
+      }
     };
-    fetchData();
-  }, []);
-
+  }, [previewImage]);
+  const handleSkip = () => {
+    router.push("/profile");
+  };
   return (
-    <div className="w-full h-full antialiased items-center justify-center p-8 max-md:p-6 max-sm:p-2">
-      <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-4">
-        <div className="flex items-center justify-between mb-10 bg-zinc-200 p-4 rounded-md border border-zinc-400">
-          <h2 className="text-2xl font-bold">User Details</h2>
-          <Button type="submit" disabled={!isSubmittable}>
-            <p>Update</p>
-          </Button>
-        </div>
-
-        <div className="w-full">
-          <Label>Username</Label>
+    <Card className="w-full">
+      <CardHeader>
+        <CardTitle>Update Profile</CardTitle>
+      </CardHeader>
+      <CardContent className="grid gap-6 py-6 md:grid-cols-1">
+        <div className="flex flex-col gap-4">
+          <Label htmlFor="name">Name</Label>
           <Input
-            className="focus-visible:ring-0"
-            type="text"
-            placeholder="Please create a username"
-            {...register("username")}
+            id="name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            disabled={isSaving}
           />
-          {errors?.username && (
-            <p className="text-red-500 text-xs">{errors?.username?.message}</p>
-          )}
         </div>
-
-        <div className="w-full">
-          <Label>Organisation</Label>
-          <Input
-            className="focus-visible:ring-0"
-            type="text"
-            placeholder="Please enter your Organisation or College name (optional)"
-            {...register("collegename")}
-          />
-          {errors?.collegename && (
-            <p className="text-red-500 text-xs">
-              {errors?.collegename?.message}
-            </p>
-          )}
+        <div className="flex flex-col gap-4">
+          <Label>Email</Label>
+          <Input disabled defaultValue={user?.email} />
         </div>
-
-        <div className="w-full">
-          <Label>Bio</Label>
+        <div className="flex flex-col gap-4">
+          <Label htmlFor="bio">Bio</Label>
           <Textarea
-            className="focus-visible:ring-0"
+            id="bio"
+            value={bio}
+            onChange={(e) => setBio(e.target.value)}
+            className="min-h-[100px]"
             placeholder="Enter your bio (optional)"
-            {...register("bio")}
+            disabled={isSaving}
           />
         </div>
-
-        <div className="space-y-2">
-          <Label>Skills</Label>
-          <Command>
-            <CommandInput
-              id="input1"
-              onClick={() => setIsDropdownOpen((prev) => !prev)}
-              onBlur={() => setIsDropdownOpen(false)}
-              placeholder="Search the skills from the list"
+        <div className="flex flex-col gap-4">
+          <Label htmlFor="organization">Organization</Label>
+          <Input
+            id="organization"
+            value={organization}
+            onChange={(e) => setOrganization(e.target.value)}
+            placeholder="Enter your college or organization (optional)"
+            disabled={isSaving}
+          />
+        </div>
+        <div className="flex flex-col gap-4">
+          <Label htmlFor="profile-image">Profile Image</Label>
+          <div className="flex items-center gap-4">
+            <Avatar className="w-16 h-16">
+              <AvatarImage src={previewImage} alt="Profile Image" />
+              <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
+            </Avatar>
+            <Input
+              id="profile-image"
+              type="file"
+              accept="image/*"
+              onChange={handleProfileImageChange}
+              disabled={isSaving}
             />
-
-            <CommandList
-              className={cn(
-                `max-h-0 bg-white top-10`,
-                isDropdownOpen && "max-h-100",
-              )}
-            >
-              <CommandEmpty>No results found.</CommandEmpty>
-              <CommandGroup heading="Skills">
-                {skills.map((skill, index) => (
-                  <CommandItem
-                    key={index}
-                    onSelect={() => selectSkill(skill)}
-                    onMouseDown={() => {
-                      selectSkill(skill);
-                      setIsDropdownOpen(false);
-                    }}
-                  >
-                    {skill}
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-            </CommandList>
-          </Command>
-
-          <div className="flex gap-x-4 flex-wrap">
-            {fields.map((field, index) => (
-              <div key={field.id} className="flex items-center space-x-2 mb-2">
-                <div className="flex text-xs capitalize px-3 py-1 text-[16px] text-zinc-800 bg-zinc-300/50 rounded-md">
-                  {field.skill}
-                </div>
-                <button
-                  type="button"
-                  className="text-rose-500"
-                  onClick={() => remove(index)}
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-            ))}
           </div>
         </div>
-      </form>
-    </div>
+        <div className="flex flex-col gap-4">
+          <Label htmlFor="skills">Skills</Label>
+          <div className="space-y-2">
+            <div className="max-h-[150px] overflow-auto rounded-md border">
+              {skills.map((skill, index) => (
+                <div
+                  key={index}
+                  className="flex items-center justify-between gap-2 p-2"
+                >
+                  <Input
+                    id={`skills-${index}`}
+                    type="text"
+                    value={skill}
+                    onChange={(e) => updateSkill(index, e.target.value)}
+                    disabled={isSaving}
+                  />
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => removeSkill(index)}
+                    disabled={isSaving}
+                  >
+                    <BiTrash size={20} />
+                  </Button>
+                </div>
+              ))}
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={addSkill}
+              disabled={isSaving}
+            >
+              Add Skill
+            </Button>
+          </div>
+        </div>
+        <div className="flex flex-col gap-4">
+          <Label htmlFor="social-links">Social Links</Label>
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <FaLinkedin size={25} />
+              <Input
+                id="linkedin-url"
+                type="text"
+                value={socialLinks.linkedin}
+                onChange={(e) =>
+                  handleSocialLinkChange("linkedin", e.target.value)
+                }
+                placeholder="LinkedIn URL (optional)"
+                disabled={isSaving}
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <CgLink size={25} />
+              <Input
+                id="portfolio-url"
+                type="text"
+                value={socialLinks.portfolio}
+                onChange={(e) =>
+                  handleSocialLinkChange("portfolio", e.target.value)
+                }
+                placeholder="Portfolio URL (optional)"
+                disabled={isSaving}
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <FaGithub size={25} />
+              <Input
+                id="github-url"
+                type="text"
+                value={socialLinks.github}
+                onChange={(e) =>
+                  handleSocialLinkChange("github", e.target.value)
+                }
+                placeholder="GitHub URL (optional)"
+                disabled={isSaving}
+              />
+            </div>
+          </div>
+        </div>
+      </CardContent>
+      <CardFooter className="w-full flex flex-col gap-4">
+        <Button
+          onClick={handleUpdateClick}
+          className="w-full bg-emerald-500/20 text-emerald-500 hover:bg-emerald-500/30 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+          disabled={isSaving}
+        >
+          {isSaving ? "Saving..." : "Save"}
+        </Button>
+        <Button
+          className="w-full"
+          onClick={handleSkip}
+          variant={"secondary"}
+          disabled={isSaving}
+        >
+          Skip
+        </Button>
+      </CardFooter>
+    </Card>
   );
-};
-
-export default NewUserProfileDetails;
+}

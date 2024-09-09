@@ -1,11 +1,11 @@
 "use client";
 
-import NewUserProfileDetails from "@/components/profile/newUserProfileDetails";
+import NewUserSignin from "@/components/profile/newUserProfileDetails";
 
 const Page = () => {
   return (
     <div>
-      <NewUserProfileDetails />
+      <NewUserSignin />
     </div>
   );
 };

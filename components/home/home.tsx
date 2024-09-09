@@ -7,7 +7,7 @@ import { Button } from "../ui/button";
 
 export default function Home() {
   return (
-    <div className="relative flex min-h-dvh w-full flex-col items-center justify-center overflow-hidden bg-background">
+    <div className="relative flex h-fit w-full flex-col items-center justify-center overflow-hidden bg-background">
       <Component />
       <GridPattern
         squares={[
@@ -34,14 +34,17 @@ export default function Home() {
 }
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useSession } from "next-auth/react";
+import Image from "next/image";
 
 function Component() {
+  const { data: session } = useSession();
   return (
     <div className="flex flex-col min-h-[100dvh]">
       <main className="flex-1">
-        <section className="w-full py-10 h-[90dvh]">
-          <div className="container h-full w-full px-4 md:px-6 flex items-center justify-center">
-            <div className="flex flex-col justify-center space-y-4 text-center">
+        <section className="w-full py-10 h-fit">
+          <div className="container h-full w-full px-4 md:px-6 flex flex-col items-center justify-center">
+            <div className="flex flex-col min-h-[50dvh] justify-center space-y-4 text-center">
               <div className="space-y-2">
                 <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl">
                   Practice and Improve Your DSA Skills
@@ -56,11 +59,21 @@ function Component() {
                 <Link href="/problem">
                   <Button>Explore Challenges</Button>
                 </Link>
-                <Link href="/auth/signin">
-                  <Button variant="secondary">Join Us Now</Button>
-                </Link>
+                {/* Conditionally render the "Join Us Now" button if there is no session */}
+                {!session && (
+                  <Link href="/auth/signin">
+                    <Button variant="secondary">Join Us Now</Button>
+                  </Link>
+                )}
               </div>
             </div>
+            <Image
+              height={1920}
+              width={1080}
+              alt="Problem Page image"
+              src={"/platform_images/problem.png"}
+              className="border-2 rounded-xl dark:border-slate-500 "
+            />
           </div>
         </section>
 
@@ -88,7 +101,7 @@ function Component() {
                     <CardTitle>Easy</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">150+</div>
+                    <div className="text-2xl font-bold">10+</div>
                     <p className="text-xs text-muted-foreground">Problems</p>
                   </CardContent>
                 </Card>
@@ -97,7 +110,7 @@ function Component() {
                     <CardTitle>Medium</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">200+</div>
+                    <div className="text-2xl font-bold">20+</div>
                     <p className="text-xs text-muted-foreground">Problems</p>
                   </CardContent>
                 </Card>
@@ -106,7 +119,7 @@ function Component() {
                     <CardTitle>Hard</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">100+</div>
+                    <div className="text-2xl font-bold">10+</div>
                     <p className="text-xs text-muted-foreground">Problems</p>
                   </CardContent>
                 </Card>
@@ -115,7 +128,7 @@ function Component() {
                     <CardTitle>Total</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">100+</div>
+                    <div className="text-2xl font-bold">40+</div>
                     <p className="text-xs text-muted-foreground">Problems</p>
                   </CardContent>
                 </Card>
@@ -125,7 +138,7 @@ function Component() {
                 width="650"
                 height="310"
                 alt="Features"
-                className="mx-auto aspect-video overflow-hidden h-full rounded-xl object-cover object-left-top sm:w-full lg:order-last"
+                className="mx-auto border-2  dark:border-slate-500  aspect-video overflow-hidden h-full rounded-xl object-cover object-left-top sm:w-full lg:order-last"
               />
             </div>
           </div>

@@ -17,17 +17,19 @@ export const problemSchema = z.object({
     )
     .transform((data) => uniqBy(data, "topic")),
 
-  constraints: z.array(z.object({ constraint: z.string() })).min(1,"Atleast one constraint should be provided."),
+  constraints: z
+    .array(z.object({ constraint: z.string() }))
+    .min(1, "Atleast one constraint should be provided."),
 
   hints: z
     .array(z.object({ hint: z.string() }))
     .min(1, "Atleast one hint should be provided."),
-  
+
   driverFunction: z.object({
-      cplusplus: z.string(),
-      python: z.string(),
-      javascript: z.string()
-    })
+    cplusplus: z.string(),
+    python: z.string(),
+    javascript: z.string(),
+  }),
 });
 
 export type profileSchema = {
@@ -39,7 +41,6 @@ export type profileSchema = {
 };
 
 export const UpdateProfileSchema = z.object({
-  username: z.string().min(5, "User name should be greater than 4 characters"),
   bio: z
     .string()
     .min(10, "Description length should be greater than 10 characters")
