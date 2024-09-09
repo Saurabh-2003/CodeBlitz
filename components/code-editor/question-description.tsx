@@ -47,23 +47,9 @@ interface QuestionDescriptionProps {
   problemStatement: string;
   level: string; // Updated to use specific values
   constraints: ConstraintData[]; // Updated type
-  examples: ExampleData[];
   hints: HintData[]; // Updated type
   topics: TopicData[]; // Updated type
 }
-
-// Example component
-const Example: React.FC<ExampleProps> = ({ input, output, explanation }) => (
-  <div className="pl-6 border-l mt-1">
-    <span className="text-sm">
-      <strong>Input: </strong> {input}
-      <br />
-      <strong>Output: </strong> {output}
-      <br />
-      <strong>Explanation: </strong> {explanation}
-    </span>
-  </div>
-);
 
 // Constraint component
 const Constraint: React.FC<ConstraintProps> = ({ text }) => {
@@ -92,7 +78,6 @@ const QuestionDescription: React.FC<QuestionDescriptionProps> = ({
   problemStatement,
   level,
   constraints,
-  examples,
   hints,
   topics,
 }) => (
@@ -113,14 +98,12 @@ const QuestionDescription: React.FC<QuestionDescriptionProps> = ({
       </span>
     </div>
 
-    <p>{problemStatement}</p>
-    {examples.map((example, index) => (
-      <div key={index} className="">
-        <strong>Example {index + 1}:</strong>
-        <br />
-        <Example {...example} />
-      </div>
-    ))}
+    <div
+      dangerouslySetInnerHTML={{
+        __html: `<div>${problemStatement}</div>`,
+      }}
+    />
+
     <Label className="text-sm font-bold mt-6">Constraints:</Label>
     <ul className="flex list-disc flex-col gap-2 ml-4 text-sm my-2">
       {constraints.map((constraint, index) => (

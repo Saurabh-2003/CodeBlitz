@@ -1,5 +1,4 @@
 "use client";
-
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -46,12 +45,10 @@ interface DataType {
   status: string;
   title: string;
   difficulty: string;
-  acceptance: number;
 }
 
 interface DataTableProps<TData extends DataType, TValue> {
-  columns: ColumnDef<TData, TValue>[] | [];
-  data: TData[];
+  columns: ColumnDef<DataType, TValue>[];
 }
 
 export function DataTable<TData extends DataType, TValue>({
@@ -60,14 +57,7 @@ export function DataTable<TData extends DataType, TValue>({
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
   );
-  const [data, setData] = useState<
-    {
-      id: string;
-      title: string;
-      difficulty: string;
-      acceptancePercentage: string;
-    }[]
-  >([]);
+  const [data, setData] = useState<DataType[]>([]);
   const router = useRouter();
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnVisibility, setColumnVisibility] =
@@ -76,11 +66,13 @@ export function DataTable<TData extends DataType, TValue>({
   useEffect(() => {
     const fetchData = async () => {
       const { data, error } = await getAllProblems();
-      setData(data);
-      console.log(data);
+      if (data) {
+        setData(data);
+      }
     };
     fetchData();
   }, []);
+
   const table = useReactTable({
     data,
     columns,
@@ -155,40 +147,38 @@ export function DataTable<TData extends DataType, TValue>({
               onChange={(event) =>
                 table.getColumn("title")?.setFilterValue(event.target.value)
               }
-              className="max-w-sm border-none focus-visible:ring-offset-0  bg-inherit focus-visible:ring-0"
+              className="max-w-sm border-none focus-visible:ring-offset-0 bg-inherit focus-visible:ring-0"
             />
           </div>
         </div>
       </div>
 
       <div className="rounded-md">
-        <Table className="">
-          <TableHeader className="">
+        <Table>
+          <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
-                    </TableHead>
-                  );
-                })}
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
+                  </TableHead>
+                ))}
               </TableRow>
             ))}
           </TableHeader>
           <TableBody className="capitalize">
-            {table.getRowModel().rows?.length ? (
+            {table.getRowModel().rows.length ? (
               table.getRowModel().rows.map((row, index) => (
                 <TableRow
                   onClick={() => router.push(`/problem/${row.original.id}`)}
                   className={cn(
                     "border-b-0",
-                    index % 2 != 0 && "bg-gray-100",
+                    index % 2 !== 0 && "bg-gray-100",
                     "cursor-pointer",
                   )}
                   key={row.id}
@@ -237,7 +227,6 @@ export function DataTable<TData extends DataType, TValue>({
                           cell.getContext(),
                         )
                       )}
-                      {cell.column.id === "acceptance" && "%"}
                     </TableCell>
                   ))}
                 </TableRow>

@@ -18,6 +18,7 @@ interface ProblemProp {
   };
   inputUrl: string;
   outputUrl: string;
+  examples: string;
 }
 
 export const NewProblem = async (data: ProblemProp) => {
@@ -31,6 +32,7 @@ export const NewProblem = async (data: ProblemProp) => {
     driverFunction,
     inputUrl,
     outputUrl,
+    examples,
   } = data;
 
   // Extract Cloudinary public IDs from the URLs

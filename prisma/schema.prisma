@@ -126,7 +126,7 @@ model Problem {
 model Submission {
   id        String           @id @default(uuid()) @db.VarChar(36)
   // code      String
-  language  String
+  language  String?
   code      String           @db.MediumText
   status    SubmissionStatus
   createdAt DateTime         @default(now())

@@ -23,7 +23,6 @@ import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { BsFillFileTextFill } from "react-icons/bs";
 import { FaHistory, FaTerminal } from "react-icons/fa";
-import { GoBook } from "react-icons/go";
 import { IoIosCheckboxOutline } from "react-icons/io";
 import { IoCodeSlashOutline } from "react-icons/io5";
 import { toast } from "sonner";
@@ -64,7 +63,6 @@ interface ProblemData {
   jsDriver: string;
   cppDriver: string;
   pythonDriver: string;
-  examples: ExampleData[];
 }
 
 const Page: React.FC = () => {
@@ -78,21 +76,6 @@ const Page: React.FC = () => {
     javascript: string;
     python: string;
   } | null>(null);
-
-  const dummyExamples: ExampleData[] = [
-    {
-      input: "1 2 3 4 5",
-      output: "5",
-      explanation:
-        "The input is a sequence of numbers, and the output is the largest number.",
-    },
-    {
-      input: "5 4 3 2 1",
-      output: "5",
-      explanation:
-        "The input is a sequence of numbers in reverse order, and the output is the largest number.",
-    },
-  ];
 
   useEffect(() => {
     const getProblemData = async () => {
@@ -160,10 +143,6 @@ const Page: React.FC = () => {
                   />
                   Description
                 </TabsTrigger>
-                <TabsTrigger value="editorial" className="gap-1">
-                  <GoBook size={18} className="text-amber-400" />
-                  Editorial
-                </TabsTrigger>
 
                 <TabsTrigger value="submissions" className="gap-1">
                   <FaHistory size={16} className="text-blue-400" />
@@ -180,13 +159,8 @@ const Page: React.FC = () => {
                     constraints={question?.constraints}
                     hints={question?.hints}
                     topics={question?.topics}
-                    examples={dummyExamples}
                   />
                 )}
-              </TabsContent>
-
-              <TabsContent value="editorial">
-                Change your password here.
               </TabsContent>
 
               <TabsContent value="submissions">

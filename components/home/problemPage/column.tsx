@@ -17,10 +17,7 @@ export const columns: ColumnDef<ProblemProps>[] = [
     accessorKey: "title",
     header: "Title",
   },
-  {
-    accessorKey: "acceptance",
-    header: "Acceptance",
-  },
+
   {
     accessorKey: "difficulty",
     header: "Difficulty",
