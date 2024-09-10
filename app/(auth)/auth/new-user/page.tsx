@@ -1,12 +1,11 @@
-"use client";
-
 import NewUserSignin from "@/components/profile/newUserProfileDetails";
 
-const Page = () => {
+const Page = async () => {
   return (
     <div>
       <NewUserSignin />
     </div>
   );
 };
+
 export default Page;

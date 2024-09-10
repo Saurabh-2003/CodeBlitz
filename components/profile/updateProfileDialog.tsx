@@ -8,7 +8,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,7 +19,7 @@ import { CgLink } from "react-icons/cg";
 import { FaGithub, FaLinkedin } from "react-icons/fa";
 import { toast } from "sonner";
 
-export default function UpdateProfileDialogue({ user }: any) {
+export default function UpdateProfileDialogue({ user, isOpen, onClose }: any) {
   const [previewImage, setPreviewImage] = useState<string>(user?.image || "");
   const [organization, setOrganization] = useState<string>(
     user?.collegeName || "",
@@ -119,12 +118,7 @@ export default function UpdateProfileDialogue({ user }: any) {
   }, [previewImage]);
 
   return (
-    <Dialog defaultOpen>
-      <DialogTrigger asChild>
-        <button className="w-full text-green-500 p-2 mt-4 rounded-sm text-sm bg-emerald-500/10">
-          Edit Profile
-        </button>
-      </DialogTrigger>
+    <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-auto">
         <DialogHeader>
           <DialogTitle>Update Profile</DialogTitle>

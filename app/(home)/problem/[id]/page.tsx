@@ -76,6 +76,7 @@ const Page: React.FC = () => {
     javascript: string;
     python: string;
   } | null>(null);
+  const [compileError, setCompileError] = useState<any>(null);
 
   useEffect(() => {
     const getProblemData = async () => {
@@ -125,17 +126,17 @@ const Page: React.FC = () => {
       <div className="w-full h-full">
         <ResizablePanelGroup
           direction="horizontal"
-          className="w-full rounded-lg gap-1 py-2 "
+          className="w-full rounded-lg gap-1 py-2"
         >
           <ResizablePanel
             defaultSize={40}
-            className="bg-white p-2 w-full rounded-lg "
+            className="bg-white p-2 w-full rounded-lg"
           >
             <Tabs
               defaultValue="description"
-              className="w-full h-full  overflow-auto "
+              className="w-full h-full overflow-auto"
             >
-              <TabsList className="bg-transparent ">
+              <TabsList className="bg-transparent">
                 <TabsTrigger value="description" className="gap-1">
                   <BsFillFileTextFill
                     className="text-blue-400 group-focus:text-red-500"
@@ -143,14 +144,14 @@ const Page: React.FC = () => {
                   />
                   Description
                 </TabsTrigger>
-
                 <TabsTrigger value="submissions" className="gap-1">
                   <FaHistory size={16} className="text-blue-400" />
                   Submissions
                 </TabsTrigger>
               </TabsList>
-              <TabsContent className="h-full w-fit " value="description">
-                {question && (
+
+              <TabsContent className="h-full w-fit" value="description">
+                {question ? (
                   <QuestionDescription
                     id={question?.id}
                     title={question?.title}
@@ -160,18 +161,24 @@ const Page: React.FC = () => {
                     hints={question?.hints}
                     topics={question?.topics}
                   />
+                ) : (
+                  <p>Loading question details...</p>
                 )}
               </TabsContent>
 
               <TabsContent value="submissions">
                 {previousSubmissions && previousSubmissions.length > 0 ? (
                   <Accordion type="single" collapsible className="w-full">
-                    {previousSubmissions.map((ps: any) => (
+                    {previousSubmissions.map((ps) => (
                       <AccordionItem value={`item-${ps?.id}`} key={ps?.id}>
-                        <AccordionTrigger className="text-xs mx-2  w-full">
+                        <AccordionTrigger className="text-xs mx-2 w-full">
                           <div className="flex justify-between w-full">
                             <span
-                              className={`${ps?.status === "ACCEPTED" ? "text-emerald-500" : "text-red-500"}`}
+                              className={
+                                ps?.status === "ACCEPTED"
+                                  ? "text-emerald-500"
+                                  : "text-red-500"
+                              }
                             >
                               {ps?.status}
                             </span>
@@ -188,9 +195,7 @@ const Page: React.FC = () => {
                             value={ps?.code}
                             width="100%"
                             className="h-full"
-                            basicSetup={{
-                              lineNumbers: false,
-                            }}
+                            basicSetup={{ lineNumbers: false }}
                             extensions={[
                               EditorView.editable.of(false),
                               EditorState.readOnly.of(true),
@@ -206,23 +211,26 @@ const Page: React.FC = () => {
               </TabsContent>
             </Tabs>
           </ResizablePanel>
+
           <ResizableHandle className="bg-transparent hover:bg-slate-500 my-4" />
+
           <ResizablePanel defaultSize={60}>
             <ResizablePanelGroup direction="vertical" className="gap-1">
               <ResizablePanel
                 defaultSize={65}
                 className="bg-white p-2 rounded-lg w-full h-full overflow-x-auto"
               >
-                <div className="h-full">
-                  <Editor
-                    setSubmission={setSubmission}
-                    problemId={question?.id}
-                    driverCode={driverCode}
-                    setTestCases={setTestCases}
-                  />
-                </div>
+                <Editor
+                  setCompileError={setCompileError}
+                  setSubmission={setSubmission}
+                  problemId={question?.id}
+                  driverCode={driverCode}
+                  setTestCases={setTestCases}
+                />
               </ResizablePanel>
+
               <ResizableHandle className="bg-transparent hover:bg-slate-500 mx-4" />
+
               <ResizablePanel
                 defaultSize={35}
                 className="bg-white flex flex-col p-2 rounded-lg w-full h-full overflow-x-auto"
@@ -247,195 +255,176 @@ const Page: React.FC = () => {
                     </TabsList>
 
                     <TabsContent value="testcase" className="text-zinc-500">
+                      {compileError && (
+                        <div className="bg-red-500/30 w-full text-red-500 p-3 rounded-sm whitespace-pre-wrap break-words">
+                          <pre className="whitespace-pre-wrap break-words">
+                            {compileError}
+                          </pre>
+                        </div>
+                      )}
+
                       <Tabs defaultValue="testcase-0" className="text-zinc-500">
-                        <TabsList className=" space-x-2 bg-transparent">
-                          {testCases &&
-                            testCases.map((test: any, index: number) => (
-                              <TabsTrigger
-                                className={`
-                                     px-4 py-2 rounded-md transition-colors text-xs
-                                     ${
-                                       test?.result?.status === "success"
-                                         ? "data-[state=active]:text-green-600 data-[state=active]:bg-green-500/20 text-green-600 "
-                                         : "data-[state=active]:text-red-500 data-[state=active]:bg-red-500/20 text-red-600 "
-                                     }
-
-                                   `}
-                                key={`tab-${index}`}
-                                value={`testcase-${index}`}
-                              >
-                                Test Case {index + 1}
-                              </TabsTrigger>
-                            ))}
-                        </TabsList>
-
-                        {testCases &&
-                          testCases.map((test: any, index: number) => (
-                            <TabsContent
-                              key={test?.input}
+                        <TabsList className="space-x-2 bg-transparent">
+                          {testCases?.map((test, index) => (
+                            <TabsTrigger
+                              className={`
+                                px-4 py-2 rounded-md transition-colors text-xs
+                                ${
+                                  test?.result?.status === "success"
+                                    ? "data-[state=active]:text-green-600 data-[state=active]:bg-green-500/20 text-green-600"
+                                    : "data-[state=active]:text-red-500 data-[state=active]:bg-red-500/20 text-red-600"
+                                }
+                              `}
+                              key={`tab-${index}`}
                               value={`testcase-${index}`}
                             >
-                              <div className="space-y-4 p-4">
-                                <div>
-                                  <p className="font-medium text-stone-600">
-                                    Input:
-                                  </p>
-                                  <p className="rounded-sm w-full py-4 bg-slate-100 px-4 mt-1">
-                                    {test.input}
-                                  </p>
-                                </div>
-                                <div>
-                                  <p className="font-medium text-stone-600">
-                                    Your Output:
-                                  </p>
-                                  <p className="rounded-sm w-full py-4 bg-slate-100 px-4 mt-1">
-                                    {test.output}
-                                  </p>
-                                </div>
-                                <div>
-                                  <p className="font-medium text-stone-600">
-                                    Expected Output:
-                                  </p>
-                                  <p className="rounded-sm w-full py-4 bg-slate-100 px-4 mt-1">
-                                    {test.expectedOutput}
-                                  </p>
-                                </div>
-                              </div>
-                            </TabsContent>
+                              Test Case {index + 1}
+                            </TabsTrigger>
                           ))}
+                        </TabsList>
+
+                        {testCases?.map((test, index) => (
+                          <TabsContent
+                            key={`testcase-${index}`}
+                            value={`testcase-${index}`}
+                          >
+                            <div className="space-y-4 p-4">
+                              <div>
+                                <p className="font-medium text-stone-600">
+                                  Input:
+                                </p>
+                                <p className="rounded-sm w-full py-4 bg-slate-100 px-4 mt-1">
+                                  {test.input}
+                                </p>
+                              </div>
+                              <div>
+                                <p className="font-medium text-stone-600">
+                                  Your Output:
+                                </p>
+                                <p className="rounded-sm w-full py-4 bg-slate-100 px-4 mt-1">
+                                  {test.output}
+                                </p>
+                              </div>
+                              <div>
+                                <p className="font-medium text-stone-600">
+                                  Expected Output:
+                                </p>
+                                <p className="rounded-sm w-full py-4 bg-slate-100 px-4 mt-1">
+                                  {test.expectedOutput}
+                                </p>
+                              </div>
+                            </div>
+                          </TabsContent>
+                        ))}
                       </Tabs>
                     </TabsContent>
+
                     <TabsContent value="testresult" className="text-zinc-500">
-                      {/* Check if submission is null or partialExecution is true */}
                       {!submission || submission?.partialExecution ? (
-                        <div className="text-sm text-center ">
+                        <div className="text-sm text-center">
                           You must submit your code first
                         </div>
                       ) : (
-                        <>
-                          {/* If submission is not null and partialExecution is not true, show results */}
-                          {submission?.status === "error" ? (
-                            <div className="text-xl text-red-500">
-                              Compilation Error({submission?.error}){" "}
+                        <div className="flex flex-col m-2">
+                          {compileError && (
+                            <div className="bg-red-500/30 w-full text-red-500 p-3 rounded-sm whitespace-pre-wrap break-words">
+                              <pre className="whitespace-pre-wrap break-words">
+                                {compileError}
+                              </pre>
                             </div>
+                          )}
+                          {submission?.status === "success" ? (
+                            <>
+                              <span className="flex gap-x-4 items-center">
+                                <span className="text-green-500 text-2xl">
+                                  {submission?.message}
+                                </span>
+                                <span className="text-xs">
+                                  ({submission?.completedTestCases}/
+                                  {submission?.totalTestCases} test cases
+                                  passed)
+                                </span>
+                              </span>
+                              <br />
+                              <span className="text-xs text-slate-600">
+                                Submitted at{" "}
+                                {submission?.submittedAt &&
+                                  new Intl.DateTimeFormat("en-US", {
+                                    year: "numeric",
+                                    month: "short",
+                                    day: "numeric",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                    second: "2-digit",
+                                    hour12: true,
+                                  }).format(new Date(submission?.submittedAt))}
+                              </span>
+                            </>
                           ) : (
-                            <div className="flex flex-col m-2">
-                              {submission?.error && (
-                                <div className="text-xl text-red-500">
-                                  {submission?.error}
-                                </div>
-                              )}
-                              {submission?.status === "success" ? (
+                            <>
+                              <span className="flex gap-x-4 items-center">
+                                <span className="text-red-500 font-bold text-xl">
+                                  {submission?.message}
+                                </span>
+                                <span className="text-xs">
+                                  ({submission?.completedTestCases}/
+                                  {submission?.totalTestCases} test cases
+                                  passed)
+                                </span>
+                              </span>
+                              <span className="text-xs text-slate-600 mb-6">
+                                Submitted at{" "}
+                                {submission?.submittedAt &&
+                                  new Intl.DateTimeFormat("en-US", {
+                                    year: "numeric",
+                                    month: "short",
+                                    day: "numeric",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                    second: "2-digit",
+                                    hour12: true,
+                                  }).format(new Date(submission?.submittedAt))}
+                              </span>
+                              {submission?.failedCases &&
+                              submission.failedCases.length > 0 ? (
                                 <>
-                                  <span className="flex gap-x-4 items-center">
-                                    <span className="text-green-500 text-2xl">
-                                      {submission?.message}
-                                    </span>
-                                    <span className="text-xs">
-                                      {"(" +
-                                        (submission?.completedTestCases +
-                                          "/" +
-                                          submission?.totalTestCases +
-                                          " test cases passed " +
-                                          ")")}
-                                    </span>
+                                  <span className="h-full">
+                                    Input: {submission.failedCases[0].input}
                                   </span>
                                   <br />
-                                  <span className="text-xs text-slate-600">
-                                    Submitted at{" "}
-                                    {submission?.submittedAt &&
-                                      new Intl.DateTimeFormat("en-US", {
-                                        year: "numeric",
-                                        month: "short",
-                                        day: "numeric",
-                                        hour: "2-digit",
-                                        minute: "2-digit",
-                                        second: "2-digit",
-                                        hour12: true, // Change to false if you prefer 24-hour time format
-                                      }).format(
-                                        new Date(submission?.submittedAt),
-                                      )}
+                                  <span className="h-full">
+                                    Output: {submission.failedCases[0].output}
+                                  </span>
+                                  <br />
+                                  <span className="h-full">
+                                    Expected Output:{" "}
+                                    {submission.failedCases[0].expectedOutput}
                                   </span>
                                 </>
                               ) : (
-                                <>
-                                  <span className="flex gap-x-4 items-center">
-                                    <span className="text-red-500 font-bold text-xl">
-                                      {submission?.message}
-                                    </span>
-                                    <span className="text-xs">
-                                      {"(" +
-                                        (submission?.completedTestCases +
-                                          "/" +
-                                          submission?.totalTestCases +
-                                          " test cases passed " +
-                                          ")")}
-                                    </span>
-                                  </span>
-                                  <span className="text-xs text-slate-600 mb-6">
-                                    Submitted at{" "}
-                                    {submission?.submittedAt &&
-                                      new Intl.DateTimeFormat("en-US", {
-                                        year: "numeric",
-                                        month: "short",
-                                        day: "numeric",
-                                        hour: "2-digit",
-                                        minute: "2-digit",
-                                        second: "2-digit",
-                                        hour12: true, // Change to false if you prefer 24-hour time format
-                                      }).format(
-                                        new Date(submission?.submittedAt),
-                                      )}
-                                  </span>
-
-                                  <br />
-                                  {submission &&
-                                  submission.failedCases &&
-                                  submission.failedCases.length > 0 ? (
-                                    <>
-                                      <span className="h-full">
-                                        Input: {submission.failedCases[0].input}
-                                      </span>
-                                      <br />
-                                      <span className="h-full">
-                                        Output:{" "}
-                                        {submission.failedCases[0].output}
-                                      </span>
-                                      <br />
-                                      <span className="h-full">
-                                        Expected Output:{" "}
-                                        {
-                                          submission.failedCases[0]
-                                            .expectedOutput
-                                        }
-                                      </span>
-                                    </>
-                                  ) : (
-                                    <div>No failed cases available</div>
-                                  )}
-                                </>
+                                <div>No failed cases available</div>
                               )}
-                              <div className="rounded-xl overflow-hidden border bg-stone-100">
-                                <p className="text-black font-semibold p-2">
-                                  Submitted Code (Language -{" "}
-                                  {submission?.language})
-                                </p>
-                                <ReactCodeMirror
-                                  value={submission?.codeSnippet}
-                                  width="100%"
-                                  className="h-full"
-                                  basicSetup={{
-                                    lineNumbers: false,
-                                  }}
-                                  extensions={[
-                                    EditorView.editable.of(false),
-                                    EditorState.readOnly.of(true),
-                                  ]}
-                                />
-                              </div>
+                            </>
+                          )}
+                          {submission && (
+                            <div className="rounded-xl overflow-hidden border bg-stone-100">
+                              <p className="text-black font-semibold p-2">
+                                Submitted Code (Language -{" "}
+                                {submission?.language})
+                              </p>
+                              <ReactCodeMirror
+                                value={submission?.codeSnippet}
+                                width="100%"
+                                className="h-full"
+                                basicSetup={{ lineNumbers: false }}
+                                extensions={[
+                                  EditorView.editable.of(false),
+                                  EditorState.readOnly.of(true),
+                                ]}
+                              />
                             </div>
                           )}
-                        </>
+                        </div>
                       )}
                     </TabsContent>
                   </Tabs>

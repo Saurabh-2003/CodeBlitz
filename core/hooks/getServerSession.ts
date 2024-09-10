@@ -1,7 +1,6 @@
 "use server";
-import { getServerSession } from "next-auth/next";
+import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/auth";
-import { db } from "../db/db";
 
 const GetServerSession = async () => {
   try {

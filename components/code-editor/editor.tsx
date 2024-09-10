@@ -1,11 +1,11 @@
 "use client";
 
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from "@/components/ui/select";
 import { UserDetail } from "@/core";
 import submitAllCode from "@/core/actions/coderun/submitCode";
@@ -34,6 +34,7 @@ interface EditorProps {
   setSubmission: React.Dispatch<SetStateAction<any>>;
   setTestCases: React.Dispatch<SetStateAction<any>>;
   setActiveTab: React.Dispatch<SetStateAction<string>>; // Pass a function to set the active tab
+  setCompileError: React.Dispatch<SetStateAction<string>>;
 }
 
 const Editor: React.FC<EditorProps> = ({
@@ -42,6 +43,7 @@ const Editor: React.FC<EditorProps> = ({
   setSubmission,
   setTestCases,
   setActiveTab, // Added prop for controlling active tab
+  setCompileError,
 }) => {
   const [code, setCode] = useState<string>(""); // Code for the editor
   const [output, setOutput] = useState<string>(""); // Output from code run
@@ -98,13 +100,22 @@ const Editor: React.FC<EditorProps> = ({
       };
       const result = await submitAllCode(solution);
 
+      if (
+        result?.success === "error" &&
+        result?.message === "Compilation Error"
+      ) {
+        setCompileError(result?.error);
+      }
       if (isPartial) {
         setTestCases(result?.results);
+
+        setCompileError(null);
         setActiveTab("testcase"); // Switch to test cases tab on successful "Run"
       } else {
         setSubmission(result);
         if (result?.status === "success") {
           toast.success(result?.message);
+          setCompileError(null);
           setActiveTab("submission"); // Switch to submission tab on successful "Submit"
           revalidatePath("/problem", "page");
         } else if (result?.error) {

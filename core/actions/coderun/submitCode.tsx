@@ -2,12 +2,11 @@
 
 import { db } from "@/core/db/db";
 import axios from "axios";
-import { exec } from "child_process";
+import { exec, spawn } from "child_process";
 import fs from "fs";
 import path from "path";
 import util from "util";
 import { v4 as uuidv4 } from "uuid";
-
 type SolutionProps = {
   lang: string;
   code: string;
@@ -31,13 +30,14 @@ const getProblemData = async (problemId: string, lang: string) => {
   const fieldMapping: { [key: string]: string } = {
     python: "pythonDriver",
     cpp: "cppDriver",
-    javascript: "jsDriver", // Assuming you have a field for JS driver
+    javascript: "jsDriver",
   };
 
   const selectFields = {
     inputs: true,
     outputs: true,
     [fieldMapping[lang]]: true,
+    difficulty: true, // Include difficulty
   };
 
   const problem = await db.problem.findUnique({
@@ -52,6 +52,109 @@ const getProblemData = async (problemId: string, lang: string) => {
   return problem;
 };
 
+// Function to lint JavaScript code using ESLint in the Docker container
+const compileJSCode = (scriptName: string): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    const scriptPath = path.basename(scriptName);
+
+    // Use the path inside the container
+    const containerScriptPath = `/tmp/${scriptPath}`;
+    const lintCommand = `npx eslint ${containerScriptPath} `;
+
+    const dockerCommand = `docker run --rm -v /tmp:/tmp -w /tmp js_service sh -c "${lintCommand}"`;
+
+    console.log(`Running Docker lint command: ${dockerCommand}`);
+
+    const lintProcess = spawn(dockerCommand, {
+      shell: true,
+    });
+
+    let lintingError = "";
+
+    lintProcess.stdout.on("data", (data) => {
+      console.log(`Linting output: ${data.toString()}`);
+    });
+
+    lintProcess.stderr.on("data", (data) => {
+      console.error(`Linting error: ${data.toString()}`);
+      lintingError += data.toString();
+    });
+
+    lintProcess.on("close", (code) => {
+      if (code === 0) {
+        console.log("Linting successful.");
+        resolve();
+      } else {
+        console.error(`Linting failed with code ${code}`);
+        reject(`Linting Error: ${lintingError}`);
+      }
+    });
+  });
+};
+
+const compilePythonCode = (scriptName: string): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    // Command to check Python syntax
+    const compileCommand = `python -m py_compile ${path.basename(scriptName)}`;
+    const dockerCommand = `docker run --rm -v /tmp:/tmp -w /tmp python_service sh -c "${compileCommand}"`;
+
+    console.log(`Running Docker compile command: ${dockerCommand}`);
+
+    const compileProcess = spawn(dockerCommand, {
+      shell: true,
+    });
+
+    let compilationError = "";
+
+    compileProcess.stderr.on("data", (data) => {
+      console.error(`Compilation error: ${data.toString()}`);
+      compilationError += data.toString();
+    });
+
+    compileProcess.on("close", (code) => {
+      if (code === 0) {
+        console.log("Compilation successful.");
+        resolve();
+      } else {
+        console.error(`Compilation failed with code ${code}`);
+        reject(`Compilation Error: ${compilationError}`);
+      }
+    });
+  });
+};
+const compileCPPCode = (
+  sourceFileName: string,
+  outputName: string,
+): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    const compileCommand = `g++ ${path.basename(sourceFileName)} -o ${path.basename(outputName)}`;
+    const dockerCommand = `docker run --rm -v /tmp:/tmp -w /tmp cpp_service sh -c "${compileCommand}"`;
+
+    console.log(`Running Docker compile command: ${dockerCommand}`);
+
+    const compileProcess = spawn(dockerCommand, {
+      shell: true,
+    });
+
+    let compilationError = "";
+
+    compileProcess.stderr.on("data", (data) => {
+      console.error(`Compilation error: ${data.toString()}`);
+      compilationError += data.toString();
+    });
+
+    compileProcess.on("close", (code) => {
+      if (code === 0) {
+        console.log("Compilation successful.");
+        resolve();
+      } else {
+        console.error(`Compilation failed with code ${code}`);
+        reject(`Compilation Error: ${compilationError}`);
+      }
+    });
+    compileJSCode;
+  });
+};
 const runCodeInDocker = async (
   lang: string,
   codeFileName: string,
@@ -72,7 +175,6 @@ const runCodeInDocker = async (
 
   console.log("Run Command:", runCommand); // For debugging
 
-  // Execute the command and capture output
   const { stdout: runOut, stderr: runErr } = await execPromise(runCommand);
   if (runErr) {
     throw new Error(`Runtime Error: ${runErr}`);
@@ -84,6 +186,10 @@ const runCodeInDocker = async (
 const submitAllCode = async (solution: SolutionProps) => {
   try {
     const { lang, code, problemId, onlyPartialTests, userId } = solution;
+
+    if (!userId) {
+      throw new Error("User ID is required.");
+    }
 
     // Fetch problem data
     const problem = await getProblemData(problemId, lang);
@@ -103,6 +209,40 @@ const submitAllCode = async (solution: SolutionProps) => {
 
     // Write the code to a file
     fs.writeFileSync(codeFileName, code);
+
+    // Compile the code if necessary
+
+    if (lang === "javascript") {
+      try {
+        await compileJSCode(codeFileName);
+      } catch (lintingError) {
+        return {
+          success: "error",
+          error: lintingError,
+          message: "Compilation Error",
+        };
+      }
+    } else if (lang === "python") {
+      try {
+        await compilePythonCode(codeFileName);
+      } catch (compilationError) {
+        return {
+          success: "error",
+          error: compilationError,
+          message: "Compilation Error",
+        };
+      }
+    } else if (lang === "cpp") {
+      try {
+        await compileCPPCode(codeFileName, "/tmp/output");
+      } catch (compilationError) {
+        return {
+          success: "error",
+          error: compilationError,
+          message: "Compilation Error",
+        };
+      }
+    }
 
     // Download input and output files
     const [inputResponse, outputResponse] = await Promise.all([
@@ -128,14 +268,11 @@ const submitAllCode = async (solution: SolutionProps) => {
       .trim()
       .split("\n");
 
-    // Split the input data into test cases
     const inputLines = inputResponse.data.toString().trim().split("\n");
 
-    // Handle partial tests if necessary
     const testInputs = onlyPartialTests ? inputLines.slice(0, 3) : inputLines;
     const testOutputs = expectedOutput.slice(0, testInputs.length);
 
-    // Compare outputs
     const results = testInputs.map((input, index) => {
       const result = output[index] || "";
       const expected = testOutputs[index] || "";
@@ -154,7 +291,6 @@ const submitAllCode = async (solution: SolutionProps) => {
       };
     });
 
-    // Aggregate results
     const totalTestCases = results.length;
     const completedTestCases = results.filter(
       (r) => r.result.status === "success",
@@ -163,6 +299,15 @@ const submitAllCode = async (solution: SolutionProps) => {
       completedTestCases === totalTestCases
         ? SubmissionStatus.ACCEPTED
         : SubmissionStatus.WRONG_ANSWER;
+
+    // Check for existing accepted submissions
+    const existingSubmission = await db.submission.findFirst({
+      where: {
+        problemId,
+        status: SubmissionStatus.ACCEPTED,
+        userId,
+      },
+    });
 
     // Save submission if all tests are completed
     if (!onlyPartialTests) {
@@ -174,6 +319,38 @@ const submitAllCode = async (solution: SolutionProps) => {
           problemId,
         },
       });
+
+      // Update user stats only if no existing accepted submission
+      if (!existingSubmission) {
+        const problemDifficulty = problem.difficulty;
+        const updateFields: { [key: string]: any } = {
+          easySolved: 0,
+          mediumSolved: 0,
+          hardSolved: 0,
+        };
+
+        if (statusToSave === SubmissionStatus.ACCEPTED) {
+          switch (problemDifficulty) {
+            case "EASY":
+              updateFields.easySolved = 1;
+              break;
+            case "MEDIUM":
+              updateFields.mediumSolved = 1;
+              break;
+            case "HARD":
+              updateFields.hardSolved = 1;
+              break;
+          }
+          await db.user.update({
+            where: { id: userId },
+            data: {
+              [problemDifficulty.toLowerCase() + "Solved"]: {
+                increment: 1,
+              },
+            },
+          });
+        }
+      }
     }
 
     return {

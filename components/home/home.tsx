@@ -44,7 +44,7 @@ function Component() {
       <main className="flex-1">
         <section className="w-full py-10 h-fit">
           <div className="container h-full w-full px-4 md:px-6 flex flex-col items-center justify-center">
-            <div className="flex flex-col min-h-[50dvh] justify-center space-y-4 text-center">
+            <div className="flex flex-col h-[60dvh] justify-center space-y-4 text-center">
               <div className="space-y-2">
                 <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl">
                   Practice and Improve Your DSA Skills

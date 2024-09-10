@@ -6,21 +6,42 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ThemeContext } from "@/core/context/theme-context";
 import { useAdminCheck } from "@/core/hooks/verify-admin-user";
 import { DashboardIcon } from "@radix-ui/react-icons";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { useContext } from "react";
-import { BsGear, BsSun } from "react-icons/bs";
+import { useEffect, useState } from "react";
+import { BsSun } from "react-icons/bs";
 import { MdDarkMode } from "react-icons/md";
 import { PiSignOut } from "react-icons/pi";
 
 const Header = () => {
   const pathname = usePathname();
   const router = useRouter();
-  const themeContext = useContext(ThemeContext);
-  const { isAdmin, loading, error } = useAdminCheck(); // Use the custom hook
+  const { isAdmin } = useAdminCheck(); // Use the custom hook
+  const [dark, setDark] = useState(false);
+
+  const toggleTheme = () => {
+    const newTheme = !dark;
+    setDark(newTheme);
+    localStorage.setItem("theme", newTheme ? "dark" : "light");
+  };
+
+  useEffect(() => {
+    const htmlElement = document.documentElement;
+    if (dark) {
+      htmlElement.classList.add("dark");
+    } else {
+      htmlElement.classList.remove("dark");
+    }
+  }, [dark]);
+
+  useEffect(() => {
+    const storedTheme = localStorage.getItem("theme");
+    if (storedTheme === "dark") {
+      setDark(true);
+    }
+  }, []);
 
   if (pathname.includes("problem/") || pathname.includes("/dashboard")) {
     return null;
@@ -38,7 +59,7 @@ const Header = () => {
   };
 
   return (
-    <header className="flex shadow-sm py-2 justify-between min-h-10 w-full px-2 items-center bg-white dark:bg-gray-900">
+    <header className="flex shadow-sm py-2 justify-between min-h-10 w-full px-2 items-center bg-white dark:bg-stone-900/40">
       <div className="w-1/3">
         <Image
           src="/codeblitz.png"
@@ -50,11 +71,7 @@ const Header = () => {
       </div>
 
       <nav className="flex gap-4 p-2 justify-center w-1/3 items-center">
-        <ul
-          className={`flex items-center gap-4 max-sm:hidden text-sm cursor-pointer ${
-            themeContext?.theme === "light" ? "text-gray-800" : "text-gray-300"
-          }`}
-        >
+        <ul className="flex items-center gap-4 max-sm:hidden text-sm cursor-pointer text-gray-800 dark:text-gray-300">
           <li>
             <a href="/" className={isActiveRoute("/")}>
               Home
@@ -74,17 +91,17 @@ const Header = () => {
       </nav>
 
       <div className="flex gap-4 w-1/3 justify-end items-center">
-        {themeContext?.theme === "light" ? (
-          <BsSun
-            className="text-amber-400 cursor-pointer"
-            size={20}
-            onClick={() => themeContext.setTheme("dark")}
-          />
-        ) : (
+        {dark ? (
           <MdDarkMode
             className="text-gray-600 cursor-pointer"
             size={20}
-            onClick={() => themeContext.setTheme("light")}
+            onClick={toggleTheme}
+          />
+        ) : (
+          <BsSun
+            className="text-amber-400 cursor-pointer"
+            size={20}
+            onClick={toggleTheme}
           />
         )}
         <DropdownMenu>
@@ -124,13 +141,6 @@ const Header = () => {
               </DropdownMenuItem>
             )}
 
-            <DropdownMenuItem
-              className="gap-x-2 cursor-pointer"
-              onClick={() => router.push("/settings")}
-            >
-              <BsGear />
-              <span>Settings </span>
-            </DropdownMenuItem>
             <DropdownMenuItem
               className="gap-x-2 cursor-pointer"
               onClick={() => router.push("/logout")}

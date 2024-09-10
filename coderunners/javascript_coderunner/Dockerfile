@@ -1,7 +1,6 @@
 # Use an older Node.js version for better compatibility
 FROM node:14
 
-
 # Create a directory for the external files
 RUN mkdir -p /code_execution/external && chmod -R 777 /code_execution/external
 
@@ -10,6 +9,7 @@ WORKDIR /code_execution
 
 # Install ESLint
 RUN npm install -g eslint@7.32.0
+RUN npm i eslint-config-standard
 
 # Copy package.json and package-lock.json (if available)
 COPY package*.json ./
@@ -20,22 +20,15 @@ RUN npm install
 # Copy the rest of the application code
 COPY . .
 
-# Create the ESLint config file in both locations
-RUN echo '{\n\
-    "env": {\n\
-    "node": true,\n\
-    "es6": true\n\
-    },\n\
-    "extends": "eslint:recommended",\n\
-    "rules": {\n\
-    "no-unused-vars": "warn",\n\
-    "no-console": "off"\n\
-    }\n\
-    }' > /code_execution/.eslintrc.json && \
-    cp /code_execution/.eslintrc.json /code_execution/external/.eslintrc.json
-
-# Make sure the working directory and external folder are writable
+# Set permissions before creating the config files
 RUN chmod -R 777 /code_execution
+
+# Copy ESLint config files and set appropriate permissions
+COPY .eslintrc.json /.eslintrc.json
+COPY .eslintrc.json /external/.eslintrc.json
+
+# Set read permission for ESLint config files
+RUN chmod 777 /code_execution/.eslintrc.json /external/.eslintrc.json
 
 # Create a script to handle linting and running files
 RUN echo '#!/bin/bash\n\
@@ -48,4 +41,5 @@ RUN echo '#!/bin/bash\n\
     exit 1\n\
     fi' > /usr/local/bin/code-checker && chmod +x /usr/local/bin/code-checker
 
+# Set the default command to bash
 CMD ["bash"]

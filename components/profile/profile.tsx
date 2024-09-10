@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic";
 import { useProfileStore } from "@/core/providers/profile-store-provider";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { CgLink } from "react-icons/cg";
 import { FaLinkedin } from "react-icons/fa";
 import { FaSquareGithub } from "react-icons/fa6";
@@ -22,21 +22,28 @@ interface ProfileProps {
 export const Profile: React.FC<ProfileProps> = ({ problemCounts }) => {
   const { user } = useProfileStore((state) => state);
 
+  // State to control whether the UpdateProfileDialogue is open
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const toggleDialog = () => {
+    setIsDialogOpen((prev) => !prev); // Toggle the state
+  };
+
   useEffect(() => {
     console.log(user);
   }, [user]);
 
   return (
-    <aside className="flex md:max-w-[300px] max-md:w-full flex-col p-4  items-center  shadow-md  max-sm:w-full border rounded-xl h-fit  ">
+    <aside className="flex md:max-w-[300px] max-md:w-full flex-col p-4 items-center shadow-md max-sm:w-full border rounded-xl h-fit">
       <div className="flex gap-10 flex-col h-full w-full">
-        <div className="flex flex-col  h-full items-center  gap-4 w-full">
-          <div className="flex  h-full gap-4 items-center ">
+        <div className="flex flex-col h-full items-center gap-4 w-full">
+          <div className="flex h-full gap-4 items-center">
             <Image
               loading="lazy"
               height={400}
               width={400}
               alt="User Image"
-              className=" size-24  rounded-full overflow-hidden object-contain"
+              className="size-24 rounded-full overflow-hidden object-contain"
               src={user?.image ? user?.image : "/placeholder.jpg"}
             />
             <div className="flex flex-col">
@@ -46,7 +53,19 @@ export const Profile: React.FC<ProfileProps> = ({ problemCounts }) => {
             </div>
           </div>
           <p className="text-slate-400 text-sm text-center">{user?.bio}</p>
-          <UpdateProfileDialogue user={user} />
+
+          <button
+            onClick={toggleDialog}
+            className="w-full text-green-500 p-2 mt-4 rounded-sm text-sm bg-emerald-500/10"
+          >
+            Edit Profile
+          </button>
+          {/* Pass the state to control the dialog's visibility */}
+          <UpdateProfileDialogue
+            user={user}
+            isOpen={isDialogOpen}
+            onClose={toggleDialog}
+          />
         </div>
         <StatsCard
           totalSolved={
@@ -72,7 +91,7 @@ export const Profile: React.FC<ProfileProps> = ({ problemCounts }) => {
             <Link
               href={user.linkedinUrl}
               target="_blank"
-              className=" hover:underline"
+              className="hover:underline"
             >
               {user.linkedinUrl}
             </Link>
@@ -84,7 +103,7 @@ export const Profile: React.FC<ProfileProps> = ({ problemCounts }) => {
             <Link
               href={user.githubUrl}
               target="_blank"
-              className=" hover:underline"
+              className="hover:underline"
             >
               {user.githubUrl}
             </Link>
@@ -96,7 +115,7 @@ export const Profile: React.FC<ProfileProps> = ({ problemCounts }) => {
             <Link
               href={user.portfolioUrl}
               target="_blank"
-              className=" hover:underline"
+              className="hover:underline"
             >
               {user.portfolioUrl}
             </Link>
@@ -119,3 +138,5 @@ export const Profile: React.FC<ProfileProps> = ({ problemCounts }) => {
     </aside>
   );
 };
+
+export default Profile;
