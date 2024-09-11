@@ -1,11 +1,11 @@
 "use client";
 
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { UserDetail } from "@/core";
 import submitAllCode from "@/core/actions/coderun/submitCode";
@@ -105,11 +105,12 @@ const Editor: React.FC<EditorProps> = ({
         result?.message === "Compilation Error"
       ) {
         setCompileError(result?.error);
+      } else {
+        setCompileError(null);
       }
       if (isPartial) {
         setTestCases(result?.results);
 
-        setCompileError(null);
         setActiveTab("testcase"); // Switch to test cases tab on successful "Run"
       } else {
         setSubmission(result);

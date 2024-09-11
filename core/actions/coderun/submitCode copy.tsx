@@ -58,8 +58,10 @@ const compileJSCode = (scriptName: string): Promise<void> => {
     const scriptPath = path.basename(scriptName);
 
     // Use the path inside the container
-    const runCommand = `node /tmp/${scriptPath}`;
-    const dockerCommand = `docker run --rm -v /tmp:/tmp -w /tmp js_service sh -c "${runCommand}"`;
+    const containerScriptPath = `/tmp/${scriptPath}`;
+    const lintCommand = `/code_execution/node_modules/eslint/bin/eslint.js ${containerScriptPath}`;
+
+    const dockerCommand = `docker run --rm -v /tmp:/tmp -w /tmp js_service sh -c "${lintCommand}"`;
 
     console.log(`Running Docker lint command: ${dockerCommand}`);
 
@@ -169,7 +171,7 @@ const runCodeInDocker = async (
     throw new Error(`Unsupported language: ${lang}`);
   }
 
-  const runCommand = `docker run --rm -v /tmp:/tmp -w /tmp ${lang === "javascript" ? "js" : lang}_service sh -c '${langSpecificCommands[lang]}'`;
+  const runCommand = `docker run --rm -v /tmp:/tmp -w /tmp ${lang}_service sh -c '${langSpecificCommands[lang]}'`;
 
   console.log("Run Command:", runCommand); // For debugging
 

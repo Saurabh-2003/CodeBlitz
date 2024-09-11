@@ -1,39 +1,34 @@
-# Use an older Node.js version for better compatibility
-FROM node:14
+# Use Node.js 14
+FROM node:18
 
-# Create a directory for the external files
-RUN mkdir -p /code_execution/external && chmod -R 777 /code_execution/external
-
-# Set the working directory
+# Create the working directory
 WORKDIR /code_execution
 
-# Install ESLint
-RUN npm install -g eslint@7.32.0
-RUN npm i eslint-config-standard
-
-# Copy package.json and package-lock.json (if available)
+# Copy the package.json and package-lock.json for dependencies
 COPY package*.json ./
 
-# Install dependencies
-RUN npm install
+# Modify the package.json to set "type": "module"
+RUN if [ -f package.json ]; then sed -i 's/"scripts": {/"type": "module",\n  "scripts": {/' package.json; fi
+
+# Install ESLint and necessary plugins
+RUN npm install eslint@9.10.0 @eslint/js --save-dev
 
 # Copy the rest of the application code
 COPY . .
 
-# Set permissions before creating the config files
+# Set permissions for all application files
 RUN chmod -R 777 /code_execution
 
-# Copy ESLint config files and set appropriate permissions
-COPY .eslintrc.json /.eslintrc.json
-COPY .eslintrc.json /external/.eslintrc.json
+# Create an ESLint config file using ES module syntax
+RUN echo 'import js from "@eslint/js";\n\nexport default [\n  js.configs.recommended,\n  {\n    rules: {\n      "no-unused-vars": "warn",\n      "no-undef": "warn"\n    }\n  }\n];' > /code_execution/eslint.config.js
 
-# Set read permission for ESLint config files
-RUN chmod 777 /code_execution/.eslintrc.json /external/.eslintrc.json
+# Set permissions for the ESLint config file
+RUN chmod 777 /code_execution/eslint.config.js
 
 # Create a script to handle linting and running files
 RUN echo '#!/bin/bash\n\
     if [ "$1" = "lint" ]; then\n\
-    eslint "$2"\n\
+    npx eslint --config /code_execution/eslint.config.js "$2"\n\
     elif [ "$1" = "run" ]; then\n\
     node "$2"\n\
     else\n\
@@ -42,4 +37,4 @@ RUN echo '#!/bin/bash\n\
     fi' > /usr/local/bin/code-checker && chmod +x /usr/local/bin/code-checker
 
 # Set the default command to bash
-CMD ["bash"]
+CMD ["bash", "sh"]

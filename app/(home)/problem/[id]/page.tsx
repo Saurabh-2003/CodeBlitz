@@ -126,11 +126,11 @@ const Page: React.FC = () => {
       <div className="w-full h-full">
         <ResizablePanelGroup
           direction="horizontal"
-          className="w-full rounded-lg gap-1 py-2"
+          className="w-full rounded-lg gap-1 p-2"
         >
           <ResizablePanel
             defaultSize={40}
-            className="bg-white p-2 w-full rounded-lg"
+            className="bg-white p-2 w-full rounded-lg border-2 "
           >
             <Tabs
               defaultValue="description"
@@ -218,7 +218,7 @@ const Page: React.FC = () => {
             <ResizablePanelGroup direction="vertical" className="gap-1">
               <ResizablePanel
                 defaultSize={65}
-                className="bg-white p-2 rounded-lg w-full h-full overflow-x-auto"
+                className="bg-white p-2 rounded-xl border-2 w-full h-full overflow-x-auto"
               >
                 <Editor
                   setCompileError={setCompileError}
@@ -233,7 +233,7 @@ const Page: React.FC = () => {
 
               <ResizablePanel
                 defaultSize={35}
-                className="bg-white flex flex-col p-2 rounded-lg w-full h-full overflow-x-auto"
+                className="bg-white flex flex-col p-2 rounded-xl border-2 w-full h-full overflow-x-auto"
               >
                 <div className="flex w-full overflow-x-auto overflow-y-auto h-full items-center justify-center">
                   <Tabs
@@ -429,7 +429,7 @@ const Page: React.FC = () => {
                     </TabsContent>
                   </Tabs>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-zinc-500">
+                <div className="flex items-center gap-2 text-sm bg-slate-100 h-10 px-4 text-zinc-500">
                   <IoCodeSlashOutline size={18} />
                   Source
                 </div>
