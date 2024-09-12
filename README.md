@@ -1,5 +1,5 @@
 
-![Logo](public/platform_images/codeblitz.png)
+![Logo](public/codeblitz.png)
 
 
 # Project Title
