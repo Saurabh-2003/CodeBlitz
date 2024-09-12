@@ -1,5 +1,5 @@
 
-![Logo](https://github.com/Saurabh-2003/DoodleHub/blob/main/public/codeblitz.png)
+![Logo](public/platform_images/codeblitz.png)
 
 
 # Project Title
