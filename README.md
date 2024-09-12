@@ -66,10 +66,6 @@ Start the server
 
 To run this project, you will need to add the following environment variables to your .env file
 
-`API_KEY`
-
-`ANOTHER_API_KEY`
-
 `GOOGLE_CLIENT_ID=YOUR_GOOGLE_CLIENT_ID`
 
 `GOOGLE_CLIENT_SECRET=YOUR_GOOGLE_CLIENT_SECRET`
