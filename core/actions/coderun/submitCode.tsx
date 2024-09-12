@@ -58,9 +58,15 @@ const compileJSCode = (scriptName: string): Promise<void> => {
     const scriptPath = path.basename(scriptName);
 
     // Use the path inside the container
-    const runCommand = `node /tmp/${scriptPath}`;
-    const dockerCommand = `docker run --rm -v /tmp:/tmp -w /tmp js_service sh -c "${runCommand}"`;
+    // const runCommand = `node /tmp/${scriptPath}`;
+    // const dockerCommand = `docker run --rm -v /tmp:/tmp -w /tmp js_service sh -c "${runCommand}"`;
 
+
+    // Docker command for running the code using the neywork volume specified in docker compose
+    const runCommand = `node /code_execution/${path.basename(scriptPath)}`;
+    const dockerCommand = `docker run --rm -v codeblitz_shared_volume:/code_execution -w /code_execution codeblitz-js_service sh -c "${runCommand}"`;
+
+    
     console.log(`Running Docker lint command: ${dockerCommand}`);
 
     const lintProcess = spawn(dockerCommand, {
@@ -92,10 +98,14 @@ const compileJSCode = (scriptName: string): Promise<void> => {
 
 const compilePythonCode = (scriptName: string): Promise<void> => {
   return new Promise((resolve, reject) => {
-    // Command to check Python syntax
-    const compileCommand = `python -m py_compile ${path.basename(scriptName)}`;
-    const dockerCommand = `docker run --rm -v /tmp:/tmp -w /tmp python_service sh -c "${compileCommand}"`;
+    // command when not using docker compose
+    // const compileCommand = `python -m py_compile ${path.basename(scriptName)}`;
+    // const dockerCommand = `docker run --rm -v /tmp:/tmp -w /tmp python_service sh -c "${compileCommand}"`;
 
+    //Docker command for running the container with the network volume of docker compose
+    const compileCommand = `python -m py_compile ${path.basename(scriptName)}`;
+    const dockerCommand = `docker run --rm -v codeblitz_shared_volume:/code_execution -w /code_execution codeblitz-python_service sh -c "${compileCommand}"`;
+    
     console.log(`Running Docker compile command: ${dockerCommand}`);
 
     const compileProcess = spawn(dockerCommand, {
@@ -125,9 +135,14 @@ const compileCPPCode = (
   outputName: string,
 ): Promise<void> => {
   return new Promise((resolve, reject) => {
-    const compileCommand = `g++ ${path.basename(sourceFileName)} -o ${path.basename(outputName)}`;
-    const dockerCommand = `docker run --rm -v /tmp:/tmp -w /tmp cpp_service sh -c "${compileCommand}"`;
-
+    // const compileCommand = `g++ ${path.basename(sourceFileName)} -o ${path.basename(outputName)}`;
+    // const dockerCommand = `docker run --rm -v /tmp:/tmp -w /tmp cpp_service sh -c "${compileCommand}"`;
+    
+    
+    //Docker command for running the container with the network volume of docker compose
+    const compileCommand = `g++ /code_execution/${path.basename(sourceFileName)} -o /code_execution/${path.basename(outputName)}`;
+    const dockerCommand = `docker run --rm -v codeblitz_shared_volume:/code_execution -w /code_execution codeblitz-cpp_service sh -c "${compileCommand}"`;
+    
     console.log(`Running Docker compile command: ${dockerCommand}`);
 
     const compileProcess = spawn(dockerCommand, {
@@ -169,7 +184,13 @@ const runCodeInDocker = async (
     throw new Error(`Unsupported language: ${lang}`);
   }
 
-  const runCommand = `docker run --rm -v /tmp:/tmp -w /tmp ${lang === "javascript" ? "js" : lang}_service sh -c '${langSpecificCommands[lang]}'`;
+
+  // command for not using volume and running the next js app not in container 
+  // const runCommand = `docker run --rm -v /tmp:/tmp -w /tmp ${lang === "javascript" ? "js" : lang}_service sh -c '${langSpecificCommands[lang]}'`;
+
+
+  //Docker command for running the container with the network volume of docker compose
+  const runCommand = `docker run --rm -v codeblitz_shared_volume:/code_execution -w /code_execution codeblitz-${lang === "javascript" ? "js" : lang}_service sh -c '${langSpecificCommands[lang]}'`;
 
   console.log("Run Command:", runCommand); // For debugging
 
@@ -181,7 +202,7 @@ const runCodeInDocker = async (
   return runOut;
 };
 
-const submitAllCode = async (solution: SolutionProps) => {
+export const submitAllCode = async (solution: SolutionProps) => {
   try {
     const { lang, code, problemId, onlyPartialTests, userId } = solution;
 
@@ -192,8 +213,12 @@ const submitAllCode = async (solution: SolutionProps) => {
     // Fetch problem data
     const problem = await getProblemData(problemId, lang);
 
-    // Generate unique filenames
-    const basePath = "/tmp";
+    // local path when mounting local volume not the shared volume
+    // const basePath = "/tmp";
+
+
+
+    const basePath =  "/code_execution";
     const codeFileName = path.join(
       basePath,
       `code_${uuidv4()}.${lang === "cpp" ? "cpp" : lang === "javascript" ? "js" : "py"}`,
@@ -242,11 +267,18 @@ const submitAllCode = async (solution: SolutionProps) => {
       }
     }
 
-    // Download input and output files
-    const [inputResponse, outputResponse] = await Promise.all([
-      axios.get(problem.inputs, { responseType: "arraybuffer" }),
-      axios.get(problem.outputs, { responseType: "arraybuffer" }),
-    ]);
+// Ensure inputs and outputs are not null before converting them to strings
+if (!problem.inputs || !problem.outputs) {
+  throw new Error("Problem inputs or outputs are not defined.");
+}
+
+const inputUrl = problem.inputs.toString();
+const outputUrl = problem.outputs.toString();
+
+const [inputResponse, outputResponse] = await Promise.all([
+  axios.get(inputUrl, { responseType: "arraybuffer" }),
+  axios.get(outputUrl, { responseType: "arraybuffer" }),
+]);
 
     fs.writeFileSync(inputFileName, inputResponse.data);
     fs.writeFileSync(expectedOutputFileName, outputResponse.data);
@@ -271,7 +303,7 @@ const submitAllCode = async (solution: SolutionProps) => {
     const testInputs = onlyPartialTests ? inputLines.slice(0, 3) : inputLines;
     const testOutputs = expectedOutput.slice(0, testInputs.length);
 
-    const results = testInputs.map((input, index) => {
+    const results = testInputs.map((input:string, index:number) => {
       const result = output[index] || "";
       const expected = testOutputs[index] || "";
       const isSuccess = result === expected;
@@ -291,7 +323,7 @@ const submitAllCode = async (solution: SolutionProps) => {
 
     const totalTestCases = results.length;
     const completedTestCases = results.filter(
-      (r) => r.result.status === "success",
+      (r: { result: { status: string; }; }) => r.result.status === "success",
     ).length;
     const statusToSave =
       completedTestCases === totalTestCases
@@ -320,25 +352,10 @@ const submitAllCode = async (solution: SolutionProps) => {
 
       // Update user stats only if no existing accepted submission
       if (!existingSubmission) {
-        const problemDifficulty = problem.difficulty;
-        const updateFields: { [key: string]: any } = {
-          easySolved: 0,
-          mediumSolved: 0,
-          hardSolved: 0,
-        };
+        const problemDifficulty = problem.difficulty.toString();
+
 
         if (statusToSave === SubmissionStatus.ACCEPTED) {
-          switch (problemDifficulty) {
-            case "EASY":
-              updateFields.easySolved = 1;
-              break;
-            case "MEDIUM":
-              updateFields.mediumSolved = 1;
-              break;
-            case "HARD":
-              updateFields.hardSolved = 1;
-              break;
-          }
           await db.user.update({
             where: { id: userId },
             data: {
@@ -373,5 +390,3 @@ const submitAllCode = async (solution: SolutionProps) => {
     };
   }
 };
-
-export default submitAllCode;

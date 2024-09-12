@@ -1,19 +1,27 @@
-"use server";
-import { UserDetail } from "@/core";
+
+import { UserDetail } from "@/core/actions/user";
 import {
+  clearUserErros,
+  getUserFailure,
   getUserRequest,
   getUserSuccess,
-  getUserFailure,
-  clearUserErros,
 } from "./profileSlice";
 
-export const fetchUser = () => async (dispatch: any) => {
+const fetchUser = () => async (dispatch: any) => {
   try {
-    dispatch(getUserRequest());
+    console.log('Fetching user data...');
+    await dispatch(getUserRequest());
     const response = await UserDetail();
-    dispatch(getUserSuccess({ user: response }));
-    dispatch(clearUserErros());
-  } catch (error) {
-    dispatch(getUserFailure({ message: error }));
+    console.log('User data fetched:', response);
+    await dispatch(getUserSuccess({ user: response.user }));
+
+    console.log('after get use success');
+    await dispatch(clearUserErros());
+    console.log('after clear users errors');
+  } catch (error:any) {
+    console.error('Error fetching user data:', error);
+    await dispatch(getUserFailure({ message: error.message }));
   }
 };
+
+export default fetchUser;

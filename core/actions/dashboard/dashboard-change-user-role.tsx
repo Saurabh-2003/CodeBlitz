@@ -12,7 +12,7 @@ function isUserRole(value: any): value is UserRole {
   return Object.values(UserRole).includes(value);
 }
 
-export async function changeUserRole(userId: string, newRole: string) {
+export async function dashboardChangeUserRole(userId: string, newRole: string) {
   try {
     const enumRole = newRole as UserRole;
 

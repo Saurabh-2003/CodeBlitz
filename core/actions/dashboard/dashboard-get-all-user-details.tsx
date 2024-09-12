@@ -4,7 +4,7 @@ import { authOptions } from "@/core/auth/auth";
 import { db } from "@/core/db/db";
 import { getServerSession } from "next-auth";
 
-export const getAllUserDetails = async () => {
+export const dashboardGetAllUserDetails = async () => {
   try {
     const session = await getServerSession(authOptions);
     if (!session || !session.user) {

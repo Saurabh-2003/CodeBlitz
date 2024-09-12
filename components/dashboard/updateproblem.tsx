@@ -21,10 +21,9 @@ import {
   CommandList,
 } from "@/components/ui/command";
 
-import { TopicList } from "@/core/actions";
-import { getProblem } from "@/core/actions/problem/getproblem";
-import { updateProblemData } from "@/core/actions/problem/updateproblem";
-import { NewTopic } from "@/core/actions/topics";
+import { updateDashboardProblem } from "@/core/actions/dashboard";
+import { getProblemData } from "@/core/actions/problem";
+import { NewTopic, TopicList } from "@/core/actions/topics";
 import { uploadToCloudinary } from "@/lib/uploadfile";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -123,8 +122,7 @@ export const UpdateProblem = ({ id }: { id: string }) => {
     formdata.outputUrl = outputUrl;
     formdata.id = id;
     console.log(formdata, "form submitted");
-    const { message, error, hints } = await updateProblemData(formdata);
-    console.log("hints", hints);
+    const { message, error } = await updateDashboardProblem(formdata);
     console.log(error);
     console.log(message);
     if (error) {
@@ -204,7 +202,7 @@ export const UpdateProblem = ({ id }: { id: string }) => {
   useEffect(() => {
     const fetchData = async () => {
       const { newtopicList, message } = await TopicList();
-      const { problem } = await getProblem(id);
+      const { problem } = await getProblemData(id);
       setProblem(problem);
       if (!newtopicList || message || !problem) {
         toast.error(message);

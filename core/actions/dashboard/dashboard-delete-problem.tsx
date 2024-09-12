@@ -1,6 +1,5 @@
 "use server";
 import { db } from "@/core/db/db";
-
 export async function deleteProblem(problemId: string) {
   try {
     // Delete related records

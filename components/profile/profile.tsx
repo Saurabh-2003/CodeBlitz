@@ -11,6 +11,8 @@ import { HiOutlineTag } from "react-icons/hi";
 import { Badge } from "../ui/badge";
 import StatsCard from "./stats";
 import UpdateProfileDialogue from "./updateProfileDialog";
+import { useAppSelector } from "@/lib/hooks";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 interface ProfileProps {
   problemCounts: {
     EASY: number;
@@ -20,7 +22,8 @@ interface ProfileProps {
 }
 
 export const Profile: React.FC<ProfileProps> = ({ problemCounts }) => {
-  const { user } = useProfileStore((state) => state);
+
+  const  user  = useAppSelector((state) => state.profile.user);
 
   // State to control whether the UpdateProfileDialogue is open
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -38,14 +41,11 @@ export const Profile: React.FC<ProfileProps> = ({ problemCounts }) => {
       <div className="flex gap-10 flex-col h-full w-full">
         <div className="flex flex-col h-full items-center gap-4 w-full">
           <div className="flex h-full gap-4 items-center">
-            <Image
-              loading="lazy"
-              height={400}
-              width={400}
-              alt="User Image"
-              className="size-24 rounded-full overflow-hidden object-contain"
-              src={user?.image ? user?.image : "/placeholder.jpg"}
-            />
+          <Avatar className="size-24">
+                <AvatarImage src={user?.image || '/placeholder.jpg'} alt="userImage" />
+                <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
+              </Avatar>
+            
             <div className="flex flex-col">
               <Badge className="w-fit text-[8px]">{user?.role}</Badge>
 

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { UserDetail } from "./core";
-import GetServerSession from "./core/hooks/getServerSession";
+import { UserDetail } from "@/core/actions/user";
+import GetServerSession from "@/core/hooks/getServerSession";
 
 export async function middleware(request: Request) {
   try {

@@ -29,8 +29,7 @@ import {
 } from "@tanstack/react-table";
 import { Search } from "lucide-react";
 import React from "react";
-import { DataTablePagination } from "../home/problemPage/dataTablePagination";
-
+import { ProbelemsDataTablePagination } from "../home/problemPage/problems-data-table-pagination";
 interface DataType {
   id: string;
   name: string | null;
@@ -192,7 +191,7 @@ export function UserDataTable<TData extends DataType, TValue>({
       </div>
       <div className="flex items-center space-x-2 py-4">
         <div className="flex w-full">
-          <DataTablePagination table={table} />
+          <ProbelemsDataTablePagination table={table} />
         </div>
       </div>
     </div>

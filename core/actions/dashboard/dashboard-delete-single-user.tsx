@@ -2,7 +2,7 @@
 
 import { db } from "@/core/db/db";
 
-export async function deleteUser(userEmail: string) {
+export async function dashboardDeleteSingleUser(userEmail: string) {
   try {
     console.log(userEmail);
     await db.user.delete({

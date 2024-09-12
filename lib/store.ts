@@ -4,6 +4,10 @@ import profileReducer from "./features/profile/profileSlice";
 export const makeStore = () => {
   return configureStore({
     reducer: { profile: profileReducer },
+    middleware: (getDefaultMiddleware) =>
+      getDefaultMiddleware({
+        serializableCheck: false,
+      }),
   });
 };
 

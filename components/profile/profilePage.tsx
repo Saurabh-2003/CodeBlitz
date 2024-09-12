@@ -1,20 +1,35 @@
 "use client";
 
-import { Profile } from "@/components/index";
-import { UserDetail } from "@/core";
+import Profile from "./profile";
+import { UserDetail } from "@/core/actions/user";
 import { getRecentAcceptedSubmissions } from "@/core/actions/user/find-recent-ac";
 import { useProfileStore } from "@/core/providers/profile-store-provider";
 import { useSession } from "next-auth/react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Label } from "../ui/label";
+import { useAppDispatch, useAppSelector } from "@/lib/hooks";
+import fetchUser from "@/lib/features/profile/profileReducer";
 interface RecentACSubmission {
   title: string;
   daysAgo: string;
 }
 const Profilepage = () => {
-  const { user, setUser } = useProfileStore((state) => state);
-  const { status, data: session } = useSession();
+  const router = useRouter();
+  const { data: session, status } = useSession();
+
+  useEffect(() => {
+     if (status === "unauthenticated") {
+      router.push("/");
+    }
+  }, [ status]);
+  const dispatch = useAppDispatch();
+  useEffect(()=>{
+    dispatch(fetchUser())
+  }, [])
+  
+  const  user  = useAppSelector((state) => state.profile.user);
+  console.log("user from redux : ", user)
   const location = usePathname();
   const [recentAC, setRecentAC] = useState<RecentACSubmission[]>([]);
   const [problemCounts, setProblemCounts] = useState({
@@ -22,16 +37,7 @@ const Profilepage = () => {
     MEDIUM: 0,
     HARD: 0,
   });
-  useEffect(() => {
-    const fetchUser = async () => {
-      const response: any = await UserDetail();
-      setUser(response.user);
-    };
 
-    if (!user && status === "authenticated") {
-      fetchUser();
-    }
-  }, [user, setUser, status]);
 
   useEffect(() => {
     if (user) {

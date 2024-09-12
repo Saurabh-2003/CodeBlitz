@@ -7,6 +7,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import React from "react";
 import "./globals.css";
+import StoreProvider from "@/core/providers/store-provider";
 
 const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
@@ -25,15 +26,17 @@ export default function RootLayout({
         <div
           className={`container px-0 antialiased max-w-[1920px] bg-background  ${inter.className}`}
         >
-          <ProfileStoreProvider>
+          
             <AuthProvider>
               <ThemeProvider>
                 <Header />
                 <Toaster />
+                <StoreProvider>
                 {children}
+                </StoreProvider>
+                
               </ThemeProvider>
             </AuthProvider>
-          </ProfileStoreProvider>
         </div>
       </body>
     </html>

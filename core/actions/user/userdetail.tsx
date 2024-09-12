@@ -23,7 +23,11 @@ export const UserDetail = async () => {
       },
     });
 
-    return { user: user };
+    if (!user) {
+      return { error: "User not found" };
+    }
+
+    return { user };
   } catch (error: any) {
     return { e: "Internal server error" };
   }

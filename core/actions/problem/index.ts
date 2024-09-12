@@ -1,3 +1,4 @@
-import { NewProblem } from "./newproblem";
+import { getAllProblems } from "./getAllProblems";
+import { getProblemData } from "./getproblem";
 
-export { NewProblem };
+export { getAllProblems, getProblemData };

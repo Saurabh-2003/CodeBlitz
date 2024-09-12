@@ -21,9 +21,8 @@ import {
   CommandList,
 } from "@/components/ui/command";
 
-import { TopicList } from "@/core/actions";
-import { NewProblem } from "@/core/actions/problem/newproblem";
-import { NewTopic } from "@/core/actions/topics";
+import { createDashboardNewProblem } from "@/core/actions/dashboard";
+import { NewTopic, TopicList } from "@/core/actions/topics";
 import { uploadToCloudinary } from "@/lib/uploadfile";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -90,7 +89,7 @@ export const AddProblem = () => {
     formdata.inputUrl = inputUrl;
     formdata.outputUrl = outputUrl;
     console.log(formdata, "form submitted");
-    const { message, error } = await NewProblem(formdata);
+    const { message, error } = await createDashboardNewProblem(formdata);
     if (error) {
       toast.error(error);
       return;

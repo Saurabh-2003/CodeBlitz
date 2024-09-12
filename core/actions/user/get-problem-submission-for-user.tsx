@@ -4,7 +4,7 @@ import { authOptions } from "@/core/auth/auth";
 import { db } from "@/core/db/db";
 import { getServerSession } from "next-auth";
 
-const findProblemSubmissions = async (id: string) => {
+export const getProblemSubmissionsOfUser = async (id: string) => {
   try {
     // Await for the session
     const sessionUser = await getServerSession(authOptions);
@@ -36,6 +36,9 @@ const findProblemSubmissions = async (id: string) => {
         createdAt: true,
         status: true,
       },
+      orderBy: {
+        createdAt: "desc", // Sort submissions by createdAt in descending order
+      },
     });
 
     return {
@@ -50,5 +53,3 @@ const findProblemSubmissions = async (id: string) => {
     };
   }
 };
-
-export default findProblemSubmissions;

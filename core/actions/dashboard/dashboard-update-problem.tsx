@@ -20,7 +20,7 @@ interface ProblemProp {
   outputUrl: string;
 }
 
-export const updateProblemData = async (data: ProblemProp) => {
+export const updateDashboardProblem = async (data: ProblemProp) => {
   const {
     id,
     title,

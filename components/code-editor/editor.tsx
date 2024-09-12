@@ -7,8 +7,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { UserDetail } from "@/core";
-import submitAllCode from "@/core/actions/coderun/submitCode";
+import { submitAllCode } from "@/core/actions/coderun";
+import { UserDetail } from "@/core/actions/user";
 import { loadLanguage } from "@uiw/codemirror-extensions-langs";
 import { xcodeLight } from "@uiw/codemirror-theme-xcode";
 import ReactCodeMirror from "@uiw/react-codemirror";
@@ -21,7 +21,7 @@ import { MdOutlineCloudUpload } from "react-icons/md";
 import { toast } from "sonner";
 
 // Language mapping
-const languageMap = {
+const languageMap:any = {
   cpp: loadLanguage("cpp"),
   javascript: loadLanguage("javascript"),
   python: loadLanguage("python"),
@@ -34,7 +34,7 @@ interface EditorProps {
   setSubmission: React.Dispatch<SetStateAction<any>>;
   setTestCases: React.Dispatch<SetStateAction<any>>;
   setActiveTab: React.Dispatch<SetStateAction<string>>; // Pass a function to set the active tab
-  setCompileError: React.Dispatch<SetStateAction<string>>;
+  setCompileError: React.Dispatch<SetStateAction<string|null>>;
 }
 
 const Editor: React.FC<EditorProps> = ({
@@ -104,7 +104,7 @@ const Editor: React.FC<EditorProps> = ({
         result?.success === "error" &&
         result?.message === "Compilation Error"
       ) {
-        setCompileError(result?.error);
+        setCompileError(result?.error as string);
       } else {
         setCompileError(null);
       }

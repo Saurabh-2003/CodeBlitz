@@ -1,10 +1,11 @@
 import NewUserSignin from "@/components/profile/newUserProfileDetails";
 
-const Page = async () => {
+const Page =  () => {
   return (
-    <div>
-      <NewUserSignin />
-    </div>
+      <main>
+          <NewUserSignin />
+        
+      </main>
   );
 };
 

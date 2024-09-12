@@ -1,6 +1,7 @@
 "use client";
 
-import { useProfileStore } from "@/core/providers/profile-store-provider";
+import fetchUser from "@/lib/features/profile/profileReducer";
+import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -40,7 +41,13 @@ const menuItems = [
 ];
 
 const DashboardSidebar = () => {
-  const { user, setUser } = useProfileStore((state) => state);
+
+  const dispatch = useAppDispatch();
+  useEffect(()=>{
+    dispatch(fetchUser())
+  }, [])
+  
+  const  user  = useAppSelector((state) => state.profile.user);
   const [activeMenu, setActiveMenu] = useState("dashboard");
   const navigate = useRouter();
   const location = usePathname();
@@ -82,7 +89,7 @@ const DashboardSidebar = () => {
   return (
     <>
       <aside
-        className={`relative  h-full shadow-xl  rounded-xl p-8  w-80 transition-transform duration-500 max-sm:z-10 max-sm:bg-white max-sm:absolute  ${menuShowMobile ? "max-sm:translate-x-0" : "max-sm:-translate-x-96"} flex dark:bg-zinc-800  flex-col  bg-white text-black `}
+        className={`relative  h-full shadow-xl  rounded-xl p-8  w-80 transition-transform duration-500 max-sm:z-40 max-sm:bg-white max-sm:absolute  ${menuShowMobile ? "max-sm:translate-x-0" : "max-sm:-translate-x-96"} flex dark:bg-zinc-800  flex-col  bg-white text-black `}
       >
         <div className="flex items-center gap-2 border-b-2 dark:border-b-zinc-800 pb-4">
           <Image
@@ -131,15 +138,15 @@ const DashboardSidebar = () => {
           <span className="flex border-t-2 dark:border-t-zinc-800 pt-4 items-center gap-2">
             <img
               className="size-10 rounded-full object-fill"
-              src={user?.image ? user?.image : "/placeholder.jpg"}
+              src={user?.image || "/placeholder.jpg"}
               alt="User-Image"
             />
             <div className="flex flex-col">
               <h3 className="text-sm text-zinc-800 dark:text-slate-200 font-bold">
-                {user?.name ? user?.name : "test"}
+                {user?.name || "test"}
               </h3>
               <h3 className="text-xs">
-                {user?.email ? user?.email : "test@gmail.com"}
+                {user?.email ||"test@gmail.com"}
               </h3>
             </div>
           </span>

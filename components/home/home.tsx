@@ -6,6 +6,16 @@ import Link from "next/link";
 import { Button } from "../ui/button";
 
 export default function Home() {
+
+  const dispatch = useAppDispatch();
+  useEffect(()=>{
+    dispatch(fetchUser())
+  }, [])
+  
+  const  user  = useAppSelector((state) => state.profile.user);
+  useEffect(() => {
+    console.log("home user : ", user)
+  }, [user])
   return (
     <div className="relative flex h-fit w-full flex-col items-center justify-center overflow-hidden bg-background">
       <Component />
@@ -36,6 +46,9 @@ export default function Home() {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
+import { useEffect } from "react";
+import { useAppDispatch, useAppSelector } from "@/lib/hooks";
+import fetchUser from "@/lib/features/profile/profileReducer";
 
 function Component() {
   const { data: session } = useSession();
@@ -61,7 +74,7 @@ function Component() {
                 </Link>
                 {/* Conditionally render the "Join Us Now" button if there is no session */}
                 {!session && (
-                  <Link href="/auth/signin">
+                  <Link href="/auth">
                     <Button variant="secondary">Join Us Now</Button>
                   </Link>
                 )}

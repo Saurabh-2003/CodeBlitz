@@ -21,7 +21,7 @@ interface ProblemProp {
   examples: string;
 }
 
-export const NewProblem = async (data: ProblemProp) => {
+export const createDashboardNewProblem = async (data: ProblemProp) => {
   const {
     title,
     description,

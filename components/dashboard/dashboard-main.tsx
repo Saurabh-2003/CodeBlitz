@@ -16,7 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { getDashboardData } from "@/core/actions/dashboard/get-dashboard-data";
+import { getDashboardData } from "@/core/actions/dashboard";
 import { Activity, ArrowUpRight, Users } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";

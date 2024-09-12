@@ -31,33 +31,33 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { getAllProblems } from "@/core/actions/problem/getAllProblems";
+import { getAllProblems } from "@/core/actions/problem";
 import { cn } from "@/lib/utils";
 import { Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { IoMdCheckmarkCircleOutline } from "react-icons/io";
 import { IoInvertModeOutline } from "react-icons/io5";
-import { DataTablePagination } from "./dataTablePagination";
+import { ProbelemsDataTablePagination } from "./problems-data-table-pagination";
 
-interface DataType {
+export type ProblemProps = {
   id: string;
-  status: string;
+  status: "ACCEPTED" | "NOT ATTEMPTED" | "ATTEMPTED";
   title: string;
-  difficulty: string;
+  difficulty: "EASY" | "MEDIUM" | "HARD";
+};
+
+interface DataTableProps<TData> {
+  columns: ColumnDef<TData, any>[];
 }
 
-interface DataTableProps<TData extends DataType, TValue> {
-  columns: ColumnDef<DataType, TValue>[];
-}
-
-export function DataTable<TData extends DataType, TValue>({
+export function ProblemsDataTable<TData extends ProblemProps>({
   columns,
-}: DataTableProps<TData, TValue>) {
+}: DataTableProps<TData>) {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
   );
-  const [data, setData] = useState<DataType[]>([]);
+  const [data, setData] = useState<TData[]>([]);
   const router = useRouter();
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnVisibility, setColumnVisibility] =
@@ -65,9 +65,9 @@ export function DataTable<TData extends DataType, TValue>({
 
   useEffect(() => {
     const fetchData = async () => {
-      const { data, error } = await getAllProblems();
+      const { data } = await getAllProblems();
       if (data) {
-        setData(data);
+        setData(data as TData[]);
       }
     };
     fetchData();
@@ -97,46 +97,49 @@ export function DataTable<TData extends DataType, TValue>({
     <div>
       <div className="flex items-center py-4 w-full justify-between">
         <div className="flex items-center gap-4 justify-between w-full">
-          <div className="flex gap-4 items-center">
-            <div className="flex items-center">
-              <Select
-                onValueChange={(value) =>
-                  table
-                    .getColumn("difficulty")
-                    ?.setFilterValue(value === "all" ? null : value)
-                }
-              >
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="All Difficulty" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Difficulty</SelectItem>
-                  <SelectItem value="easy">Easy</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="hard">Hard</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex items-center">
-              <Select
-                onValueChange={(value) =>
-                  table
-                    .getColumn("status")
-                    ?.setFilterValue(value === "all" ? null : value)
-                }
-              >
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="All Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="ACCEPTED">Accepted</SelectItem>
-                  <SelectItem value="ATTEMPTED">Attempted</SelectItem>
-                  <SelectItem value="NOT ATTEMPTED">Not Attempted</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+          {/* Filter select for difficulty */}
+          <div className="flex items-center">
+            <Select
+              onValueChange={(value) =>
+                table
+                  .getColumn("difficulty")
+                  ?.setFilterValue(value === "all" ? null : value)
+              }
+            >
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="All Difficulty" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Difficulty</SelectItem>
+                <SelectItem value="EASY">Easy</SelectItem>
+                <SelectItem value="MEDIUM">Medium</SelectItem>
+                <SelectItem value="HARD">Hard</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
+
+          {/* Filter select for status */}
+          <div className="flex items-center">
+            <Select
+              onValueChange={(value) =>
+                table
+                  .getColumn("status")
+                  ?.setFilterValue(value === "all" ? null : value)
+              }
+            >
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="All Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="ACCEPTED">Accepted</SelectItem>
+                <SelectItem value="ATTEMPTED">Attempted</SelectItem>
+                <SelectItem value="NOT ATTEMPTED">Not Attempted</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Search input */}
           <div className="flex bg-gray-100 items-center px-3 rounded-md">
             <Search size={20} className="text-gray-500" />
             <Input
@@ -153,6 +156,7 @@ export function DataTable<TData extends DataType, TValue>({
         </div>
       </div>
 
+      {/* Table rendering */}
       <div className="rounded-md">
         <Table>
           <TableHeader>
@@ -244,9 +248,11 @@ export function DataTable<TData extends DataType, TValue>({
           </TableBody>
         </Table>
       </div>
+
+      {/* Pagination */}
       <div className="flex items-center space-x-2 py-4">
         <div className="flex w-full">
-          <DataTablePagination table={table} />
+          <ProbelemsDataTablePagination table={table} />
         </div>
       </div>
     </div>

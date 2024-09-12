@@ -5,10 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { UserUpdate } from "@/core";
+import { UserUpdate } from "@/core/actions/user";
 import { useProfileStore } from "@/core/providers/profile-store-provider";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BiTrash } from "react-icons/bi";
 import { CgLink } from "react-icons/cg";
 import { FaGithub, FaLinkedin } from "react-icons/fa";
@@ -20,6 +20,8 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
+import { useAppDispatch, useAppSelector, useAppStore } from "@/lib/hooks";
+import fetchUser from "@/lib/features/profile/profileReducer";
 
 // Define the type for the user prop
 interface User {
@@ -35,7 +37,13 @@ interface User {
 }
 
 export default function NewUserSignin() {
-  const { user, setUser } = useProfileStore((state) => state);
+
+  const dispatch = useAppDispatch();
+  useEffect(()=>{
+    dispatch(fetchUser())
+  }, [])
+  
+  const  user  = useAppSelector((state) => state.profile.user);
   const [previewImage, setPreviewImage] = useState<string>(user?.image || "");
   const [organization, setOrganization] = useState<string>(
     user?.collegeName || "",
@@ -55,17 +63,23 @@ export default function NewUserSignin() {
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    setPreviewImage(user?.image || "");
-    setSkills(user?.skills ? user.skills.split(",") : []);
-    setSocialLinks({
-      linkedin: user?.linkedinUrl || "",
-      portfolio: user?.portfolioUrl || "",
-      github: user?.githubUrl || "",
-    });
-    setName(user?.name || "");
-    setBio(user?.bio || "");
-    setOrganization(user?.collegeName || "");
-  }, [user]);
+    if (user) {
+      setPreviewImage(user.image || "");
+      setSkills(user.skills ? user.skills.split(",") : []);
+      setSocialLinks({
+        linkedin: user.linkedinUrl || "",
+        portfolio: user.portfolioUrl || "",
+        github: user.githubUrl || "",
+      });
+      setName(user.name || "");
+      setBio(user.bio || "");
+      setOrganization(user.collegeName || "");
+    }
+  }, [user]);  
+
+
+  // No need for useEffect in this case
+  
 
   const addSkill = () => setSkills([...skills, ""]);
 
@@ -136,6 +150,10 @@ export default function NewUserSignin() {
       }
     };
   }, [previewImage]);
+
+  useEffect(() => {
+    console.log("user : ", user)
+  },[user])
   const handleSkip = () => {
     router.push("/profile");
   };
@@ -156,7 +174,7 @@ export default function NewUserSignin() {
         </div>
         <div className="flex flex-col gap-4">
           <Label>Email</Label>
-          <Input disabled defaultValue={user?.email} />
+          <Input disabled defaultValue={user?.email || ''} />
         </div>
         <div className="flex flex-col gap-4">
           <Label htmlFor="bio">Bio</Label>

@@ -1,6 +1,6 @@
 // /hooks/useAdminCheck.js
 import { useEffect, useState } from "react";
-import { UserDetail } from "../actions";
+import { UserDetail } from "../actions/user";
 
 export const useAdminCheck = () => {
   const [isAdmin, setIsAdmin] = useState(false);

@@ -17,7 +17,7 @@ interface DataTablePaginationProps<TData> {
   table: Table<TData>;
 }
 
-export function DataTablePagination<TData>({
+export function ProbelemsDataTablePagination<TData>({
   table,
 }: DataTablePaginationProps<TData>) {
   const currentPage = table.getState().pagination.pageIndex;

@@ -39,8 +39,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { deleteProblem } from "@/core/actions/problem/delete-problem";
-import { getAdminAllProblems } from "@/core/actions/problem/get-admin-problems";
+import { deleteProblem, getAdminAllProblems } from "@/core/actions/dashboard";
 import {
   getCoreRowModel,
   getFilteredRowModel,

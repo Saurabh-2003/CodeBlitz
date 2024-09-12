@@ -1,7 +1,8 @@
 import BreadCrumbs from "@/components/layout/dashboard/dashboard-breadcrumb";
 import DashboardSidebar from "@/components/layout/dashboard/dashboard-sidebar";
-import { UserDetail } from "@/core";
+import { UserDetail } from "@/core/actions/user";
 import getServerSession from "@/core/hooks/getServerSession";
+import StoreProvider from "@/core/providers/store-provider";
 import { redirect } from "next/navigation";
 import React from "react";
 
@@ -32,7 +33,8 @@ export default async function Layout({
         <div className="w-full sticky top-0 z-10">
           <BreadCrumbs />
         </div>
-        <div>{children}</div>
+        <div>
+        {children}</div>
       </div>
     </div>
   );

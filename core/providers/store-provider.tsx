@@ -12,7 +12,6 @@ export default function StoreProvider({
   const storeRef = useRef<AppStore | null>(null);
   if (!storeRef.current) {
     storeRef.current = makeStore();
-    storeRef.current.dispatch(getUserRequest());
   }
 
   return <Provider store={storeRef.current}>{children}</Provider>;

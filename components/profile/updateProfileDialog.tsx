@@ -12,7 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { UserUpdate } from "@/core";
+import { UserUpdate } from "@/core/actions/user";
 import { useEffect, useState } from "react";
 import { BiTrash } from "react-icons/bi";
 import { CgLink } from "react-icons/cg";

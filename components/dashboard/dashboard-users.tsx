@@ -1,7 +1,9 @@
 "use client";
-import { changeUserRole } from "@/core/actions/user/change-user-role";
-import { deleteUser } from "@/core/actions/user/delete-single-user";
-import { getAllUserDetails } from "@/core/actions/user/get-all-user-details";
+import {
+  dashboardChangeUserRole,
+  dashboardDeleteSingleUser,
+  dashboardGetAllUserDetails,
+} from "@/core/actions/dashboard";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -51,7 +53,7 @@ export default function DashboardUsers() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const { allUsers, error } = await getAllUserDetails();
+        const { allUsers, error } = await dashboardGetAllUserDetails();
         if (error) {
           toast.error(error);
           return;
@@ -69,7 +71,9 @@ export default function DashboardUsers() {
   const handleDeleteUser = async () => {
     if (selectedUser) {
       try {
-        const result = await deleteUser(selectedUser?.email);
+        const result = await dashboardDeleteSingleUser(
+          selectedUser?.email || "",
+        );
         if (result.success) {
           setUsers((prevUsers) =>
             prevUsers.filter((user) => user.id !== selectedUser.id),
@@ -90,7 +94,10 @@ export default function DashboardUsers() {
   const handleChangeRole = async () => {
     if (selectedUser && roleToChange) {
       try {
-        const result = await changeUserRole(selectedUser.id, roleToChange);
+        const result = await dashboardChangeUserRole(
+          selectedUser.id,
+          roleToChange,
+        );
         if (result.success) {
           setUsers((prevUsers) =>
             prevUsers.map((user) =>
