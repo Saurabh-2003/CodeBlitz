@@ -10,8 +10,8 @@ export default function Home() {
   const dispatch = useAppDispatch();
   useEffect(()=>{
     dispatch(fetchUser())
-  }, [])
-  
+  }, [dispatch])
+
   const  user  = useAppSelector((state) => state.profile.user);
   useEffect(() => {
     console.log("home user : ", user)
@@ -44,11 +44,11 @@ export default function Home() {
 }
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import fetchUser from "@/lib/features/profile/profileReducer";
+import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useEffect } from "react";
-import { useAppDispatch, useAppSelector } from "@/lib/hooks";
-import fetchUser from "@/lib/features/profile/profileReducer";
 
 function Component() {
   const { data: session } = useSession();
@@ -146,7 +146,7 @@ function Component() {
                   </CardContent>
                 </Card>
               </div>
-              <img
+              <Image
                 src="/problems.png"
                 width="650"
                 height="310"

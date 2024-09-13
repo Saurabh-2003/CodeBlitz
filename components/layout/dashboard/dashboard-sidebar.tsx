@@ -41,13 +41,12 @@ const menuItems = [
 ];
 
 const DashboardSidebar = () => {
-
   const dispatch = useAppDispatch();
-  useEffect(()=>{
-    dispatch(fetchUser())
-  }, [])
-  
-  const  user  = useAppSelector((state) => state.profile.user);
+  useEffect(() => {
+    dispatch(fetchUser());
+  }, [dispatch]);
+
+  const user = useAppSelector((state) => state.profile.user);
   const [activeMenu, setActiveMenu] = useState("dashboard");
   const navigate = useRouter();
   const location = usePathname();
@@ -136,7 +135,9 @@ const DashboardSidebar = () => {
           </div>
 
           <span className="flex border-t-2 dark:border-t-zinc-800 pt-4 items-center gap-2">
-            <img
+            <Image
+              height={280}
+              width={280}
               className="size-10 rounded-full object-fill"
               src={user?.image || "/placeholder.jpg"}
               alt="User-Image"
@@ -145,9 +146,7 @@ const DashboardSidebar = () => {
               <h3 className="text-sm text-zinc-800 dark:text-slate-200 font-bold">
                 {user?.name || "test"}
               </h3>
-              <h3 className="text-xs">
-                {user?.email ||"test@gmail.com"}
-              </h3>
+              <h3 className="text-xs">{user?.email || "test@gmail.com"}</h3>
             </div>
           </span>
         </div>

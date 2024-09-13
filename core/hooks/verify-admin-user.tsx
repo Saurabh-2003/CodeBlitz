@@ -21,8 +21,8 @@ export const useAdminCheck = () => {
         } else {
           setIsAdmin(false);
         }
-      } catch (error: any) {
-        setError(error);
+      } catch (error: unknown) {
+        setError(error instanceof Error ? error.message : String(error));
         setIsAdmin(false);
       } finally {
         setLoading(false);

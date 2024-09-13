@@ -28,7 +28,8 @@ export const UserDetail = async () => {
     }
 
     return { user };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    console.error(error);
     return { e: "Internal server error" };
   }
 };

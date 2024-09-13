@@ -1,10 +1,9 @@
-// pages/auth/signout.js
 'use client'
-import { signOut } from "next-auth/react";
-import { useEffect } from "react";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-export default function index() {
+import { useEffect } from "react";
+
+export default function LogoutPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
 
@@ -14,7 +13,7 @@ export default function index() {
     } else if (status === "unauthenticated") {
       router.push("/");
     }
-  }, [ status]);
+  }, [status, router]);
 
   return <div>Logging Out...</div>;
 }

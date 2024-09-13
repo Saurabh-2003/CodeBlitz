@@ -8,9 +8,9 @@ interface ProblemProp {
   title: string;
   description: string;
   difficulty: Difficulty;
-  topics: [{ topic: string }];
-  hints: string[];
-  constraints: string[];
+  topics: { topic: string }[];
+  hints: { hint: string }[];
+  constraints: { constraint: string }[];
   driverFunction: {
     cplusplus: string;
     python: string;

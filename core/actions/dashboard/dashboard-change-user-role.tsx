@@ -8,8 +8,12 @@ enum UserRole {
   SUPERADMIN = "SUPERADMIN",
 }
 
-function isUserRole(value: any): value is UserRole {
-  return Object.values(UserRole).includes(value);
+// function isUserRole(value: any): value is UserRole {
+//   return Object.values(UserRole).includes(value);
+// }
+
+function isUserRole(value: string): value is UserRole {
+  return Object.values(UserRole).includes(value as UserRole);
 }
 
 export async function dashboardChangeUserRole(userId: string, newRole: string) {

@@ -1,15 +1,13 @@
 "use client";
 
-import Profile from "./profile";
-import { UserDetail } from "@/core/actions/user";
 import { getRecentAcceptedSubmissions } from "@/core/actions/user/find-recent-ac";
-import { useProfileStore } from "@/core/providers/profile-store-provider";
+import fetchUser from "@/lib/features/profile/profileReducer";
+import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { useSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Label } from "../ui/label";
-import { useAppDispatch, useAppSelector } from "@/lib/hooks";
-import fetchUser from "@/lib/features/profile/profileReducer";
+import Profile from "./profile";
 interface RecentACSubmission {
   title: string;
   daysAgo: string;
@@ -22,12 +20,12 @@ const Profilepage = () => {
      if (status === "unauthenticated") {
       router.push("/");
     }
-  }, [ status]);
+  }, [ status, router]);
   const dispatch = useAppDispatch();
   useEffect(()=>{
     dispatch(fetchUser())
-  }, [])
-  
+  }, [dispatch])
+
   const  user  = useAppSelector((state) => state.profile.user);
   console.log("user from redux : ", user)
   const location = usePathname();

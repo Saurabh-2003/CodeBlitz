@@ -6,22 +6,21 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { UserUpdate } from "@/core/actions/user";
-import { useProfileStore } from "@/core/providers/profile-store-provider";
+import fetchUser from "@/lib/features/profile/profileReducer";
+import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { BiTrash } from "react-icons/bi";
 import { CgLink } from "react-icons/cg";
 import { FaGithub, FaLinkedin } from "react-icons/fa";
 import { toast } from "sonner";
 import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
+    Card,
+    CardContent,
+    CardFooter,
+    CardHeader,
+    CardTitle,
 } from "../ui/card";
-import { useAppDispatch, useAppSelector, useAppStore } from "@/lib/hooks";
-import fetchUser from "@/lib/features/profile/profileReducer";
 
 // Define the type for the user prop
 interface User {
@@ -41,8 +40,8 @@ export default function NewUserSignin() {
   const dispatch = useAppDispatch();
   useEffect(()=>{
     dispatch(fetchUser())
-  }, [])
-  
+  }, [dispatch])
+
   const  user  = useAppSelector((state) => state.profile.user);
   const [previewImage, setPreviewImage] = useState<string>(user?.image || "");
   const [organization, setOrganization] = useState<string>(
@@ -75,11 +74,11 @@ export default function NewUserSignin() {
       setBio(user.bio || "");
       setOrganization(user.collegeName || "");
     }
-  }, [user]);  
+  }, [user]);
 
 
   // No need for useEffect in this case
-  
+
 
   const addSkill = () => setSkills([...skills, ""]);
 

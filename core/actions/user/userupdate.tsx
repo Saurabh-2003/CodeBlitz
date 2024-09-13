@@ -100,7 +100,7 @@ export const UserUpdate = async (data: UserProp) => {
     });
 
     return { success: true, user: updatedUser };
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error updating user:", error); // Log error
     return { error: true, message: "Internal server error" };
   }

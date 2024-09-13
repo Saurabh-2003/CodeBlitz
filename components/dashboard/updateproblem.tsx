@@ -1,192 +1,166 @@
-/** eslint-disable no-unused-vars */
-/** eslint-disable no-unused-vars */
 "use client";
 import { problemSchema } from "@/core/types/types";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { X } from "lucide-react";
+import { Loader, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { Textarea } from "../ui/textarea";
+
+type ProblemSchemaType = z.infer<typeof problemSchema>;
+
+interface UpdateProblemSchemaType
+  extends Omit<ProblemSchemaType, "inputUrl" | "outputUrl"> {
+  id: string;
+  inputUrl: string;
+  outputUrl: string;
+}
 
 import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
+    Command,
+    CommandEmpty,
+    CommandGroup,
+    CommandInput,
+    CommandItem,
+    CommandList,
 } from "@/components/ui/command";
-
 import { updateDashboardProblem } from "@/core/actions/dashboard";
 import { getProblemData } from "@/core/actions/problem";
 import { NewTopic, TopicList } from "@/core/actions/topics";
 import { uploadToCloudinary } from "@/lib/uploadfile";
 import { cn } from "@/lib/utils";
-import { toast } from "sonner";
 import { ScrollArea } from "../ui/scroll-area";
+
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from "../ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
+import { Textarea } from "../ui/textarea";
 
 type Difficulty = "EASY" | "MEDIUM" | "HARD";
-interface ProblemSchemaType extends z.infer<typeof problemSchema> {}
-
-interface ProblemProp {
-  title: string;
-  description: string;
-  difficulty: Difficulty;
-  topics: string[];
-  hints: string[];
-  constraints: string[];
-  driverFunction: {
-    cplusplus: string;
-    python: string;
-    javascript: string;
-  };
-  inputs?: string;
-  outputs?: string;
-}
-
-// const Constraint = ({ text }: { text: string }) => {
-//   const renderText = (text: string) => {
-//     const parts = text.split(/(\^\d+)/); // Split on superscript pattern
-//     return parts.map((part, index) => {
-//       if (part.startsWith("^")) {
-//         return <sup key={index}>{part.slice(1)}</sup>;
-//       }
-//       return part;
-//     });
-//   };
-
-//   return <div>{renderText(text)}</div>;
-// };
 
 export const UpdateProblem = ({ id }: { id: string }) => {
-  const [x, setx] = useState(false);
+  // State
+  const [isTopicListOpen, setIsTopicListOpen] = useState(false);
   const [inputValue, setInputValue] = useState("");
-  const [openInput, setOpenInput] = useState(false);
-  const [topicList, setTopic] = useState<string[]>([]);
+  const [isNewTopicInputOpen, setIsNewTopicInputOpen] = useState(false);
+  const [topicList, setTopicList] = useState<string[]>([]);
   const [inputUrl, setInputUrl] = useState<string | null>(null);
   const [outputUrl, setOutputUrl] = useState<string | null>(null);
-  const [inputBase64, setInputBase64] = useState<string | null>(null);
-  const [outputBase64, setOutputBase64] = useState<string | null>(null);
+  const [inputFile, setInputFile] = useState<File | null>(null);
+  const [outputFile, setOutputFile] = useState<File | null>(null);
+  const [isInputUploading, setIsInputUploading] = useState(false);
+  const [isOutputUploading, setIsOutputUploading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Form setup
   const {
     control,
     register,
     setValue,
+    getValues,
     handleSubmit,
-    reset,
-    // eslint-disable-next-line no-unused-vars
     formState: { errors, isDirty, isValid },
-  } = useForm<ProblemSchemaType>({
-    resolver: zodResolver(problemSchema),
-    defaultValues: {},
+    reset,
+    clearErrors,
+  } = useForm<UpdateProblemSchemaType>({
+    resolver: zodResolver(
+      problemSchema.extend({
+        id: z.string(),
+        inputUrl: z.string().optional(),
+        outputUrl: z.string().optional(),
+      }),
+    ),
+    defaultValues: { id },
+    mode: "all",
   });
 
-  const { fields, remove, append } = useFieldArray({
-    control,
-    name: "hints",
-  });
+  // Field arrays
   const {
-    fields: constraintField,
-    remove: removeConstrain,
+    fields: hintFields,
+    remove: removeHint,
+    append: appendHint,
+  } = useFieldArray({ control, name: "hints" });
+  const {
+    fields: constraintFields,
+    remove: removeConstraint,
     append: appendConstraint,
-  } = useFieldArray({
-    control,
-    name: "constraints",
-  });
-
+  } = useFieldArray({ control, name: "constraints" });
   const {
-    fields: topicField,
+    fields: topicFields,
     remove: removeTopic,
     append: appendTopic,
     replace: replaceTopic,
-  } = useFieldArray({
-    control,
-    name: "topics",
-  });
-  const [problem, setProblem] = useState<any>(null);
-  // const isSubmittable = !!isDirty && !!isValid;
+  } = useFieldArray({ control, name: "topics" });
 
-  const onSubmit = async (formdata: any) => {
-    formdata.inputUrl = inputUrl;
-    formdata.outputUrl = outputUrl;
-    formdata.id = id;
-    console.log(formdata, "form submitted");
-    const { message, error } = await updateDashboardProblem(formdata);
-    console.log(error);
-    console.log(message);
-    if (error) {
-      toast.error(error);
-    }
+  // Effects
+  useEffect(() => {
+    const fetchData = async () => {
+      const { newtopicList, message: topicMessage } = await TopicList();
+      const result = await getProblemData(id);
 
-    if (message) {
-      toast.success(message);
-    }
-  };
+      if ("error" in result) {
+        toast.error(result.error || "Failed to fetch problem data");
+        return;
+      }
 
-  const selecttopic = (item: string) => {
-    setx(false);
-    if (item !== "others") {
-      appendTopic({ topic: item });
-    } else {
-      setOpenInput(true);
-    }
-  };
+      const problem = result.problem;
+
+      if (!newtopicList || topicMessage || !problem) {
+        toast.error(topicMessage || "Failed to fetch data");
+        return;
+      }
+
+      const topicNames = problem.topics.map((pt: any) => pt.topic.name);
+      const hintNames = problem.hints.map((pt: any) => pt.name);
+      const constraintNames = problem.constraints.map((pt: any) => pt.name);
+
+      reset({
+        id,
+        title: problem.title,
+        description: problem.description,
+        difficulty: problem.difficulty,
+        topics: topicNames.map((topic: string) => ({ topic })),
+        hints: hintNames.map((hint: string) => ({ hint })),
+        constraints: constraintNames.map((constraint: string) => ({
+          constraint,
+        })),
+        driverFunction: {
+          cplusplus: problem.cppDriver,
+          python: problem.pythonDriver,
+          javascript: problem.jsDriver,
+        },
+        inputUrl: problem.inputs || undefined,
+        outputUrl: problem.outputs || undefined,
+      });
+
+      setInputUrl(problem.inputs);
+      setOutputUrl(problem.outputs);
+      setTopicList([...newtopicList, "others"]);
+    };
+    fetchData();
+  }, [id, reset]);
 
   useEffect(() => {
-    const uniqueTopicsSet = new Set(
-      topicField.map((topicObj) => topicObj.topic),
-    );
-    const uniqueTopicsArray = Array.from(uniqueTopicsSet).map((topic) => ({
-      topic,
-    }));
-
-    if (uniqueTopicsArray.length !== topicField.length) {
-      replaceTopic(uniqueTopicsArray);
+    const uniqueTopics = Array.from(
+      new Set(topicFields.map((t) => t.topic)),
+    ).map((topic) => ({ topic }));
+    if (uniqueTopics.length !== topicFields.length) {
+      replaceTopic(uniqueTopics);
     }
-  }, [topicField, replaceTopic]);
+  }, [topicFields, replaceTopic]);
 
-  const newTopic = () => {
-    setOpenInput(false);
-    if (inputValue !== "") {
-      appendTopic({ topic: inputValue });
-      setTopic((prev) => [...prev, inputValue]);
-      NewTopic(inputValue);
-      setInputValue("");
-    }
-  };
-
-  // Convert the files
-  const handleFileUpload = async (
-    e: React.ChangeEvent<HTMLInputElement>,
-    setUrl: React.Dispatch<React.SetStateAction<string | null>>,
-  ) => {
-    if (!e.target.files || e.target.files.length === 0) return;
-    const file = e.target.files[0];
-
-    try {
-      const base64 = await convertToBase64(file);
-      const response = await uploadToCloudinary(base64, file.name);
-
-      if (response.success) {
-        setUrl(response.result?.secure_url || null);
-        console.log("File uploaded successfully:", response.result?.secure_url);
-      } else {
-        console.error("File upload failed:", response.error);
-      }
-    } catch (error) {
-      console.error("Error uploading file:", error);
-    }
+  // Helper functions
+  const isSubmittable = () => {
+    const formValues = getValues();
+    return isValid && (!!inputUrl || !!formValues.inputUrl) && (!!outputUrl || !!formValues.outputUrl);
   };
 
   const convertToBase64 = (file: File): Promise<string> => {
@@ -198,52 +172,107 @@ export const UpdateProblem = ({ id }: { id: string }) => {
     });
   };
 
-  // Fetch the data of the problem and set the previous values as default values of the form
-  useEffect(() => {
-    const fetchData = async () => {
-      const { newtopicList, message } = await TopicList();
-      const { problem } = await getProblemData(id);
-      setProblem(problem);
-      if (!newtopicList || message || !problem) {
-        toast.error(message);
-        return;
-      }
-      const topicNames = problem.topics.map((pt) => pt.topic.name);
-      const hintNames = problem.hints.map((pt) => pt.name);
-      const constraintNames = problem.constraints.map((pt) => pt.name);
+  // Event handlers
+  const onSubmit = async (formData: UpdateProblemSchemaType) => {
+    if (!isSubmittable()) {
+      toast.error("Please ensure all required fields are filled");
+      return;
+    }
 
-      const newData = [...newtopicList, "others"];
-      reset({
-        title: problem.title,
-        description: problem.description,
-        difficulty: problem.difficulty,
-        topics: topicNames.map((topic) => ({ topic })),
-        hints: hintNames.map((hint) => ({ hint })),
-        constraints: constraintNames.map((constraint) => ({ constraint })),
-        driverFunction: {
-          cplusplus: problem.cppDriver,
-          python: problem.pythonDriver,
-          javascript: problem.jsDriver,
-        },
-      });
-      setInputUrl(problem?.inputs);
-      setOutputUrl(problem?.outputs);
-      setTopic(newData);
+    setIsLoading(true);
+
+    // Use existing URLs if no new file was uploaded
+    const updatedFormData = {
+      ...formData,
+      inputUrl: inputUrl || formData.inputUrl,
+      outputUrl: outputUrl || formData.outputUrl,
     };
-    fetchData();
-  }, [id]);
 
+    try {
+      const result = await updateDashboardProblem(updatedFormData);
+      if ("error" in result) {
+        toast.error(result.error);
+      } else {
+        toast.success(result.message);
+      }
+    } catch (error) {
+      console.error("Error updating problem:", error);
+      toast.error("An error occurred while updating the problem");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleTopicSelection = (item: string) => {
+    if (item === "others") {
+      setIsNewTopicInputOpen(true);
+    } else {
+      appendTopic({ topic: item });
+    }
+    setIsTopicListOpen(false);
+  };
+
+  const handleNewTopic = () => {
+    setIsNewTopicInputOpen(false);
+    if (inputValue) {
+      appendTopic({ topic: inputValue });
+      setTopicList((prev) => [...prev, inputValue]);
+      NewTopic(inputValue);
+      setInputValue("");
+    }
+  };
+
+  const uploadFile = async (
+    file: File,
+    setUrl: React.Dispatch<React.SetStateAction<string | null>>,
+    fieldName: "inputUrl" | "outputUrl",
+  ) => {
+    const setLoading =
+      fieldName === "inputUrl" ? setIsInputUploading : setIsOutputUploading;
+    setLoading(true);
+
+    try {
+      const base64 = await convertToBase64(file);
+      const response = await uploadToCloudinary(base64, file.name);
+
+      if (response.success) {
+        const url = response.result?.secure_url || "";
+        setUrl(url);
+        setValue(fieldName, url, { shouldValidate: true });
+        toast.success("File Uploaded Successfully");
+      } else {
+        console.error("File upload failed:", response.error);
+        toast.error("File upload failed");
+      }
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      toast.error("Error uploading file");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFileSelect = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    setFile: React.Dispatch<React.SetStateAction<File | null>>,
+  ) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setFile(e.target.files[0]);
+    }
+  };
+
+  // Render
   return (
-    <div className="max-w-[90dvw] w-[80dvw] h-full antialiased items-center justify-center">
+    <div className="w-full h-full antialiased items-center justify-center">
       <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-4">
         <div className="flex items-center justify-between mb-10 bg-zinc-200 p-4 rounded-md border border-zinc-400">
           <h2 className="text-2xl font-bold">Update Problem</h2>
-          <Button type="submit">
-            <p>Submit</p>
-            {/* {!isSubmittable && <p>(Disabled)</p>} */}
+          <Button type="submit" disabled={isLoading}>
+            {isLoading ? <Loader className="h-4 w-4 animate-spin" /> : "Update"}
           </Button>
         </div>
 
+        {/* Title Field */}
         <div className="w-full">
           <Label>Title</Label>
           <Input
@@ -252,105 +281,99 @@ export const UpdateProblem = ({ id }: { id: string }) => {
             placeholder="Title"
             {...register("title")}
           />
-          <ul>
-            {errors?.title && (
-              <p className="text-red-500 text-xs pt-2">
-                {errors?.title?.message}
-              </p>
-            )}
-          </ul>
+          {errors?.title && (
+            <p className="text-red-500 text-xs pt-2">{errors.title.message}</p>
+          )}
         </div>
+
+        {/* Description Field */}
         <div className="w-full">
           <Label>Description</Label>
           <Textarea
-            className=" focus-visible:ring-0"
+            className="focus-visible:ring-0"
             placeholder="Description"
             {...register("description")}
           />
-          <ul>
-            {errors?.description && (
-              <p className="text-red-500 text-xs pt-2">
-                {errors?.description?.message}
-              </p>
-            )}
-          </ul>
-        </div>
-        <div className="w-full space-y-2">
-          <Label>Difficulty</Label>
-          <div className=" w-full">
-            <Select
-              value={problem?.difficulty}
-              onValueChange={(e: Difficulty) => setValue("difficulty", e)}
-            >
-              <SelectTrigger className="w-full focus-visible:ring-0">
-                <SelectValue
-                  className="focus-visible:ring-0"
-                  placeholder="Difficulty"
-                />
-              </SelectTrigger>
-              <SelectContent className="focus-visible:ring-0">
-                <SelectItem value="EASY">Easy</SelectItem>
-                <SelectItem value="MEDIUM">Medium</SelectItem>
-                <SelectItem value="HARD">Hard</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <ul>
-            {errors?.difficulty && (
-              <p className="text-red-500 text-xs">
-                {errors?.difficulty?.message}
-              </p>
-            )}
-          </ul>
+          {errors?.description && (
+            <p className="text-red-500 text-xs pt-2">
+              {errors.description.message}
+            </p>
+          )}
         </div>
 
+        {/* Difficulty Field */}
+        <div className="w-full space-y-2">
+          <Label>Difficulty</Label>
+          <Select
+            onValueChange={(e: Difficulty) => {
+              setValue("difficulty", e, { shouldValidate: true });
+              clearErrors("difficulty");
+            }}
+          >
+            <SelectTrigger className="w-full focus-visible:ring-0">
+              <SelectValue
+                className="focus-visible:ring-0"
+                placeholder="Difficulty"
+              />
+            </SelectTrigger>
+            <SelectContent className="focus-visible:ring-0">
+              <SelectItem value="EASY">Easy</SelectItem>
+              <SelectItem value="MEDIUM">Medium</SelectItem>
+              <SelectItem value="HARD">Hard</SelectItem>
+            </SelectContent>
+          </Select>
+          {errors?.difficulty && (
+            <p className="text-red-500 text-xs">{errors.difficulty.message}</p>
+          )}
+        </div>
+
+        {/* Topics Field */}
         <div className="space-y-2">
           <Label>Topics</Label>
           <Command>
             <CommandInput
               id="input1"
-              onClick={() => setx((prev) => !prev)}
-              onBlur={() => setx(false)}
-              placeholder="Search the topics from  list"
+              onClick={() => setIsTopicListOpen((prev) => !prev)}
+              onBlur={() => setIsTopicListOpen(false)}
+              placeholder="Search the topics from list"
             />
-
             <CommandList
-              className={cn(`max-h-0 bg-white top-10`, x && "max-h-100")}
+              className={cn(
+                `max-h-0 bg-white top-10`,
+                isTopicListOpen && "max-h-100",
+              )}
             >
               <CommandEmpty>No results found.</CommandEmpty>
               <CommandGroup heading="Topics">
-                {topicList.length > 1 &&
-                  topicList.map((item, index) => {
-                    return (
-                      <CommandItem
-                        key={index}
-                        onSelect={() => selecttopic(item)}
-                        onMouseDown={() => {
-                          selecttopic(item);
-                          setx(!x);
-                        }}
-                      >
-                        {item}
-                      </CommandItem>
-                    );
-                  })}
+                {topicList.map((item, index) => (
+                  <CommandItem
+                    key={index}
+                    onSelect={() => handleTopicSelection(item)}
+                    onMouseDown={() => {
+                      handleTopicSelection(item);
+                      setIsTopicListOpen(!isTopicListOpen);
+                    }}
+                  >
+                    {item}
+                  </CommandItem>
+                ))}
               </CommandGroup>
             </CommandList>
           </Command>
 
-          {openInput && (
+          {isNewTopicInputOpen && (
             <div className="flex gap-x-4 items-center">
               <Input
                 className="w-full focus-visible:ring-0"
                 type="text"
-                placeholder="Topics"
+                placeholder="New Topic"
                 onChange={(e) => setInputValue(e.target.value)}
               />
               <Button
-                type="submit"
+                type="button"
                 variant="outline"
                 className="hover:bg-gray-100"
-                onClick={() => newTopic()}
+                onClick={handleNewTopic}
               >
                 Add
               </Button>
@@ -358,156 +381,128 @@ export const UpdateProblem = ({ id }: { id: string }) => {
           )}
 
           <div className="flex gap-x-4">
-            {topicField.map((field, index) => {
-              // eslint-disable-next-line no-unused-vars
-              return (
-                <div
-                  key={index}
-                  className="flex relative"
-                  {...register(`topics.${index}.topic` as const)}
-                >
-                  <div className="flex text-xs capitalize px-3 py-1 text-[16px] text-zinc-800 bg-zinc-300/50 w-fit mb-2 rounded-md">
-                    {field.topic}
-                  </div>
-                  <button
-                    type="button"
-                    className="absolute bg-rose-500 text-white rounded-full top-[-4px] right-[-5px] h-3 w-3 md:h-3 md:w-3"
-                    onClick={() => removeTopic(index)}
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
+            {topicFields.map((field, index) => (
+              <div
+                key={index}
+                className="flex relative"
+                {...register(`topics.${index}.topic` as const)}
+              >
+                <div className="flex text-xs capitalize px-3 py-1 text-[16px] text-zinc-800 bg-zinc-300/50 w-fit mb-2 rounded-md">
+                  {field.topic}
                 </div>
-              );
-            })}
+                <button
+                  type="button"
+                  className="absolute bg-rose-500 text-white rounded-full top-[-4px] right-[-5px] h-3 w-3 md:h-3 md:w-3"
+                  onClick={() => removeTopic(index)}
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </div>
+            ))}
           </div>
+          {errors?.topics && (
+            <p className="text-red-500 text-xs">{errors.topics.message}</p>
+          )}
         </div>
 
-        {/* Hints UI */}
+        {/* Hints Field */}
         <div className="w-full space-y-2">
           <div className="flex gap-x-4 items-center justify-between">
-            <Label>Hints </Label>
-            <div className="flex items-center gap-4">
-              <Button
-                type="button"
-                onClick={() =>
-                  append({
-                    hint: "",
-                  })
-                }
-              >
-                Add
-              </Button>
-            </div>
+            <Label>Hints</Label>
+            <Button type="button" onClick={() => appendHint({ hint: "" })}>
+              Add
+            </Button>
           </div>
-          <ScrollArea className="max-h-96 w-full border p-4 h-fit ">
-            {fields.map((field, index) => {
-              const errorForField = errors?.hints?.[index]?.hint;
-              return (
-                <div key={index} className="space-y-2">
-                  <Label>Hint{index + 1}</Label>
-                  <div className="w-full flex gap-x-4 h-16 items-center">
-                    <div className="w-full">
-                      <Input
-                        type="text"
-                        {...register(`hints.${index}.hint` as const)}
-                        placeholder="Enter a text.."
-                        defaultValue={field.hint}
-                        className="focus-visible:ring-0"
-                      />
-                      <p>{errorForField?.message ?? <>&nbsp;</>}</p>
-                    </div>
-
-                    <div className="h-full flex justify-start items-start">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => remove(index)}
-                      >
-                        Delete
-                      </Button>
-                    </div>
+          <ScrollArea className="max-h-96 w-full border p-4 h-fit">
+            {hintFields.map((field, index) => (
+              <div key={field.id} className="space-y-2">
+                <Label>Hint {index + 1}</Label>
+                <div className="w-full flex gap-x-4 h-16 items-center">
+                  <div className="w-full">
+                    <Input
+                      type="text"
+                      {...register(`hints.${index}.hint` as const)}
+                      placeholder="Enter a hint..."
+                      defaultValue={field.hint}
+                      className="focus-visible:ring-0"
+                    />
+                    {errors?.hints?.[index]?.hint && (
+                      <p className="text-red-500 text-xs">
+                        {errors.hints[index]?.hint?.message}
+                      </p>
+                    )}
                   </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => removeHint(index)}
+                  >
+                    Delete
+                  </Button>
                 </div>
-              );
-            })}
+              </div>
+            ))}
           </ScrollArea>
-          <ul>
-            {errors?.hints && (
-              <p className="text-red-500 text-xs">{errors?.hints?.message}</p>
-            )}
-          </ul>
+          {errors?.hints && (
+            <p className="text-red-500 text-xs">{errors.hints.message}</p>
+          )}
         </div>
 
+        {/* Constraints Field */}
         <div className="w-full space-y-2">
           <div className="flex gap-x-4 items-center justify-between">
             <Label>
-              <span>Constraints </span>
-              <span>
-                (Use {"^"} symbol to seperate superscript value and use
-                consistent spacing.
+              Constraints
+              <span className="text-sm text-gray-500">
+                {" "}
+                (Use ^ for superscript, maintain consistent spacing)
               </span>
-              )
             </Label>
-            <div className="flex items-center gap-4">
-              <Button
-                type="button"
-                onClick={() =>
-                  appendConstraint({
-                    constraint: "",
-                  })
-                }
-              >
-                Add
-              </Button>
-            </div>
+            <Button
+              type="button"
+              onClick={() => appendConstraint({ constraint: "" })}
+            >
+              Add
+            </Button>
           </div>
           <ScrollArea className="max-h-96 h-fit w-full border p-4">
-            {constraintField.map((field, index) => {
-              const errorForField = errors?.constraints?.[index]?.constraint;
-              return (
-                <div key={index} className="space-y-2">
-                  <Label>Constraint{index + 1}</Label>
-                  <div className="w-full flex gap-x-4 h-16 items-center">
-                    <div className="w-full">
-                      <Input
-                        type="text"
-                        {...register(
-                          `constraints.${index}.constraint` as const,
-                        )}
-                        placeholder="Enter a text.."
-                        defaultValue={field.constraint}
-                        className="focus-visible:ring-0"
-                      />
-                      <p>{errorForField?.message ?? <>&nbsp;</>}</p>
-                    </div>
-
-                    <div className="h-full flex justify-start items-start">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => removeConstrain(index)}
-                      >
-                        Delete
-                      </Button>
-                    </div>
+            {constraintFields.map((field, index) => (
+              <div key={field.id} className="space-y-2">
+                <Label>Constraint {index + 1}</Label>
+                <div className="w-full flex gap-x-4 h-16 items-center">
+                  <div className="w-full">
+                    <Input
+                      type="text"
+                      {...register(`constraints.${index}.constraint` as const)}
+                      placeholder="Enter a constraint..."
+                      defaultValue={field.constraint}
+                      className="focus-visible:ring-0"
+                    />
+                    {errors?.constraints?.[index]?.constraint && (
+                      <p className="text-red-500 text-xs">
+                        {errors.constraints[index]?.constraint?.message}
+                      </p>
+                    )}
                   </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => removeConstraint(index)}
+                  >
+                    Delete
+                  </Button>
                 </div>
-              );
-            })}
+              </div>
+            ))}
           </ScrollArea>
-          <ul>
-            {errors?.constraints && (
-              <p className="text-red-500 text-xs">
-                {errors?.constraints?.message}
-              </p>
-            )}
-          </ul>
+          {errors?.constraints && (
+            <p className="text-red-500 text-xs">{errors.constraints.message}</p>
+          )}
         </div>
 
+        {/* Driver Function Field */}
         <div className="w-full space-y-4">
-          <div className="flex gap-x-4 items-center justify-between">
-            <Label>Driver Function</Label>
-          </div>
+          <Label>Driver Function</Label>
           <Tabs defaultValue="c++" className="w-full">
             <TabsList>
               <TabsTrigger value="c++">C++</TabsTrigger>
@@ -517,55 +512,113 @@ export const UpdateProblem = ({ id }: { id: string }) => {
             <TabsContent value="c++">
               <Textarea
                 className="min-h-[200px]"
-                placeholder="Write c++ driver function here..."
+                placeholder="Write C++ driver function here..."
                 {...register("driverFunction.cplusplus")}
               />
+              {errors?.driverFunction?.cplusplus && (
+                <p className="text-red-500 text-xs">
+                  {errors.driverFunction.cplusplus.message}
+                </p>
+              )}
             </TabsContent>
-
             <TabsContent value="python">
               <Textarea
                 className="min-h-[200px]"
-                placeholder="Write python driver function here..."
+                placeholder="Write Python driver function here..."
                 {...register("driverFunction.python")}
               />
+              {errors?.driverFunction?.python && (
+                <p className="text-red-500 text-xs">
+                  {errors.driverFunction.python.message}
+                </p>
+              )}
             </TabsContent>
-
             <TabsContent value="javascript">
               <Textarea
                 className="min-h-[200px]"
-                placeholder="Write javascript driver function here..."
+                placeholder="Write JavaScript driver function here..."
                 {...register("driverFunction.javascript")}
               />
+              {errors?.driverFunction?.javascript && (
+                <p className="text-red-500 text-xs">
+                  {errors.driverFunction.javascript.message}
+                </p>
+              )}
             </TabsContent>
           </Tabs>
         </div>
 
-        <div className="w-full space-y-2">
           <div className="flex flex-col gap-2 justify-between">
             <Label htmlFor="inputFile">Input File</Label>
-            <div className="flex gap-x-4">
-              <Input
-                id="inputFile"
-                type="file"
-                onChange={(e) => handleFileUpload(e, setInputUrl)}
-              />
-              <Button>Upload</Button>
+            <div className="flex gap-x-4 items-center">
+              <div className="flex-1 truncate">
+                {inputUrl ? `Current file: ${inputUrl}` : "No file uploaded"}
+              </div>
+              <Button
+                type="button"
+                onClick={() => {
+                  const fileInput = document.getElementById('inputFile') as HTMLInputElement;
+                  if (fileInput) {
+                    fileInput.click();
+                  }
+                }}
+                className="w-40"
+              >
+                {inputUrl ? "Change Input" : "Upload Input"}
+              </Button>
             </div>
+            <Input
+              id="inputFile"
+              type="file"
+              className="hidden"
+              onChange={(e) => {
+                handleFileSelect(e, setInputFile);
+                if (e.target.files && e.target.files[0]) {
+                  uploadFile(e.target.files[0], setInputUrl, "inputUrl");
+                }
+              }}
+              disabled={isInputUploading}
+            />
+            {isInputUploading && <p>Uploading...</p>}
           </div>
+
+          {/* Output File Upload */}
           <div className="flex flex-col gap-2 justify-between">
             <Label htmlFor="outputFile">Output File</Label>
-            <div className="flex gap-x-4">
-              <Input
-                id="outputFile"
-                type="file"
-                onChange={(e) => handleFileUpload(e, setOutputUrl)}
-              />
-              <Button>Upload</Button>
+            <div className="flex gap-x-4 items-center">
+              <div className="flex-1 truncate">
+                {outputUrl ? `Current file: ${outputUrl}` : "No file uploaded"}
+              </div>
+              <Button
+                type="button"
+                onClick={() => {
+                  const fileInput = document.getElementById('outputFile') as HTMLInputElement;
+                  if (fileInput) {
+                    fileInput.click();
+                  }
+                }}
+                className="w-40"
+              >
+                {outputUrl ? "Change Output" : "Upload Output"}
+              </Button>
             </div>
+            <Input
+              id="outputFile"
+              type="file"
+              className="hidden"
+              onChange={(e) => {
+                handleFileSelect(e, setOutputFile);
+                if (e.target.files && e.target.files[0]) {
+                  uploadFile(e.target.files[0], setOutputUrl, "outputUrl");
+                }
+              }}
+              disabled={isOutputUploading}
+            />
+            {isOutputUploading && <p>Uploading...</p>}
           </div>
-        </div>
 
-        {/* <div>{errors.map((error, index))}</div> */}
+
+
       </form>
     </div>
   );

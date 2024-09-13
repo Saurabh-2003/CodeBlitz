@@ -1,18 +1,16 @@
 "use client";
 export const dynamic = "force-dynamic";
-import { useProfileStore } from "@/core/providers/profile-store-provider";
-import Image from "next/image";
+import { useAppSelector } from "@/lib/hooks";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { CgLink } from "react-icons/cg";
 import { FaLinkedin } from "react-icons/fa";
 import { FaSquareGithub } from "react-icons/fa6";
 import { HiOutlineTag } from "react-icons/hi";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Badge } from "../ui/badge";
 import StatsCard from "./stats";
 import UpdateProfileDialogue from "./updateProfileDialog";
-import { useAppSelector } from "@/lib/hooks";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 interface ProfileProps {
   problemCounts: {
     EASY: number;
@@ -45,7 +43,7 @@ export const Profile: React.FC<ProfileProps> = ({ problemCounts }) => {
                 <AvatarImage src={user?.image || '/placeholder.jpg'} alt="userImage" />
                 <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
               </Avatar>
-            
+
             <div className="flex flex-col">
               <Badge className="w-fit text-[8px]">{user?.role}</Badge>
 

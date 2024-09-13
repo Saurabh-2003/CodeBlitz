@@ -1,13 +1,14 @@
 "use server";
-import { getServerSession } from "next-auth";
+import { getServerSession, Session } from "next-auth";
 import { authOptions } from "../auth/auth";
 
-const GetServerSession = async () => {
+const GetServerSession = async (): Promise<Session | null> => {
   try {
     const session = await getServerSession(authOptions);
     return session;
   } catch (error) {
-    return error;
+    console.error("Error getting server session:", error);
+    return null;
   }
 };
 

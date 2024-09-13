@@ -1,31 +1,23 @@
-import { NextResponse } from "next/server";
-import { UserDetail } from "@/core/actions/user";
-import GetServerSession from "@/core/hooks/getServerSession";
+import { getToken } from "next-auth/jwt";
+import { NextRequest, NextResponse } from 'next/server';
 
-export async function middleware(request: Request) {
-  try {
-    const session = await GetServerSession();
+export async function middleware(request: NextRequest) {
+  const token = await getToken({ req: request as any, secret: process.env.NEXTAUTH_SECRET });
 
-    if (!session) {
-      // Redirect to the sign-in page if no session exists
-      return NextResponse.redirect(new URL("/auth/signin", request.url));
-    }
+  if (!token) {
+    return NextResponse.redirect(new URL("/auth/signin", request.url));
+  }
 
-    const { user } = await UserDetail();
-
-    // If the user is neither ADMIN nor SUPERADMIN, redirect to /profile
-    if (user?.role !== "ADMIN" && user?.role !== "SUPERADMIN") {
+  // Check for admin routes
+  if (request.nextUrl.pathname.startsWith("/dashboard")) {
+    if (token.role !== "ADMIN" && token.role !== "SUPERADMIN") {
       return NextResponse.redirect(new URL("/profile", request.url));
     }
-
-    // Allow the request to proceed if the user is authorized
-    return NextResponse.next();
-  } catch (error) {
-    console.error("Error in middleware:", error);
-    return NextResponse.redirect(new URL("/error", request.url)); // Handle the error gracefully
   }
+
+  return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*"], // Match /dashboard and all its sub-paths
+  matcher: ["/dashboard/:path*", "/profile/:path*"],
 };

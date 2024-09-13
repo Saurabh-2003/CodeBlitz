@@ -8,9 +8,9 @@ interface ProblemProp {
   title: string;
   description: string;
   difficulty: Difficulty;
-  topics: [{ topic: string }];
-  hints: string[];
-  constraints: string[];
+  topics: { topic: string }[];
+  hints: { hint: string }[];
+  constraints: { constraint: string }[];
   driverFunction: {
     cplusplus: string;
     python: string;
@@ -18,7 +18,6 @@ interface ProblemProp {
   };
   inputUrl: string;
   outputUrl: string;
-  examples: string;
 }
 
 export const createDashboardNewProblem = async (data: ProblemProp) => {
@@ -32,7 +31,6 @@ export const createDashboardNewProblem = async (data: ProblemProp) => {
     driverFunction,
     inputUrl,
     outputUrl,
-    examples,
   } = data;
 
   // Extract Cloudinary public IDs from the URLs
