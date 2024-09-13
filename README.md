@@ -2,7 +2,7 @@
 ![Logo](public/codeblitz.png)
 
 
-# Project Title
+# CodeBlitz
 
 Code Blitz is a dynamic, Leetcode-inspired project where users can practice Data Structures and Algorithms (DSA) questions. It supports multiple programming languages, including Python, JavaScript, and C++, offering an immersive environment for learning and problem-solving. The platform is built using cutting-edge web technologies, making it efficient, scalable, and user-friendly.
 
