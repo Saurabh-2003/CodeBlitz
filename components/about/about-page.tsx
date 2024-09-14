@@ -105,7 +105,7 @@ const AboutPage = () => {
             <SiMysql size={35} />
           </p>
           <Link href={"/products"}>
-            <Button className="bg-stone-900 border border-stone-600 hover:bg-stone-800 transition-transform transform hover:scale-105">
+            <Button className="bg-stone-900 dark:text-zinc-200 border border-stone-600 hover:bg-stone-800 transition-transform transform hover:scale-105">
               <FaGithub className="mr-2 text-2xl" />
               View Code on GitHub
             </Button>
@@ -177,7 +177,7 @@ function DesignAndFeatures() {
       id="design-features"
       className="relative z-10 py-10 max-w-7xl mx-auto"
     >
-      <h2 className="text-4xl font-bold text-gray-900 text-center mb-8">
+      <h2 className="text-4xl font-bold text-gray-900 dark:text-stone-300 text-center mb-8">
         Design and Features
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">

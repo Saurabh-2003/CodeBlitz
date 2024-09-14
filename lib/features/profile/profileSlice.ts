@@ -1,10 +1,10 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { profileSchema } from "@/core/types/types"; // Adjust import path
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 const initialState: profileSchema = {
   user: null,
   loading: false,
-  isAuthenticated: null,
+  isAuthenticated: false,
   success: null,
   error: null,
 };
@@ -22,7 +22,10 @@ const profileSlice = createSlice({
       state.isAuthenticated = true;
       state.user = payload.user;
     },
-    getUserFailure: (state, { payload }: PayloadAction<{ message: string }>) => {
+    getUserFailure: (
+      state,
+      { payload }: PayloadAction<{ message: string }>,
+    ) => {
       state.loading = false;
       state.isAuthenticated = false;
       state.user = null;

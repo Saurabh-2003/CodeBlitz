@@ -1,12 +1,13 @@
 "use client";
 
+import { useTheme } from "@/core/context/theme-context";
 import fetchUser from "@/lib/features/profile/profileReducer";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
+import { X } from "lucide-react";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { SetStateAction, useEffect, useState } from "react";
 import { CgChevronDown, CgDarkMode } from "react-icons/cg";
-import { ImMenu } from "react-icons/im";
 import { IoCreateOutline } from "react-icons/io5";
 import { LuShoppingBag } from "react-icons/lu";
 import { MdExitToApp, MdLightMode, MdOutlineDashboard } from "react-icons/md";
@@ -39,8 +40,14 @@ const menuItems = [
     icon: <TbUsers size={20} />,
   },
 ];
-
-const DashboardSidebar = () => {
+interface DashboardSidebarProps {
+  menuShowMobile: boolean;
+  setMenuShowMobile: React.Dispatch<SetStateAction<boolean>>;
+}
+const DashboardSidebar = ({
+  menuShowMobile,
+  setMenuShowMobile,
+}: DashboardSidebarProps) => {
   const dispatch = useAppDispatch();
   useEffect(() => {
     dispatch(fetchUser());
@@ -50,28 +57,7 @@ const DashboardSidebar = () => {
   const [activeMenu, setActiveMenu] = useState("dashboard");
   const navigate = useRouter();
   const location = usePathname();
-  const [dark, setDark] = useState(false);
-  const [menuShowMobile, setMenuShowMobile] = useState(false);
-  const toggleTheme = () => {
-    const newTheme = !dark;
-    setDark(newTheme);
-  };
-
-  useEffect(() => {
-    const htmlElement = document.documentElement;
-    if (dark) {
-      htmlElement.classList.add("dark");
-    } else {
-      htmlElement.classList.remove("dark");
-    }
-  }, [dark]);
-
-  useEffect(() => {
-    const storedTheme = localStorage.getItem("theme");
-    if (storedTheme === "dark") {
-      setDark(true);
-    }
-  }, []);
+  const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
     const matchedMenu = menuItems.find((item) => location === item.path);
@@ -100,6 +86,10 @@ const DashboardSidebar = () => {
           />
           <span className="font-bold dark:text-zinc-200 "> Codeblitz</span>
           <CgChevronDown className=" dark:text-zinc-200 " />
+          <X
+            className="ml-auto cursor-pointer hidden text-stone-600 dark:text-stone-400 max-sm:block "
+            onClick={() => setMenuShowMobile(false)}
+          />
         </div>
         <nav className="flex flex-col gap-4 mt-6">
           {menuItems.map(({ id, label, path, icon }) => (
@@ -118,12 +108,12 @@ const DashboardSidebar = () => {
             className="flex group  overflow-visible   rounded-lg  cursor-pointer px-2 py-2 gap-2 items-center hover:text-amber-600 hover:bg-[#ffa11633]   "
             onClick={toggleTheme}
           >
-            {dark ? (
+            {theme === "dark" ? (
               <CgDarkMode className="text-amber-500 " size={20} />
             ) : (
               <MdLightMode className="text-yellow-300 " size={20} />
             )}
-            <span>{dark ? "Dark Mode" : "Light Mode"}</span>
+            <span>{theme === "dark" ? "Dark Mode" : "Light Mode"}</span>
           </div>
 
           <div
@@ -151,13 +141,6 @@ const DashboardSidebar = () => {
           </span>
         </div>
       </aside>
-
-      <div
-        onClick={() => setMenuShowMobile((prev) => !prev)}
-        className={`hidden z-20 absolute max-sm:block ${dark ? "text-white" : "text-slate-700"} top-2 left-6 `}
-      >
-        <ImMenu size={35} />
-      </div>
     </>
   );
 };

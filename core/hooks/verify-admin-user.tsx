@@ -1,11 +1,11 @@
-// /hooks/useAdminCheck.js
+"use client";
 import { useEffect, useState } from "react";
 import { UserDetail } from "../actions/user";
 
 export const useAdminCheck = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<null | string>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const checkAdmin = async () => {
@@ -15,8 +15,11 @@ export const useAdminCheck = () => {
 
         if (result.error) {
           setIsAdmin(false);
-          setError(result?.error);
-        } else if (result.user?.role === "ADMIN") {
+          setError(result.error);
+        } else if (
+          result.user?.role === "ADMIN" ||
+          result.user?.role === "SUPERADMIN"
+        ) {
           setIsAdmin(true);
         } else {
           setIsAdmin(false);

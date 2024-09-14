@@ -17,12 +17,12 @@ interface UpdateProblemSchemaType
 }
 
 import {
-    Command,
-    CommandEmpty,
-    CommandGroup,
-    CommandInput,
-    CommandItem,
-    CommandList,
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
 } from "@/components/ui/command";
 import { updateDashboardProblem } from "@/core/actions/dashboard";
 import { getProblemData } from "@/core/actions/problem";
@@ -35,11 +35,11 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "../ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { Textarea } from "../ui/textarea";
@@ -160,7 +160,11 @@ export const UpdateProblem = ({ id }: { id: string }) => {
   // Helper functions
   const isSubmittable = () => {
     const formValues = getValues();
-    return isValid && (!!inputUrl || !!formValues.inputUrl) && (!!outputUrl || !!formValues.outputUrl);
+    return (
+      isValid &&
+      (!!inputUrl || !!formValues.inputUrl) &&
+      (!!outputUrl || !!formValues.outputUrl)
+    );
   };
 
   const convertToBase64 = (file: File): Promise<string> => {
@@ -265,7 +269,7 @@ export const UpdateProblem = ({ id }: { id: string }) => {
   return (
     <div className="w-full h-full antialiased items-center justify-center">
       <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-4">
-        <div className="flex items-center justify-between mb-10 bg-zinc-200 p-4 rounded-md border border-zinc-400">
+        <div className="flex items-center justify-between mb-10 dark:bg-zinc-800 dark:border-zinc-600 bg-zinc-200 p-4 rounded-md border border-zinc-400">
           <h2 className="text-2xl font-bold">Update Problem</h2>
           <Button type="submit" disabled={isLoading}>
             {isLoading ? <Loader className="h-4 w-4 animate-spin" /> : "Update"}
@@ -505,9 +509,24 @@ export const UpdateProblem = ({ id }: { id: string }) => {
           <Label>Driver Function</Label>
           <Tabs defaultValue="c++" className="w-full">
             <TabsList>
-              <TabsTrigger value="c++">C++</TabsTrigger>
-              <TabsTrigger value="python">Python</TabsTrigger>
-              <TabsTrigger value="javascript">Javascript</TabsTrigger>
+              <TabsTrigger
+                className="data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-700"
+                value="c++"
+              >
+                C++
+              </TabsTrigger>
+              <TabsTrigger
+                className="data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-700"
+                value="python"
+              >
+                Python
+              </TabsTrigger>
+              <TabsTrigger
+                className="data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-700"
+                value="javascript"
+              >
+                Javascript
+              </TabsTrigger>
             </TabsList>
             <TabsContent value="c++">
               <Textarea
@@ -548,77 +567,78 @@ export const UpdateProblem = ({ id }: { id: string }) => {
           </Tabs>
         </div>
 
-          <div className="flex flex-col gap-2 justify-between">
-            <Label htmlFor="inputFile">Input File</Label>
-            <div className="flex gap-x-4 items-center">
-              <div className="flex-1 truncate">
-                {inputUrl ? `Current file: ${inputUrl}` : "No file uploaded"}
-              </div>
-              <Button
-                type="button"
-                onClick={() => {
-                  const fileInput = document.getElementById('inputFile') as HTMLInputElement;
-                  if (fileInput) {
-                    fileInput.click();
-                  }
-                }}
-                className="w-40"
-              >
-                {inputUrl ? "Change Input" : "Upload Input"}
-              </Button>
+        <div className="flex flex-col gap-2 justify-between">
+          <Label htmlFor="inputFile">Input File</Label>
+          <div className="flex gap-x-4 items-center">
+            <div className="flex-1 truncate">
+              {inputUrl ? `Current file: ${inputUrl}` : "No file uploaded"}
             </div>
-            <Input
-              id="inputFile"
-              type="file"
-              className="hidden"
-              onChange={(e) => {
-                handleFileSelect(e, setInputFile);
-                if (e.target.files && e.target.files[0]) {
-                  uploadFile(e.target.files[0], setInputUrl, "inputUrl");
+            <Button
+              type="button"
+              onClick={() => {
+                const fileInput = document.getElementById(
+                  "inputFile",
+                ) as HTMLInputElement;
+                if (fileInput) {
+                  fileInput.click();
                 }
               }}
-              disabled={isInputUploading}
-            />
-            {isInputUploading && <p>Uploading...</p>}
+              className="w-40"
+            >
+              {inputUrl ? "Change Input" : "Upload Input"}
+            </Button>
           </div>
+          <Input
+            id="inputFile"
+            type="file"
+            className="hidden"
+            onChange={(e) => {
+              handleFileSelect(e, setInputFile);
+              if (e.target.files && e.target.files[0]) {
+                uploadFile(e.target.files[0], setInputUrl, "inputUrl");
+              }
+            }}
+            disabled={isInputUploading}
+          />
+          {isInputUploading && <p>Uploading...</p>}
+        </div>
 
-          {/* Output File Upload */}
-          <div className="flex flex-col gap-2 justify-between">
-            <Label htmlFor="outputFile">Output File</Label>
-            <div className="flex gap-x-4 items-center">
-              <div className="flex-1 truncate">
-                {outputUrl ? `Current file: ${outputUrl}` : "No file uploaded"}
-              </div>
-              <Button
-                type="button"
-                onClick={() => {
-                  const fileInput = document.getElementById('outputFile') as HTMLInputElement;
-                  if (fileInput) {
-                    fileInput.click();
-                  }
-                }}
-                className="w-40"
-              >
-                {outputUrl ? "Change Output" : "Upload Output"}
-              </Button>
+        {/* Output File Upload */}
+        <div className="flex flex-col gap-2 justify-between">
+          <Label htmlFor="outputFile">Output File</Label>
+          <div className="flex gap-x-4 items-center">
+            <div className="flex-1 truncate">
+              {outputUrl ? `Current file: ${outputUrl}` : "No file uploaded"}
             </div>
-            <Input
-              id="outputFile"
-              type="file"
-              className="hidden"
-              onChange={(e) => {
-                handleFileSelect(e, setOutputFile);
-                if (e.target.files && e.target.files[0]) {
-                  uploadFile(e.target.files[0], setOutputUrl, "outputUrl");
+            <Button
+              type="button"
+              onClick={() => {
+                const fileInput = document.getElementById(
+                  "outputFile",
+                ) as HTMLInputElement;
+                if (fileInput) {
+                  fileInput.click();
                 }
               }}
-              disabled={isOutputUploading}
-            />
-            {isOutputUploading && <p>Uploading...</p>}
+              className="w-40"
+            >
+              {outputUrl ? "Change Output" : "Upload Output"}
+            </Button>
           </div>
-
-
-
+          <Input
+            id="outputFile"
+            type="file"
+            className="hidden"
+            onChange={(e) => {
+              handleFileSelect(e, setOutputFile);
+              if (e.target.files && e.target.files[0]) {
+                uploadFile(e.target.files[0], setOutputUrl, "outputUrl");
+              }
+            }}
+            disabled={isOutputUploading}
+          />
+          {isOutputUploading && <p>Uploading...</p>}
+        </div>
       </form>
     </div>
   );

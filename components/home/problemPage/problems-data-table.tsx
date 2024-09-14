@@ -140,7 +140,7 @@ export function ProblemsDataTable<TData extends ProblemProps>({
           </div>
 
           {/* Search input */}
-          <div className="flex bg-gray-100 items-center px-3 rounded-md">
+          <div className="flex bg-gray-100 dark:bg-zinc-800 items-center px-3 rounded-md">
             <Search size={20} className="text-gray-500" />
             <Input
               placeholder="Search Questions"
@@ -182,7 +182,7 @@ export function ProblemsDataTable<TData extends ProblemProps>({
                   onClick={() => router.push(`/problem/${row.original.id}`)}
                   className={cn(
                     "border-b-0",
-                    index % 2 !== 0 && "bg-gray-100",
+                    index % 2 !== 0 && "bg-gray-100 dark:bg-zinc-800",
                     "cursor-pointer",
                   )}
                   key={row.id}

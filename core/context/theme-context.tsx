@@ -1,33 +1,32 @@
-// src/context/theme-context.tsx
 "use client";
+import React, { createContext, useContext, useEffect, useState } from "react";
 
-import React, { createContext, ReactNode, useEffect, useState } from "react";
+type ThemeContextType = {
+  theme: "light" | "dark";
+  toggleTheme: () => void;
+};
 
-type Theme = "light" | "dark";
+const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-interface ThemeContextType {
-  theme: Theme;
-  setTheme: (theme: Theme) => void;
-}
-
-export const ThemeContext = createContext<ThemeContextType | undefined>(
-  undefined,
-);
-
-export const ThemeProvider: React.FC<{ children: ReactNode }> = ({
+export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [theme, setTheme] = useState<Theme>("light");
+  const [theme, setTheme] = useState<"light" | "dark">("light");
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem("theme") as Theme;
-    if (savedTheme) {
-      setTheme(savedTheme);
+    // This code will only run on the client-side
+    const storedTheme = localStorage.getItem("theme") as
+      | "light"
+      | "dark"
+      | null;
+    if (storedTheme) {
+      setTheme(storedTheme);
     }
   }, []);
 
   useEffect(() => {
-    document.body.className = theme;
+    document.documentElement.classList.remove("light", "dark");
+    document.documentElement.classList.add(theme);
     localStorage.setItem("theme", theme);
   }, [theme]);
 
@@ -36,8 +35,16 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({
   };
 
   return (
-    <ThemeContext.Provider value={{ theme, setTheme: toggleTheme }}>
+    <ThemeContext.Provider value={{ theme, toggleTheme }}>
       {children}
     </ThemeContext.Provider>
   );
+};
+
+export const useTheme = (): ThemeContextType => {
+  const context = useContext(ThemeContext);
+  if (context === undefined) {
+    throw new Error("useTheme must be used within a ThemeProvider");
+  }
+  return context;
 };

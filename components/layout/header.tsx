@@ -1,7 +1,4 @@
-
-
-
-  "use client";
+"use client";
 
 import {
   DropdownMenu,
@@ -9,13 +6,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useTheme } from "@/core/context/theme-context";
 import { useAdminCheck } from "@/core/hooks/verify-admin-user";
 import { DashboardIcon } from "@radix-ui/react-icons";
 import { LogInIcon } from "lucide-react";
-import { signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
 import { BsSun } from "react-icons/bs";
 import { MdDarkMode } from "react-icons/md";
 import { PiSignOut } from "react-icons/pi";
@@ -25,29 +22,7 @@ const Header = () => {
   const router = useRouter();
   const { isAdmin } = useAdminCheck();
   const { data: session, status } = useSession();
-  const [dark, setDark] = useState(false);
-
-  const toggleTheme = () => {
-    const newTheme = !dark;
-    setDark(newTheme);
-    localStorage.setItem("theme", newTheme ? "dark" : "light");
-  };
-
-  useEffect(() => {
-    const htmlElement = document.documentElement;
-    if (dark) {
-      htmlElement.classList.add("dark");
-    } else {
-      htmlElement.classList.remove("dark");
-    }
-  }, [dark]);
-
-  useEffect(() => {
-    const storedTheme = localStorage.getItem("theme");
-    if (storedTheme === "dark") {
-      setDark(true);
-    }
-  }, []);
+  const { theme, toggleTheme } = useTheme();
 
   // Hide Header in certain routes
   if (pathname.includes("problem/") || pathname.includes("/dashboard")) {
@@ -103,7 +78,7 @@ const Header = () => {
       {/* User Profile and Theme Toggle */}
       <div className="flex gap-4 w-1/3 justify-end items-center">
         {/* Theme Toggle */}
-        {dark ? (
+        {theme === "dark" ? (
           <MdDarkMode
             className="text-gray-600 cursor-pointer"
             size={20}
@@ -170,7 +145,7 @@ const Header = () => {
                 {/* Sign Out */}
                 <DropdownMenuItem
                   className="gap-x-2 cursor-pointer"
-                  onClick={() => router.push('/auth/logout')}
+                  onClick={() => router.push("/auth/logout")}
                 >
                   <PiSignOut />
                   <span>Sign Out</span>

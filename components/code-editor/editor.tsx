@@ -8,7 +8,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { submitAllCode } from "@/core/actions/coderun";
-import { UserDetail } from "@/core/actions/user";
+import { useAppSelector } from "@/lib/hooks";
 import { loadLanguage } from "@uiw/codemirror-extensions-langs";
 import { xcodeLight } from "@uiw/codemirror-theme-xcode";
 import ReactCodeMirror from "@uiw/react-codemirror";
@@ -21,7 +21,7 @@ import { MdOutlineCloudUpload } from "react-icons/md";
 import { toast } from "sonner";
 
 // Language mapping
-const languageMap:any = {
+const languageMap: any = {
   cpp: loadLanguage("cpp"),
   javascript: loadLanguage("javascript"),
   python: loadLanguage("python"),
@@ -34,7 +34,7 @@ interface EditorProps {
   setSubmission: React.Dispatch<SetStateAction<any>>;
   setTestCases: React.Dispatch<SetStateAction<any>>;
   setActiveTab: React.Dispatch<SetStateAction<string>>; // Pass a function to set the active tab
-  setCompileError: React.Dispatch<SetStateAction<string|null>>;
+  setCompileError: React.Dispatch<SetStateAction<string | null>>;
 }
 
 const Editor: React.FC<EditorProps> = ({
@@ -53,20 +53,7 @@ const Editor: React.FC<EditorProps> = ({
   const [editorExtensions, setEditorExtensions] = useState<any>(
     languageMap["cpp"],
   ); // Editor config
-  const [user, setUser] = useState<any>(null); // User details
-
-  // Fetch user details on component mount
-  useEffect(() => {
-    const fetchUserDetails = async () => {
-      try {
-        const response = await UserDetail();
-        setUser(response.user);
-      } catch (error) {
-        console.error("Error fetching user details:", error);
-      }
-    };
-    fetchUserDetails();
-  }, []);
+  const { user, isAuthenticated } = useAppSelector((state) => state.profile);
 
   // Update editor extensions when language changes
   useEffect(() => {
@@ -82,12 +69,17 @@ const Editor: React.FC<EditorProps> = ({
 
   // Helper function to handle code execution (for "Run" and "Submit")
   const handleCodeExecution = async (isPartial: boolean) => {
-    if (!code || !problemId || !user?.id) return;
+    if (!isAuthenticated || !user?.id) {
+      toast.error("Please login to run or submit code");
+      return;
+    }
+
+    if (!code || !problemId) return;
 
     if (isPartial) {
-      setLoadingRun(true); // Only set loading for "Run"
+      setLoadingRun(true);
     } else {
-      setIsSubmitting(true); // Only set submitting for "Submit"
+      setIsSubmitting(true);
     }
 
     try {
@@ -96,7 +88,7 @@ const Editor: React.FC<EditorProps> = ({
         code,
         problemId,
         userId: user.id,
-        onlyPartialTests: isPartial, // Determines if it's a run (partial) or submit (full)
+        onlyPartialTests: isPartial,
       };
       const result = await submitAllCode(solution);
 
@@ -127,9 +119,9 @@ const Editor: React.FC<EditorProps> = ({
       setOutput(`Error: ${error.message || error}`);
     } finally {
       if (isPartial) {
-        setLoadingRun(false); // Stop "Run" loading state
+        setLoadingRun(false);
       } else {
-        setIsSubmitting(false); // Stop "Submit" loading state
+        setIsSubmitting(false);
       }
     }
   };
@@ -168,8 +160,8 @@ const Editor: React.FC<EditorProps> = ({
           <button
             className={`flex gap-2 bg-zinc-200 rounded-sm py-2 px-4 items-center transition-all duration-500 ${
               isSubmitting ? "w-0 opacity-0" : "w-fit opacity-100"
-            }`}
-            onClick={() => handleCodeExecution(true)} // Only runs partial tests
+            } ${!isAuthenticated ? "opacity-50" : ""}`}
+            onClick={() => handleCodeExecution(true)}
             disabled={loadingRun || isSubmitting}
           >
             {loadingRun ? (
@@ -187,11 +179,11 @@ const Editor: React.FC<EditorProps> = ({
 
           {/* Submit button */}
           <button
-            onClick={() => handleCodeExecution(false)} // Submits the code
+            onClick={() => handleCodeExecution(false)}
             disabled={loadingRun || isSubmitting}
             className={`flex gap-2 cursor-pointer bg-zinc-200 transition-all duration-500 text-green-600 rounded-sm items-center ${
               loadingRun ? "w-0 opacity-0" : "w-fit py-2 px-4 opacity-100"
-            }`}
+            } ${!isAuthenticated ? "opacity-50" : ""}`}
           >
             {isSubmitting ? (
               <div className="flex items-center gap-2">

@@ -2,7 +2,7 @@
 
 import { authOptions } from "@/core/auth/auth";
 import { db } from "@/core/db/db";
-import { getServerSession } from "next-auth"; // Adjust import according to your setup
+import { getServerSession } from "next-auth";
 
 export async function getAllProblems() {
   try {
@@ -10,57 +10,64 @@ export async function getAllProblems() {
     const session = await getServerSession(authOptions);
     const userEmail = session?.user?.email;
 
+    // Fetch all problems
+    const problems = await db.problem.findMany({
+      select: {
+        id: true,
+        title: true,
+        difficulty: true,
+      },
+    });
+
+    // If user is not authenticated, return problems with "NOT ATTEMPTED" status
     if (!userEmail) {
-      return { error: "User not authenticated" };
+      return {
+        data: problems.map((problem) => ({
+          ...problem,
+          status: "NOT ATTEMPTED",
+        })),
+      };
     }
 
-    // Fetch user from the database
+    // For authenticated users, fetch user and their submissions
     const user = await db.user.findUnique({
-      where: {
-        email: userEmail,
-      },
+      where: { email: userEmail },
     });
 
     if (!user) {
       throw new Error("User not found");
     }
 
-    // Fetch problems with their submissions
-    const problems = await db.problem.findMany({
+    // Fetch submissions for the authenticated user
+    const userSubmissions = await db.submission.findMany({
+      where: { userId: user.id },
       select: {
-        id: true,
-        title: true,
-        difficulty: true,
-        submissions: {
-          where: {
-            userId: user.id,
-          },
-          select: {
-            status: true,
-          },
-        },
+        problemId: true,
+        status: true,
       },
     });
 
-    // Transform the data to include status
-    const transformedProblems = problems.map((problem) => {
-      // Check for submissions
-      const acceptedSubmission = problem.submissions.some(
-        (submission) => submission.status === "ACCEPTED",
-      );
-      const hasSubmission = problem.submissions.length > 0;
+    // Create a map of problem IDs to their submission status
+    const submissionStatusMap = new Map();
+    userSubmissions.forEach((submission) => {
+      if (
+        submission.status === "ACCEPTED" ||
+        !submissionStatusMap.has(submission.problemId)
+      ) {
+        submissionStatusMap.set(submission.problemId, submission.status);
+      }
+    });
 
-      return {
-        id: problem.id,
-        title: problem.title,
-        difficulty: problem.difficulty,
-        status: acceptedSubmission
+    // Transform the data to include status
+    const transformedProblems = problems.map((problem) => ({
+      ...problem,
+      status:
+        submissionStatusMap.get(problem.id) === "ACCEPTED"
           ? "ACCEPTED"
-          : hasSubmission
+          : submissionStatusMap.has(problem.id)
             ? "ATTEMPTED"
             : "NOT ATTEMPTED",
-      };
-    });
+    }));
 
     return { data: transformedProblems };
   } catch (error) {

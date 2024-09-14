@@ -9,9 +9,16 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Home } from "lucide-react";
 import { usePathname } from "next/navigation";
-import React from "react";
-
-const BreadCrumbs: React.FC = () => {
+import React, { SetStateAction } from "react";
+import { ImMenu } from "react-icons/im";
+interface BreadCrumbsProps {
+  menuShowMobile: boolean;
+  setMenuShowMobile: React.Dispatch<SetStateAction<boolean>>;
+}
+const BreadCrumbs = ({
+  menuShowMobile,
+  setMenuShowMobile,
+}: BreadCrumbsProps) => {
   const pathname = usePathname();
 
   const pathParts = pathname
@@ -49,6 +56,12 @@ const BreadCrumbs: React.FC = () => {
           </React.Fragment>
         ))}
       </BreadcrumbList>
+      <div
+        onClick={() => setMenuShowMobile((prev) => !prev)}
+        className={`hidden max-sm:block  ml-auto text-stone-600 dark:text-stone-400`}
+      >
+        <ImMenu size={25} />
+      </div>
     </Breadcrumb>
   );
 };

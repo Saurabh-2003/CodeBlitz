@@ -14,6 +14,8 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getProblemData } from "@/core/actions/problem";
 import { getProblemSubmissionsOfUser } from "@/core/actions/user";
+import fetchUser from "@/lib/features/profile/profileReducer";
+import { useAppDispatch } from "@/lib/hooks";
 import ReactCodeMirror, {
   EditorState,
   EditorView,
@@ -93,7 +95,6 @@ type Topic = {
   };
 };
 
-
 type Hint = {
   id: string;
   name: string;
@@ -108,7 +109,7 @@ type Problem = {
   id: string;
   title: string;
   description: string;
-  difficulty: 'EASY' | 'MEDIUM' | 'HARD';
+  difficulty: "EASY" | "MEDIUM" | "HARD";
   createdAt: Date;
   updatedAt: Date;
   submissions: Submission[];
@@ -126,7 +127,12 @@ type Submission = {
   id: string;
   language?: string | null;
   code: string;
-  status: 'ACCEPTED' | 'WRONG_ANSWER' | 'TIME_LIMIT_EXCEEDED' | 'RUNTIME_ERROR' | 'COMPILE_ERROR';
+  status:
+    | "ACCEPTED"
+    | "WRONG_ANSWER"
+    | "TIME_LIMIT_EXCEEDED"
+    | "RUNTIME_ERROR"
+    | "COMPILE_ERROR";
   createdAt: Date;
   userId: string;
   problemId: string;
@@ -142,21 +148,27 @@ const ProblemPage: React.FC = () => {
   const [question, setQuestion] = useState<Problem | null>(null);
   const [testCases, setTestCases] = useState<TestCaseResult[]>([]);
   const [submission, setSubmission] = useState<any>(null);
-  const [previousSubmissions, setPreviousSubmission] = useState<ProblemSubmission[]>([]);
+  const [previousSubmissions, setPreviousSubmission] = useState<
+    ProblemSubmission[]
+  >([]);
   const [driverCode, setDriverCode] = useState<{
     cpp: string;
     javascript: string;
     python: string;
   } | null>(null);
   const [compileError, setCompileError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<string>('testcase')
+  const [activeTab, setActiveTab] = useState<string>("testcase");
+  const dispatch = useAppDispatch();
+  useEffect(() => {
+    dispatch(fetchUser());
+  }, [dispatch]);
 
   useEffect(() => {
     const fetchProblemData = async () => {
       try {
         console.log(`id : ${id}`);
         const { problem } = await getProblemData(id as string);
-        setQuestion(problem ?? null);  // If problem is undefined or null, set null
+        setQuestion(problem ?? null); // If problem is undefined or null, set null
 
         // Update driverCode only after question is set
         if (problem) {
@@ -178,7 +190,11 @@ const ProblemPage: React.FC = () => {
       // Ensure `id` is a string
       const problemId = Array.isArray(id) ? id[0] : id;
 
-      const { error, success, problemSubmissions }:GetProblemSubmissionsResponse =
+      const {
+        error,
+        success,
+        problemSubmissions,
+      }: GetProblemSubmissionsResponse =
         await getProblemSubmissionsOfUser(problemId);
       console.log(problemSubmissions);
       if (!success) {
@@ -333,7 +349,7 @@ const ProblemPage: React.FC = () => {
 
                       <Tabs defaultValue="testcase-0" className="text-zinc-500">
                         <TabsList className="space-x-2 bg-transparent">
-                          {testCases?.map((test, index:number) => (
+                          {testCases?.map((test, index: number) => (
                             <TabsTrigger
                               className={`
                                 px-4 py-2 rounded-md transition-colors text-xs

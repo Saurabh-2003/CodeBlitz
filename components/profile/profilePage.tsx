@@ -17,17 +17,17 @@ const Profilepage = () => {
   const { data: session, status } = useSession();
 
   useEffect(() => {
-     if (status === "unauthenticated") {
+    if (status === "unauthenticated") {
       router.push("/");
     }
-  }, [ status, router]);
+  }, [status, router]);
   const dispatch = useAppDispatch();
-  useEffect(()=>{
-    dispatch(fetchUser())
-  }, [dispatch])
+  useEffect(() => {
+    dispatch(fetchUser());
+  }, [dispatch]);
 
-  const  user  = useAppSelector((state) => state.profile.user);
-  console.log("user from redux : ", user)
+  const user = useAppSelector((state) => state.profile.user);
+  console.log("user from redux : ", user);
   const location = usePathname();
   const [recentAC, setRecentAC] = useState<RecentACSubmission[]>([]);
   const [problemCounts, setProblemCounts] = useState({
@@ -35,7 +35,6 @@ const Profilepage = () => {
     MEDIUM: 0,
     HARD: 0,
   });
-
 
   useEffect(() => {
     if (user) {
@@ -59,20 +58,20 @@ const Profilepage = () => {
       </div>
 
       <div className="flex flex-col gap-4 shadow-md border  rounded-xl w-full min-h-dvh  p-8">
-        <Label className="text-center bg-gray-200 dark:bg-stone-900/50 py-4 rounded-md border">
+        <Label className="text-center bg-gray-200 dark:bg-zinc-800 py-4 rounded-md border">
           Recent AC
         </Label>
         {recentAC.length > 0 ? (
           <ul className="flex text-sm flex-col gap-2">
             {recentAC.map((d, index) => (
               <li
-                className="flex p-4 odd:bg-zinc-100 dark:odd:bg-stone-900/30 rounded-xl justify-between items-center"
+                className="flex p-4 odd:bg-zinc-100 dark:odd:bg-zinc-900 rounded-xl justify-between items-center"
                 key={index}
               >
-                <span className="text-slate-800 dark:text-slate-500">
+                <span className="text-slate-800 dark:text-zinc-400">
                   {d.title}
                 </span>
-                <span className="text-slate-500 dark:text-slate-600">
+                <span className="text-slate-500 dark:text-zinc-400">
                   {d.daysAgo}
                 </span>
               </li>

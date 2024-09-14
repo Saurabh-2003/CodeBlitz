@@ -124,7 +124,7 @@ export function UserDataTable<TData extends DataType, TValue>({
               </Select>
             </div>
           </div>
-          <div className="flex bg-gray-100 items-center px-3 rounded-md">
+          <div className="flex items-center  rounded-md border bg-zinc-100 px-2 dark:bg-zinc-800">
             <Search size={20} className="text-gray-500" />
             <Input
               placeholder="Search Users"
@@ -162,7 +162,10 @@ export function UserDataTable<TData extends DataType, TValue>({
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row, index) => (
                 <TableRow
-                  className={cn("border-b-0", index % 2 !== 0 && "bg-gray-100")}
+                  className={cn(
+                    "border-b-0",
+                    index % 2 !== 0 && "bg-gray-100 dark:bg-zinc-900",
+                  )}
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
                 >

@@ -307,8 +307,14 @@ function DeleteUserDialog({
         {selectedUser && (
           <div>
             <p>Are you sure you want to delete {selectedUser.name}?</p>
-            <Button onClick={onDelete}>Delete</Button>
-            <Button onClick={() => onOpenChange(false)}>Cancel</Button>
+            <div className="flex justify-between w-full mt-5">
+              <Button variant={"destructive"} onClick={onDelete}>
+                Delete
+              </Button>
+              <Button variant={"secondary"} onClick={() => onOpenChange(false)}>
+                Cancel
+              </Button>
+            </div>
           </div>
         )}
       </DialogContent>

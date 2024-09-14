@@ -44,8 +44,10 @@ const Circle: React.FC<CircleProps> = ({ totalSolved, totalProblems }) => {
         </svg>
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transform cursor-default text-center">
           <div>
-            <div className="text-[24px] font-medium ">{totalSolved}</div>
-            <div className="whitespace-nowrap text-xs text-label-3 text-[#9FA0A5]">
+            <div className="text-[24px] font-medium dark:text-zinc-200 ">
+              {totalSolved}
+            </div>
+            <div className="whitespace-nowrap text-xs text-label-3 dark:text-zinc-400">
               Solved
             </div>
           </div>
@@ -91,12 +93,14 @@ const Questions: React.FC<QuestionsProps> = ({
   return (
     <div className="mb-2">
       <div className="flex justify-between w-[200px] mb-1">
-        <p className="w-[50px]  text-sm">{type}</p>
+        <p className="w-[50px] dark:text-zinc-200  text-sm">{type}</p>
         <div className="flex items-center">
-          <span className="ml-[9px] mr-[5px] text-xs font-medium leading-[20px] text-stone-500">
+          <span className="ml-[9px] mr-[5px] text-xs dark:text-zinc-300 font-medium leading-[20px] text-stone-500">
             {solved}
           </span>
-          <span className="text-sm font-medium text-stone-700">/{total}</span>
+          <span className="text-sm font-medium text-stone-700 dark:text-zinc-300">
+            /{total}
+          </span>
         </div>
       </div>
       <Line color={color} total={total} solved={solved} />

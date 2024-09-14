@@ -158,7 +158,7 @@ export default function DashboardProblems() {
   return (
     <main className="grid flex-1 items-start gap-4 md:gap-8">
       <div className="flex items-center justify-between mb-4">
-        <div className="flex gap-4 items-center">
+        <div className="flex gap-4 items-center ">
           <Select
             onValueChange={(value) =>
               setDifficultyFilter(value === "all" ? "all" : value)
@@ -175,20 +175,18 @@ export default function DashboardProblems() {
             </SelectContent>
           </Select>
 
-          <div className="flex bg-gray-100 items-center px-3 rounded-md">
-            <Input
-              placeholder="Search Problems"
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              className="max-w-sm border-none focus-visible:ring-offset-0 bg-inherit focus-visible:ring-0"
-            />
-          </div>
+          <Input
+            placeholder="Search Problems"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            className=" border-none border bg-zinc-100 dark:bg-zinc-800 dark:text-zinc-300 focus-visible:ring-offset-0  focus-visible:ring-0"
+          />
         </div>
         <div className="ml-auto flex items-center gap-2">
           <Link href={"/dashboard/create-problem"}>
-            <Button className=" gap-1">
+            <Button className=" gap-1 dark:bg-zinc-800 dark:text-stone-200">
               <PlusCircle className="h-3.5 w-3.5" />
-              <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+              <span className="sr-only sm:not-sr-only  sm:whitespace-nowrap">
                 Add Problem
               </span>
             </Button>

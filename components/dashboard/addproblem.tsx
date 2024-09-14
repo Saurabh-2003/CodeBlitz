@@ -219,7 +219,7 @@ export const AddProblem = () => {
   return (
     <div className="w-full h-full antialiased items-center justify-center">
       <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-4">
-        <div className="flex items-center justify-between mb-10 bg-zinc-200 p-4 rounded-md border border-zinc-400">
+        <div className="flex items-center justify-between mb-10 dark:bg-zinc-800 dark:border-zinc-600 bg-zinc-200 p-4 rounded-md border border-zinc-400">
           <h2 className="text-2xl font-bold">Create Problem</h2>
           <Button type="submit" disabled={isLoading}>
             {isLoading ? <Loader className="h-4 w-4 animate-spin" /> : "Submit"}
@@ -459,9 +459,24 @@ export const AddProblem = () => {
           <Label>Driver Function</Label>
           <Tabs defaultValue="c++" className="w-full">
             <TabsList>
-              <TabsTrigger value="c++">C++</TabsTrigger>
-              <TabsTrigger value="python">Python</TabsTrigger>
-              <TabsTrigger value="javascript">Javascript</TabsTrigger>
+              <TabsTrigger
+                className="data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-700"
+                value="c++"
+              >
+                C++
+              </TabsTrigger>
+              <TabsTrigger
+                className="data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-700"
+                value="python"
+              >
+                Python
+              </TabsTrigger>
+              <TabsTrigger
+                className="data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-700"
+                value="javascript"
+              >
+                Javascript
+              </TabsTrigger>
             </TabsList>
             <TabsContent value="c++">
               <Textarea
