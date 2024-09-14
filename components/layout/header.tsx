@@ -1,21 +1,13 @@
 "use client";
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { useTheme } from "@/core/context/theme-context";
 import { useAdminCheck } from "@/core/hooks/verify-admin-user";
-import { DashboardIcon } from "@radix-ui/react-icons";
-import { LogInIcon } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { BsSun } from "react-icons/bs";
 import { MdDarkMode } from "react-icons/md";
-import { PiSignOut } from "react-icons/pi";
+import UserDropdownMenu from "../common/user-dropdown-header";
 
 const Header = () => {
   const pathname = usePathname();
@@ -93,67 +85,7 @@ const Header = () => {
         )}
 
         {/* User Dropdown Menu */}
-        <DropdownMenu>
-          <DropdownMenuTrigger>
-            <div className="cursor-pointer">
-              <Image
-                src={session?.user?.image || "/images/placeholder.jpg"}
-                width={25}
-                height={25}
-                alt="User avatar"
-                className="rounded-full"
-              />
-            </div>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            {status === "unauthenticated" ? (
-              <DropdownMenuItem
-                className="gap-x-2 cursor-pointer"
-                onClick={() => router.push("/auth")}
-              >
-                <LogInIcon />
-                <span>Sign In</span>
-              </DropdownMenuItem>
-            ) : (
-              <>
-                {/* Profile Link */}
-                <DropdownMenuItem
-                  className="gap-x-2 cursor-pointer"
-                  onClick={() => router.push("/profile")}
-                >
-                  <Image
-                    src={session?.user?.image || "/images/placeholder.jpg"}
-                    alt="User Image"
-                    height={30}
-                    width={30}
-                    className="rounded-full"
-                  />
-                  <span>{session?.user?.name || "User"}</span>
-                </DropdownMenuItem>
-
-                {/* Admin Dashboard Link (for Admin users) */}
-                {isAdmin && (
-                  <DropdownMenuItem
-                    className="gap-x-2 cursor-pointer"
-                    onClick={() => router.push("/dashboard")}
-                  >
-                    <DashboardIcon />
-                    <span>Dashboard</span>
-                  </DropdownMenuItem>
-                )}
-
-                {/* Sign Out */}
-                <DropdownMenuItem
-                  className="gap-x-2 cursor-pointer"
-                  onClick={() => router.push("/auth/logout")}
-                >
-                  <PiSignOut />
-                  <span>Sign Out</span>
-                </DropdownMenuItem>
-              </>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <UserDropdownMenu />
       </div>
     </header>
   );

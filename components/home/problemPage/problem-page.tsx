@@ -16,10 +16,6 @@ import { getProblemData } from "@/core/actions/problem";
 import { getProblemSubmissionsOfUser } from "@/core/actions/user";
 import fetchUser from "@/lib/features/profile/profileReducer";
 import { useAppDispatch } from "@/lib/hooks";
-import ReactCodeMirror, {
-  EditorState,
-  EditorView,
-} from "@uiw/react-codemirror";
 import dynamic from "next/dynamic";
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -219,21 +215,27 @@ const ProblemPage: React.FC = () => {
         >
           <ResizablePanel
             defaultSize={40}
-            className="bg-white p-2 w-full rounded-lg border-2 "
+            className="bg-white dark:bg-zinc-900 p-2 w-full rounded-lg border-2 "
           >
             <Tabs
               defaultValue="description"
               className="w-full h-full overflow-auto"
             >
               <TabsList className="bg-transparent">
-                <TabsTrigger value="description" className="gap-1">
+                <TabsTrigger
+                  value="description"
+                  className="data-[state=active]:bg-white gap-1 dark:data-[state=active]:bg-zinc-700"
+                >
                   <BsFillFileTextFill
                     className="text-blue-400 group-focus:text-red-500"
                     size={18}
                   />
                   Description
                 </TabsTrigger>
-                <TabsTrigger value="submissions" className="gap-1">
+                <TabsTrigger
+                  value="submissions"
+                  className="data-[state=active]:bg-white gap-1 dark:data-[state=active]:bg-zinc-700"
+                >
                   <FaHistory size={16} className="text-blue-400" />
                   Submissions
                 </TabsTrigger>
@@ -280,7 +282,7 @@ const ProblemPage: React.FC = () => {
                           </div>
                         </AccordionTrigger>
                         <AccordionContent>
-                          <pre className="w-full border  overflow-x-auto p-4 bg-gray-100 rounded-xl ">
+                          <pre className="w-full border dark:bg-zinc-800  overflow-x-auto p-4 bg-gray-100 rounded-xl ">
                             {" "}
                             {ps?.code}
                           </pre>
@@ -301,7 +303,7 @@ const ProblemPage: React.FC = () => {
             <ResizablePanelGroup direction="vertical" className="gap-1">
               <ResizablePanel
                 defaultSize={65}
-                className="bg-white p-2 rounded-xl border-2 w-full h-full overflow-x-auto"
+                className="bg-white p-2 rounded-xl dark:bg-zinc-900 border-2 w-full h-full overflow-x-auto"
               >
                 <Editor
                   setCompileError={setCompileError}
@@ -317,23 +319,29 @@ const ProblemPage: React.FC = () => {
 
               <ResizablePanel
                 defaultSize={35}
-                className="bg-white flex flex-col p-2 rounded-xl border-2 w-full h-full overflow-x-auto"
+                className="bg-white flex flex-col p-2 dark:bg-zinc-900 rounded-xl border-2 w-full h-full overflow-x-auto"
               >
                 <div className="flex w-full overflow-x-auto overflow-y-auto h-full items-center justify-center">
                   <Tabs
                     defaultValue="testcase"
-                    className="w-full h-full overflow-x-auto text-sm overflow-y-auto"
+                    className="w-full h-full overflow-x-auto  text-sm overflow-y-auto"
                   >
                     <TabsList className="bg-transparent">
-                      <TabsTrigger value="testcase" className="gap-1">
+                      <TabsTrigger
+                        value="testcase"
+                        className="data-[state=active]:bg-zinc-100 dark:data-[state=active]:bg-zinc-700 gap-1"
+                      >
                         <IoIosCheckboxOutline
-                          className="text-green-400"
+                          className="text-emerald-500"
                           size={18}
                         />
                         Test case
                       </TabsTrigger>
-                      <TabsTrigger value="testresult" className="gap-1">
-                        <FaTerminal size={18} className="text-green-400" />
+                      <TabsTrigger
+                        value="testresult"
+                        className="data-[state=active]:bg-zinc-100 dark:data-[state=active]:bg-zinc-700 gap-1"
+                      >
+                        <FaTerminal size={18} className="text-emerald-500" />
                         Result
                       </TabsTrigger>
                     </TabsList>
@@ -377,7 +385,7 @@ const ProblemPage: React.FC = () => {
                                 <p className="font-medium text-stone-600">
                                   Input:
                                 </p>
-                                <p className="rounded-sm w-full py-4 bg-slate-100 px-4 mt-1">
+                                <p className="rounded-sm w-full py-4 bg-slate-100 dark:bg-zinc-800 dark:text-zinc-200 px-4 mt-1">
                                   {test.input}
                                 </p>
                               </div>
@@ -385,7 +393,7 @@ const ProblemPage: React.FC = () => {
                                 <p className="font-medium text-stone-600">
                                   Your Output:
                                 </p>
-                                <p className="rounded-sm w-full py-4 bg-slate-100 px-4 mt-1">
+                                <p className="rounded-sm w-full py-4 bg-slate-100 dark:bg-zinc-800 dark:text-zinc-200 px-4 mt-1">
                                   {test.output}
                                 </p>
                               </div>
@@ -393,7 +401,7 @@ const ProblemPage: React.FC = () => {
                                 <p className="font-medium text-stone-600">
                                   Expected Output:
                                 </p>
-                                <p className="rounded-sm w-full py-4 bg-slate-100 px-4 mt-1">
+                                <p className="rounded-sm w-full py-4 bg-slate-100 dark:bg-zinc-800 dark:text-zinc-200 px-4 mt-1">
                                   {test.expectedOutput}
                                 </p>
                               </div>
@@ -491,21 +499,15 @@ const ProblemPage: React.FC = () => {
                             </>
                           )}
                           {submission && (
-                            <div className="rounded-xl overflow-hidden border bg-stone-100">
-                              <p className="text-black font-semibold p-2">
+                            <div className="border dark:bg-zinc-800  overflow-x-auto p-4 bg-gray-100 rounded-xl">
+                              <p className="text-black dark:bg-zinc-900 dark:text-zinc-300 mb-2 font-semibold p-2">
                                 Submitted Code (Language -{" "}
                                 {submission?.language})
                               </p>
-                              <ReactCodeMirror
-                                value={submission?.codeSnippet}
-                                width="100%"
-                                className="h-full"
-                                basicSetup={{ lineNumbers: false }}
-                                extensions={[
-                                  EditorView.editable.of(false),
-                                  EditorState.readOnly.of(true),
-                                ]}
-                              />
+
+                              <pre className="w-full  ">
+                                {submission?.codeSnippet}
+                              </pre>
                             </div>
                           )}
                         </div>
@@ -513,8 +515,8 @@ const ProblemPage: React.FC = () => {
                     </TabsContent>
                   </Tabs>
                 </div>
-                <div className="flex items-center gap-2 text-sm bg-slate-100 h-10 px-4 text-zinc-500">
-                  <IoCodeSlashOutline size={18} />
+                <div className="flex items-center gap-2 dark:bg-zinc-800 rounded-sm dark:text-zinc-400 text-sm bg-slate-100 h-10 px-4 text-zinc-500">
+                  <IoCodeSlashOutline size={18} className="text-emerald-500" />
                   Source
                 </div>
               </ResizablePanel>

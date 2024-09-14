@@ -8,9 +8,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { submitAllCode } from "@/core/actions/coderun";
+import { useTheme } from "@/core/context/theme-context";
 import { useAppSelector } from "@/lib/hooks";
 import { loadLanguage } from "@uiw/codemirror-extensions-langs";
-import { xcodeLight } from "@uiw/codemirror-theme-xcode";
+import { xcodeDark, xcodeLight } from "@uiw/codemirror-theme-xcode";
 import ReactCodeMirror from "@uiw/react-codemirror";
 import { revalidatePath } from "next/cache";
 import React, { SetStateAction, useEffect, useState } from "react";
@@ -54,7 +55,7 @@ const Editor: React.FC<EditorProps> = ({
     languageMap["cpp"],
   ); // Editor config
   const { user, isAuthenticated } = useAppSelector((state) => state.profile);
-
+  const { theme } = useTheme();
   // Update editor extensions when language changes
   useEffect(() => {
     setEditorExtensions(languageMap[language]);
@@ -129,10 +130,10 @@ const Editor: React.FC<EditorProps> = ({
   return (
     <div className="flex flex-col h-full">
       {/* Header with language selector */}
-      <div className="flex text-zinc-600 justify-between items-center p-2 bg-zinc-100/50">
+      <div className="flex text-zinc-600 justify-between items-center rounded-xl p-2 dark:bg-zinc-950/30 mb-2 bg-zinc-100/50">
         <div className="flex gap-8">
-          <div className="flex items-center gap-1 text-sm">
-            <IoCodeSlashOutline size={20} className="text-green-500" />
+          <div className="flex items-center gap-1 text-sm dark:text-zinc-200">
+            <IoCodeSlashOutline size={20} className="text-emerald-500" />
             Code
           </div>
 
@@ -141,7 +142,7 @@ const Editor: React.FC<EditorProps> = ({
             disabled={loadingRun || isSubmitting}
             onValueChange={(value) => setLanguage(value)}
           >
-            <SelectTrigger className="border w-36 rounded text-xs py-1 outline-none cursor-pointer">
+            <SelectTrigger className="border w-36 dark:text-zinc-200 dark:bg-zinc-800 rounded text-xs py-1 outline-none cursor-pointer">
               <SelectValue placeholder="Select Language" />
             </SelectTrigger>
             <SelectContent>
@@ -158,7 +159,7 @@ const Editor: React.FC<EditorProps> = ({
         >
           {/* Run button */}
           <button
-            className={`flex gap-2 bg-zinc-200 rounded-sm py-2 px-4 items-center transition-all duration-500 ${
+            className={`flex gap-2 bg-zinc-200 rounded-sm dark:bg-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800 py-2 px-4 items-center transition-all duration-500 ${
               isSubmitting ? "w-0 opacity-0" : "w-fit opacity-100"
             } ${!isAuthenticated ? "opacity-50" : ""}`}
             onClick={() => handleCodeExecution(true)}
@@ -181,9 +182,10 @@ const Editor: React.FC<EditorProps> = ({
           <button
             onClick={() => handleCodeExecution(false)}
             disabled={loadingRun || isSubmitting}
-            className={`flex gap-2 cursor-pointer bg-zinc-200 transition-all duration-500 text-green-600 rounded-sm items-center ${
-              loadingRun ? "w-0 opacity-0" : "w-fit py-2 px-4 opacity-100"
-            } ${!isAuthenticated ? "opacity-50" : ""}`}
+            className={`flex gap-2 dark:bg-zinc-700 dark:hover:bg-zinc-800  cursor-pointer bg-zinc-200
+              transition-all duration-500 text-emerald-500 rounded-sm items-center ${
+                loadingRun ? "w-0 opacity-0" : "w-fit py-2 px-4 opacity-100"
+              } ${!isAuthenticated ? "opacity-50" : ""}`}
           >
             {isSubmitting ? (
               <div className="flex items-center gap-2">
@@ -205,7 +207,7 @@ const Editor: React.FC<EditorProps> = ({
         <ReactCodeMirror
           value={code}
           extensions={[editorExtensions]}
-          theme={xcodeLight}
+          theme={theme === "dark" ? xcodeDark : xcodeLight}
           onChange={(value) => setCode(value)}
           width="100%"
           className="h-full"

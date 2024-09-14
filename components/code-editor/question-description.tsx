@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/accordion";
 import { FaRegLightbulb } from "react-icons/fa";
 import { GoTag } from "react-icons/go";
+import { Badge } from "../ui/badge";
 import { Label } from "../ui/label";
 
 // Type definitions
@@ -65,7 +66,7 @@ const Constraint: React.FC<ConstraintProps> = ({ text }) => {
   };
 
   return (
-    <div className="border bg-zinc-100 rounded-sm text-zinc-600 border-slate-300 text-xs px-2 py-1 w-fit">
+    <div className="border bg-zinc-100 dark:bg-zinc-700 dark:text-zinc-300 dark:border-zinc-500 rounded-sm text-zinc-600 border-slate-300 text-xs px-2 py-1 w-fit">
       {renderText(text)}
     </div>
   );
@@ -82,13 +83,13 @@ const QuestionDescription: React.FC<QuestionDescriptionProps> = ({
   topics,
 }) => (
   <div className="flex flex-col gap-2 p-4 w-full">
-    <span className="text-xl font-bold ">{title}</span>
+    <span className="text-xl font-bold dark:text-zinc-200">{title}</span>
 
     <div className="flex gap-2 mb-2">
       <span
         className={`text-xs w-16 text-balance text-center py-1 rounded-full ${
           level === "EASY"
-            ? "bg-green-100 text-green-800"
+            ? "bg-green-100 dark:bg-green-500/20 dark:text-emerald-500 text-green-800"
             : level === "MEDIUM"
               ? "bg-amber-200/50 text-yellow-500"
               : "bg-red-100 text-red-800"
@@ -124,12 +125,12 @@ const QuestionDescription: React.FC<QuestionDescriptionProps> = ({
         </AccordionTrigger>
         <AccordionContent className="my-1 flex gap-2 flex-wrap">
           {topics.map((topic) => (
-            <span
+            <Badge
+              className="bg-zinc-700 dark:text-zinc-300"
               key={topic.topicId}
-              className="text-xs w-fit px-3 border border-zinc-200 bg-zinc-100 text-zinc-600 text-center py-[2px] rounded-full"
             >
               {topic?.topic?.name}
-            </span>
+            </Badge>
           ))}
         </AccordionContent>
       </AccordionItem>
@@ -145,7 +146,9 @@ const QuestionDescription: React.FC<QuestionDescriptionProps> = ({
                 <span>Hint {index}</span>
               </div>
             </AccordionTrigger>
-            <AccordionContent>{hint?.name}</AccordionContent>
+            <AccordionContent className="dark:text-zinc-300">
+              {hint?.name}
+            </AccordionContent>
           </AccordionItem>
         </Accordion>
       ))}
